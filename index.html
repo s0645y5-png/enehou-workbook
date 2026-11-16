@@ -2,155 +2,208 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="エネルギー法">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="apple-touch-icon.png">
 <title>エネルギー法ワークブック</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <style>
-/* レイアウト：上に見出しとタブ、本文は1列。計算タブは「入力（左）→結果（右）」、狭い画面では縦に並ぶ */
+/* デザインの方針：Apple の標準アプリ（設定・メモ・ヘルスケア）に合わせる
+   - 文字はシステムフォント（SF Pro／ヒラギノ角ゴ）。数字は桁がそろう表示
+   - 色は Apple の標準色（青 #007AFF、灰色の背景 #F2F2F7、角丸 12px のカード、細い区切り線）
+   - iPhone（幅 700px 未満）：下にタブバー。iPad・Mac：上のツールバーに切り替えボタン
+   - 動き：画面の切り替えはふわっと、押したときは少し薄く。動きを減らす設定の端末では動かさない */
 :root{
-  --bg:#f4f6f8; --panel:#ffffff; --ink:#18212b; --sub:#55606d; --line:#d7dde4; --soft:#e9eef3;
-  --accent:#1d5fa8; --accent-soft:#e3edf8; --damper:#b0640a; --damper-soft:#f8ecdc;
-  --ok:#1f7a4a; --ok-soft:#e1f2e8; --ng:#b3261e; --ng-soft:#fbe5e3; --warn:#8a6100; --warn-soft:#fbf1d6;
-  --f-disp:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
-  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
-  --f-num:"IBM Plex Mono",ui-monospace,"Consolas",monospace;
+  --bg:#f2f2f7; --panel:#ffffff; --ink:#000000; --ink2:#3c3c43; --sub:#6e6e73; --line:rgba(60,60,67,.16); --soft:#f2f2f7; --fill:rgba(118,118,128,.12);
+  --accent:#007aff; --accent-soft:rgba(0,122,255,.1); --damper:#c93400; --damper-soft:rgba(255,149,0,.14);
+  --ok:#248a3d; --ok-soft:rgba(52,199,89,.15); --ng:#d70015; --ng-soft:rgba(255,59,48,.12); --warn:#a05a00; --warn-soft:rgba(255,204,0,.2);
+  --bar:rgba(249,249,249,.82);
+  --f-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --f-disp:-apple-system,BlinkMacSystemFont,"SF Pro Display","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --f-num:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:12px; --ease:cubic-bezier(.2,.8,.2,1);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#12171d; --panel:#1a2129; --ink:#e4e9ef; --sub:#9aa6b3; --line:#2e3843; --soft:#222b35;
-  --accent:#6fa8e8; --accent-soft:#1d2f44; --damper:#e3a052; --damper-soft:#3a2a17;
-  --ok:#5cc28c; --ok-soft:#173326; --ng:#f08a82; --ng-soft:#3d1e1c; --warn:#e3c060; --warn-soft:#352c14; color-scheme:dark}}
+  --bg:#000000; --panel:#1c1c1e; --ink:#ffffff; --ink2:#ebebf5; --sub:#98989d; --line:rgba(84,84,88,.6); --soft:#2c2c2e; --fill:rgba(118,118,128,.24);
+  --accent:#0a84ff; --accent-soft:rgba(10,132,255,.18); --damper:#ff9f0a; --damper-soft:rgba(255,159,10,.16);
+  --ok:#30d158; --ok-soft:rgba(48,209,88,.16); --ng:#ff453a; --ng-soft:rgba(255,69,58,.16); --warn:#ffd60a; --warn-soft:rgba(255,214,10,.14);
+  --bar:rgba(22,22,24,.8); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#12171d; --panel:#1a2129; --ink:#e4e9ef; --sub:#9aa6b3; --line:#2e3843; --soft:#222b35;
-  --accent:#6fa8e8; --accent-soft:#1d2f44; --damper:#e3a052; --damper-soft:#3a2a17;
-  --ok:#5cc28c; --ok-soft:#173326; --ng:#f08a82; --ng-soft:#3d1e1c; --warn:#e3c060; --warn-soft:#352c14; color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+  --bg:#000000; --panel:#1c1c1e; --ink:#ffffff; --ink2:#ebebf5; --sub:#98989d; --line:rgba(84,84,88,.6); --soft:#2c2c2e; --fill:rgba(118,118,128,.24);
+  --accent:#0a84ff; --accent-soft:rgba(10,132,255,.18); --damper:#ff9f0a; --damper-soft:rgba(255,159,10,.16);
+  --ok:#30d158; --ok-soft:rgba(48,209,88,.16); --ng:#ff453a; --ng-soft:rgba(255,69,58,.16); --warn:#ffd60a; --warn-soft:rgba(255,214,10,.14);
+  --bar:rgba(22,22,24,.8); color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;font-feature-settings:"palt" 0}
+button,a,input,select,textarea,summary,label{touch-action:manipulation}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header.top{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
-.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding-block:10px 0}
-.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
-.brand h1{font-family:var(--f-disp);font-size:21px;margin:0;letter-spacing:.04em;text-wrap:balance}
-.brand small{color:var(--sub);font-size:12px}
-nav.tabs{display:flex;gap:2px;overflow-x:auto;width:100%;scrollbar-width:none}
-nav.tabs button{font:inherit;font-size:14px;border:0;background:none;color:var(--sub);padding:8px 12px 10px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
-nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
-nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 上のバー（すりガラス） */
+header.top{position:sticky;top:0;z-index:20;background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:8px 20px;min-height:52px}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0;flex:1}
+.brand h1{font-family:var(--f-disp);font-size:17px;font-weight:600;margin:0;letter-spacing:0;white-space:nowrap}
+.brand small{color:var(--sub);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* iPad・Mac：切り替えボタン（セグメント） */
+nav.tabs{display:flex;gap:2px;background:var(--fill);border-radius:9px;padding:2px;flex:none}
+nav.tabs button{font:inherit;font-size:13px;font-weight:500;border:0;background:transparent;color:var(--ink);padding:5px 12px;border-radius:7px;cursor:pointer;white-space:nowrap;transition:background .2s var(--ease),box-shadow .2s var(--ease)}
+nav.tabs button svg{display:none}
+nav.tabs button .s{display:none}
+nav.tabs button[aria-selected="true"]{background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04);font-weight:600}
+:root[data-theme="dark"] nav.tabs button[aria-selected="true"]{background:#636366}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) nav.tabs button[aria-selected="true"]{background:#636366}}
+@media (max-width:980px) and (min-width:700px){ .brand small{display:none} nav.tabs button{padding:5px 9px} }
+/* iPhone：下のタブバー */
+@media (max-width:699px){
+  /* すりガラスの効果があると下のタブバーが上のバーの中に閉じ込められるので、iPhone では上のバーは不透明にする */
+  header.top{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--bg)}
+  .brand{justify-content:center} .brand small{display:none}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;border-radius:0;padding:4px max(4px,env(safe-area-inset-left)) calc(2px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-right));background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--line);gap:0}
+  nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0 2px;border-radius:0;background:transparent!important;box-shadow:none!important;color:var(--sub);font-size:10px;font-weight:500;min-width:0;min-height:48px}
+  nav.tabs button svg{display:block;width:25px;height:25px}
+  nav.tabs button .l{display:none} nav.tabs button .s{display:block}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:600}
+  main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent-soft);outline-offset:1px;box-shadow:0 0 0 1px var(--accent)}
 main{padding-block:20px 60px}
-section.view{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+section.view{display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
 section.view>*{min-width:0}
+section.view.enter{animation:vin .32s var(--ease)}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 [hidden]{display:none!important}
-h2{font-family:var(--f-disp);font-size:22px;margin:0;letter-spacing:.03em;text-wrap:balance}
-h3{font-size:16px;margin:0 0 6px;text-wrap:balance}
+h2{font-family:var(--f-disp);font-size:28px;font-weight:700;margin:0;letter-spacing:.01em;line-height:1.25;text-wrap:balance}
+h3{font-size:17px;font-weight:600;margin:0 0 8px;text-wrap:balance}
 p{margin:0}
-.lead{color:var(--sub);max-width:70ch}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.lead{color:var(--sub);max-width:70ch;margin-top:6px;font-size:15px}
+.card{background:var(--panel);border-radius:var(--r);padding:18px 20px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
 .grid2>*{min-width:0}
-.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-size:13.5px}
-th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
-th{color:var(--sub);font-weight:500;font-size:12.5px;background:var(--soft)}
-td.n,th.n{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
-.mono{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:.5px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+tr:last-child>td{border-bottom:0}
+th{color:var(--sub);font-weight:500;font-size:12px;background:transparent}
+thead th{border-bottom:.5px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mono{font-variant-numeric:tabular-nums}
 .ref{font-size:12px;color:var(--sub);white-space:nowrap}
-.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+p.ref{white-space:normal;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.lesson>.row .btn{white-space:normal;text-align:left}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:999px;white-space:nowrap;vertical-align:1px}
 .ok{background:var(--ok-soft);color:var(--ok)} .ng{background:var(--ng-soft);color:var(--ng)} .wa{background:var(--warn-soft);color:var(--warn)}
 .dmp{background:var(--damper-soft);color:var(--damper)} .el{background:var(--accent-soft);color:var(--accent)}
-.row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
-label.f{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--sub)}
-input,select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:5px 7px}
-input[type=number],input.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;text-align:right;width:100%;min-width:72px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.seg button{font:inherit;font-size:13px;border:0;background:var(--panel);color:var(--sub);padding:6px 12px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
-.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:4px;padding:6px 12px;cursor:pointer}
-.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
-.inputs td{padding:3px 4px} .inputs th{white-space:nowrap}
-.inputs input{padding:4px 5px;font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--sub)}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--fill);border:0;border-radius:8px;padding:7px 10px;min-height:34px;transition:box-shadow .15s}
+select{-webkit-appearance:none;appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238e8e93' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px var(--accent-soft),0 0 0 1px var(--accent)}
+input[type=number],input.num{font-variant-numeric:tabular-nums;text-align:right;width:100%;min-width:76px}
+input[type=range]{background:transparent;padding:0;accent-color:var(--accent)}
+.seg{display:inline-flex;background:var(--fill);border-radius:9px;padding:2px;gap:2px}
+.seg button{font:inherit;font-size:13px;font-weight:500;border:0;background:transparent;color:var(--ink);padding:5px 14px;border-radius:7px;cursor:pointer;min-height:30px;transition:background .2s var(--ease)}
+.seg button[aria-pressed="true"]{background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;font:inherit;font-size:15px;font-weight:500;border:0;background:var(--fill);color:var(--accent);border-radius:10px;padding:7px 14px;min-height:36px;cursor:pointer;text-decoration:none;transition:opacity .15s,transform .15s var(--ease)}
+.btn.pri{background:var(--accent);color:#fff}
+.btn:active,.opt:active:not(:disabled),.pdfa:active,nav.tabs button:active,.seg button:active,.toc a:active{opacity:.55}
+.btn:active{transform:scale(.97)}
+.inputs td{padding:3px 3px;border-bottom:0} .inputs th{white-space:nowrap;padding:4px 6px}
+.inputs input{padding:5px 6px;font-size:14px;min-height:32px;border-radius:7px}
 .note{font-size:13px;color:var(--sub)}
-.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.sum .k{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--panel);display:flex;flex-direction:column;gap:2px;min-width:0}
-.sum .k b{font-family:var(--f-num);font-size:19px;font-weight:500}
-.sum .k span{font-size:12px;color:var(--sub)}
-.steps{display:grid;gap:0;counter-reset:s}
-.step{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
-.step::before{counter-increment:s;content:counter(s);font-family:var(--f-num);width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:13px}
-.step.d::before{background:var(--damper-soft);color:var(--damper)}
-.formula{font-family:var(--f-num);font-size:13.5px;background:var(--soft);padding:2px 6px;border-radius:3px;white-space:nowrap}
-details.card>summary{cursor:pointer;font-weight:700}
-.calc-lines{font-family:var(--f-num);font-size:12.5px;line-height:1.75;white-space:pre-wrap;background:var(--soft);border-radius:4px;padding:12px;margin:0;max-height:70vh;overflow:auto}
-.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.sum .k{border-radius:var(--r);padding:12px 14px;background:var(--panel);display:flex;flex-direction:column;gap:2px;min-width:0}
+.sum .k b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.sum .k span{font-size:12.5px;color:var(--sub)}
+.formula{font-size:14px;background:var(--fill);padding:2px 7px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+details.card>summary{cursor:pointer;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px}
+details>summary::-webkit-details-marker{display:none}
+details.card>summary::after,.toc>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(-45deg);margin-left:auto;transition:transform .25s var(--ease);flex:none}
+details[open].card>summary::after,.toc[open]>summary::after{transform:rotate(45deg)}
+.calc-lines{font-family:var(--f-mono);font-size:12.5px;line-height:1.75;white-space:pre-wrap;background:var(--panel);border-radius:var(--r);padding:16px;margin:0;max-height:70vh;overflow:auto}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
 .flow ol{margin:6px 0 0;padding-left:22px}
-.flow li{margin:3px 0}
-svg text{fill:var(--sub);font-family:var(--f-num);font-size:11px}
+.flow li{margin:4px 0}
+svg text{fill:var(--sub);font-family:var(--f-num);font-size:11px;font-variant-numeric:tabular-nums}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--sub)}
-.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:4px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
 .diff-ok{color:var(--ok)} .diff-ng{color:var(--ng)}
-/* 講座 */
-.course{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}
+
+/* 講座：iPad・Mac は左にサイドバー（目次）、iPhone は上に畳める目次 */
+.course{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;align-items:start}
 .course>*{min-width:0}
-.toc{position:sticky;top:100px;max-height:calc(100vh - 116px);overflow:auto}
-.toc summary{font-weight:700;cursor:pointer}
+.toc{position:sticky;top:calc(68px + env(safe-area-inset-top,0px));max-height:calc(100vh - 88px - env(safe-area-inset-top,0px));overflow:auto;padding:12px 10px;overscroll-behavior:contain}
+.toc summary{font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:2px 6px}
 .toc ol{list-style:none;margin:6px 0 0;padding:0}
-.toc .u{font-size:12.5px;color:var(--sub);margin:12px 0 2px;font-weight:700}
-.toc a{display:flex;gap:6px;align-items:baseline;padding:4px 6px;border-radius:4px;color:var(--ink);text-decoration:none;font-size:13.5px;cursor:pointer}
-.toc a:hover{background:var(--soft)}
-.toc a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.toc .u{font-size:12px;color:var(--sub);margin:14px 6px 4px;font-weight:600}
+.toc a{display:flex;gap:6px;align-items:baseline;padding:7px 8px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:14px;cursor:pointer;line-height:1.4;transition:background .15s}
+.toc a[aria-current="page"]{background:var(--accent);color:#fff;font-weight:600}
+.toc a[aria-current="page"] .mk{color:#fff}
 .toc .mk{width:1.1em;flex:none;color:var(--ok);font-weight:700}
-.toc .soon{color:var(--sub);font-size:12.5px;padding:2px 6px}
-@media (max-width:860px){ .course{grid-template-columns:minmax(0,1fr)} .toc{position:static;max-height:none} }
-.bar{height:6px;background:var(--soft);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--ok)}
-.lesson{display:grid;gap:16px}
-.lesson p+p{margin-top:8px}
-.lesson ul,.lesson ol{margin:0;padding-left:20px}
-.lesson li{margin:2px 0}
+.toc .soon{color:var(--sub);font-size:12.5px;padding:2px 8px}
+@media (hover:hover){ .toc a:hover:not([aria-current="page"]){background:var(--fill)} .btn:hover{filter:brightness(.97)} .opt:hover:not(:disabled){background:var(--fill)} .pdfa:hover{background:var(--accent-soft)} nav.tabs button:hover:not([aria-selected="true"]){background:rgba(118,118,128,.08)} }
+@media (max-width:860px){ .course{grid-template-columns:minmax(0,1fr);gap:16px} .toc{position:static;max-height:none} }
+.bar{height:4px;background:var(--fill);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .4s var(--ease)}
+.lesson{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.lesson>*,.lesson .card>*{min-width:0}
+.lesson>.row .btn{max-width:100%}
+@media (max-width:640px){ .formula{white-space:normal;overflow-wrap:anywhere} .lesson>.row{flex-direction:column;align-items:stretch} }
+.lesson p+p{margin-top:10px}
+.lesson ul,.lesson ol{margin:0;padding-left:22px}
+.lesson li{margin:4px 0}
 .blk>h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tag{font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:3px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
 .tag.t-q{background:var(--damper-soft);color:var(--damper)}
 .tag.t-ok{background:var(--ok-soft);color:var(--ok)}
-.crumb{font-size:12.5px;color:var(--sub)}
-.q{border:1px solid var(--line);border-radius:6px;padding:12px;display:grid;gap:8px;background:var(--panel)}
-.q+.q{margin-top:10px}
+.crumb{font-size:13px;color:var(--sub);margin-bottom:2px}
+.q{border-radius:var(--r);padding:14px;display:grid;gap:10px;background:var(--soft)}
+.q+.q{margin-top:12px}
 .qt{font-weight:500}
-.qn{font-family:var(--f-num);color:var(--sub);margin-right:6px}
-.opts{display:grid;gap:6px}
-.opt{font:inherit;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:8px 10px;cursor:pointer}
-.opt:hover:not(:disabled){border-color:var(--accent)}
-.opt:disabled{cursor:default;opacity:1}
-.opt.p-ok{background:var(--ok-soft);border-color:var(--ok)}
-.opt.p-ng{background:var(--ng-soft);border-color:var(--ng)}
+.qn{color:var(--sub);margin-right:6px;font-variant-numeric:tabular-nums;font-weight:600}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;font-size:15px;text-align:left;border:0;background:var(--panel);color:var(--ink);border-radius:10px;padding:11px 14px;min-height:44px;cursor:pointer;line-height:1.45;transition:background .2s var(--ease),box-shadow .2s var(--ease),opacity .15s}
+.opt:disabled{cursor:default;opacity:1;color:var(--ink)}
+.opt.p-ok{background:var(--ok-soft)}
+.opt.p-ng{background:var(--ng-soft)}
 .opt.is-ans{box-shadow:inset 0 0 0 2px var(--ok)}
-.fb{border-left:3px solid var(--line);padding:8px 12px;background:var(--soft);border-radius:0 4px 4px 0;font-size:14px}
-.fb.f-ok{border-left-color:var(--ok)} .fb.f-ng{border-left-color:var(--ng)}
+.fb{padding:12px 14px;background:var(--panel);border-radius:10px;font-size:15px;animation:vin .3s var(--ease)}
+.fb.f-ok{box-shadow:inset 3px 0 0 var(--ok)} .fb.f-ng{box-shadow:inset 3px 0 0 var(--ng)}
 .fb b.r-ok{color:var(--ok)} .fb b.r-ng{color:var(--ng)}
-.pdfv{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:stretch;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 10px 10px}
-.pdfv .box{background:var(--panel);border-radius:8px;width:min(1100px,100%);display:flex;flex-direction:column;overflow:hidden}
-.pdfv .bar2{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.pdfv .bar2 b{flex:1;min-width:0;font-size:14px}
+.pdfv{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;align-items:stretch;justify-content:center;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));animation:fade .2s ease}
+.pdfv .box{background:var(--panel);border-radius:14px;width:min(1100px,100%);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:sheet .35s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.pdfv .bar2{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:.5px solid var(--line);flex-wrap:wrap}
+.pdfv .bar2 b{flex:1;min-width:0;font-size:15px;font-weight:600}
 .pdfv iframe{flex:1;width:100%;border:0;background:#525659}
-.pdfa{display:inline-block;font-size:12.5px;cursor:pointer;background:none;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:0 7px;text-decoration:none;white-space:nowrap;font-family:var(--f-body)}
-.pdfa::before{content:"📄 "}
-.pdfa:hover{background:var(--accent-soft)}
-.linkbtn{font:inherit;font-size:13px;border:0;background:none;color:var(--accent);cursor:pointer;padding:0;text-decoration:underline}
-.ex td input{width:120px}
-.ex td input.good{border-color:var(--ok);background:var(--ok-soft)}
-.ex td input.bad{border-color:var(--ng)}
-.kflow{display:grid;gap:4px;max-width:620px}
-.kf{border:1px dashed var(--line);border-radius:4px;padding:5px 10px;font-size:13.5px}
-.kf.main{border:1.5px solid var(--accent);background:var(--accent-soft)}
-.hint{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:6px;padding:8px 12px;margin-bottom:16px;font-size:14px}
-.flash{animation:fl 2s ease-out}
-@keyframes fl{0%{box-shadow:0 0 0 4px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
-.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.pdfa{display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;background:var(--accent-soft);color:var(--accent);border:0;border-radius:999px;padding:2px 10px;min-height:26px;text-decoration:none;white-space:nowrap}
+.pdfa::before{content:"";width:12px;height:12px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2h8l6 6v14H6z' fill='none' stroke='black' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M9 13h7M9 17h7' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2h8l6 6v14H6z' fill='none' stroke='black' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M9 13h7M9 17h7' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.linkbtn{font:inherit;font-size:14px;border:0;background:none;color:var(--accent);cursor:pointer;padding:2px 0;min-height:28px}
+.ex td input{width:130px}
+.ex td input.good{box-shadow:0 0 0 2px var(--ok);background:var(--ok-soft)}
+.ex td input.bad{box-shadow:0 0 0 2px var(--ng)}
+.kflow{display:grid;gap:6px;max-width:620px}
+.kf{background:var(--soft);border-radius:8px;padding:7px 12px;font-size:14px}
+.kf.main{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.hint{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;background:var(--panel);box-shadow:inset 3px 0 0 var(--accent);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:14px;animation:vin .3s var(--ease)}
+.flash{animation:fl 1.6s var(--ease)}
+@keyframes fl{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
 .units .card{display:grid;gap:6px;align-content:start}
-textarea.memo{width:100%;min-height:70px;resize:vertical}
+textarea.memo{width:100%;min-height:80px;resize:vertical}
 .fig{max-width:640px}
-.fig figcaption{font-size:12.5px;color:var(--sub);margin-top:4px}
-@media (max-width:640px){ body{font-size:14.5px} .brand h1{font-size:19px} .card{padding:12px} }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.fig figcaption{font-size:12.5px;color:var(--sub);margin-top:6px}
+/* iPhone・iPad では入力欄を 16px 以上にする（それより小さいと Safari が勝手に拡大するため） */
+@media (pointer:coarse){ input,select,textarea,.inputs input{font-size:16px} .btn{min-height:44px} .seg button{min-height:36px} .toc a{padding:10px 8px} }
+@media (max-width:640px){ body{font-size:15.5px} h2{font-size:24px} .card{padding:16px} main{padding-top:14px} .grid2,.flow{gap:14px} }
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
 </head>
@@ -158,13 +211,13 @@ textarea.memo{width:100%;min-height:70px;resize:vertical}
 <header class="top">
   <div class="wrap">
     <div class="brand"><h1>エネルギー法ワークブック</h1><small>平17国交告第631号／鋼構造・履歴型ダンパー付き</small></div>
-    <nav class="tabs" role="tablist" id="tabs">
-      <button role="tab" data-v="course">講座</button>
-      <button role="tab" data-v="learn">早見表</button>
-      <button role="tab" data-v="calc">計算</button>
-      <button role="tab" data-v="design">設計の目安</button>
-      <button role="tab" data-v="margin">余裕度</button>
-      <button role="tab" data-v="report">計算書</button>
+    <nav class="tabs" role="tablist" id="tabs" aria-label="画面の切り替え">
+      <button role="tab" data-v="course"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5C6 4 9 4 12 6c3-2 6-2 9-.5V19c-3-1.5-6-1.5-9 .5-3-2-6-2-9-.5z"/><path d="M12 6v13.5"/></svg><span class="l">講座</span><span class="s">講座</span></button>
+      <button role="tab" data-v="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg><span class="l">早見表</span><span class="s">早見表</span></button>
+      <button role="tab" data-v="calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M8.5 7h7"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01M8.5 19h.01M12 19h.01M15.5 19h.01" stroke-width="2.4"/></svg><span class="l">計算</span><span class="s">計算</span></button>
+      <button role="tab" data-v="design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M3 20V4"/><path d="M5 17c4-1 7-5 10-10 1.5-2 3.5-3 5-3"/><circle cx="12" cy="11" r="1.6" fill="currentColor"/></svg><span class="l">設計の目安</span><span class="s">目安</span></button>
+      <button role="tab" data-v="margin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4.5-6"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></svg><span class="l">余裕度</span><span class="s">余裕度</span></button>
+      <button role="tab" data-v="report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h8l5 5v14H6z"/><path d="M14 2.5v5h5M9 12h7M9 15.5h7M9 19h4"/></svg><span class="l">計算書</span><span class="s">計算書</span></button>
     </nav>
   </div>
 </header>
@@ -499,14 +552,14 @@ function buildInputs(){
   D.stories.forEach((s,i)=>{ h+="<tr>"+COLS.map((c,j)=>`<td><input class="num" id="in-${dirKey}-${i}-${c[0]}" data-i="${i}" data-j="${j}" value="${s[c[0]]}" inputmode="decimal" aria-label="${s.name}階 ${c[1]}"></td>`).join("")+"</tr>"; });
   document.getElementById("inTable").innerHTML=h+"</tbody>";
   const CM=[["Td","T_d (s)",state[dirKey].Td,"dir"],["Z","地域係数 Z",state.common.Z],["ground","地盤種別",state.common.ground,"sel",[[1,"第1種"],[2,"第2種"],[3,"第3種"]]],
-    ["useR","V の低減 r",state.common.useR?1:0,"sel",[[1,"使う"],[0,"使わない"]]],["mode","安全限界の W_e",state.common.mode,"sel",[["proviso","ただし書き"],["kokuji","告示どおり（n_i=5）"]]],
+    ["useR","V の低減 r",state.common.useR?1:0,"sel",[[1,"使う"],[0,"使わない"]]],["mode","安全限界の W_e",state.common.mode,"sel",[["proviso","ただし書き"],["kokuji","告示どおり（nᵢ＝5）"]]],
     ["nExp","損傷集中指数 n",state.common.nExp,"sel",[[8,"8（それ以外）"],[4,"4（全体崩壊形）"]]],["tsMul","T_s の上限 ×T_d",state.common.tsMul,"sel",[[1.2,"1.2（ダンパー付き）"],[1.4,"1.4（ブレース等）"]]],
-    ["c1Mode","C_1 の求め方",state.common.c1Mode,"sel",[["auto","自動（E_d に達する値）"],["fix","値を指定"]]],["c1Fix","指定する C_1",state.common.c1Fix],
+    ["c1Mode","C_1 の求め方",state.common.c1Mode,"sel",[["auto","自動（稀地震のEdに達する値）"],["fix","値を指定"]]],["c1Fix","指定する C_1",state.common.c1Fix],
     ["etaCd","ダンパー保有 η_cd",state.common.etaCd],["driftLim","層間変形角 1/",state.common.driftLim,"sel",[[200,"200"],[120,"120"]]],["maxLim","最大応答の目安 1/",state.common.maxLim]];
   document.getElementById("common").innerHTML=CM.map(c=>{
     const id="cm-"+c[0];
-    if(c[3]==="sel") return `<label class="f" for="${id}">${sub(c[1])}<select id="${id}" data-k="${c[0]}">${c[4].map(o=>`<option value="${o[0]}" ${String(o[0])===String(c[2])?"selected":""}>${o[1]}</option>`).join("")}</select></label>`;
-    return `<label class="f" for="${id}">${sub(c[1])}<input class="num" id="${id}" data-k="${c[0]}" ${c[3]==="dir"?'data-dir="1"':""} value="${c[2]}" inputmode="decimal" style="width:110px"></label>`;
+    if(c[3]==="sel") return `<label class="f" for="${id}"><span>${sub(c[1])}</span><select id="${id}" data-k="${c[0]}">${c[4].map(o=>`<option value="${o[0]}" ${String(o[0])===String(c[2])?"selected":""}>${o[1]}</option>`).join("")}</select></label>`;
+    return `<label class="f" for="${id}"><span>${sub(c[1])}</span><input class="num" id="${id}" data-k="${c[0]}" ${c[3]==="dir"?'data-dir="1"':""} value="${c[2]}" inputmode="decimal" style="width:110px"></label>`;
   }).join("");
   document.querySelectorAll("#dirSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.d===dirKey));
 }
@@ -537,7 +590,7 @@ document.getElementById("delStory").addEventListener("click",()=>{ const st=stat
 
 /* γ の計算 */
 const GC=[["Lbr","芯々長さ L_br (mm)",9870],["Lc","塑性化部長さ λL_br (mm)",2000],["A","塑性化部断面積 A (mm²)",6000],["Ld","設置スパン L_d (mm)",5500],["Ke","軸剛性 K_e (kN/mm)",300],["h","階高 (mm)",8200],["span","スパン L (mm)",11000]];
-document.getElementById("gammaCalc").innerHTML=GC.map(g=>`<label class="f" for="gc-${g[0]}">${sub(g[1])}<input class="num" id="gc-${g[0]}" value="${g[2]}" style="width:120px"></label>`).join("");
+document.getElementById("gammaCalc").innerHTML=GC.map(g=>`<label class="f" for="gc-${g[0]}"><span>${sub(g[1])}</span><input class="num" id="gc-${g[0]}" value="${g[2]}" style="width:120px"></label>`).join("");
 function gammaUpd(){ const v=k=>+document.getElementById("gc-"+k).value; const th=Math.atan(v("h")/(v("span")/2)); const sK=v("Ke")*Math.cos(th)**2;
   const g=v("Lc")/(2*205*v("A"))*(v("Lbr")/v("Ld"))**2*sK;
   document.getElementById("gammaOut").innerHTML=`θ = ${f(th*180/Math.PI,2)}°　sK_d = ${f(sK,2)} kN/mm　→　γ_di = ${f(g,4)}`.replace(/_([a-z]+)/g,"<sub>$1</sub>"); }
@@ -661,10 +714,17 @@ function renderVerify(){
 
 /* ---------- タブ ---------- */
 const VIEWS=["course","learn","calc","design","margin","report"];
-function show(v){ if(!VIEWS.includes(v)) v="course"; VIEWS.forEach(x=>document.getElementById("v-"+x).hidden=x!==v);
+function show(v){ if(!VIEWS.includes(v)) v="course";
+  VIEWS.forEach(x=>{ const el=document.getElementById("v-"+x), on=x===v; if(on&&el.hidden){ el.classList.remove("enter"); void el.offsetWidth; el.classList.add("enter"); } el.hidden=!on; });
   if(v==="course") document.getElementById("hintBar").hidden=true;
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v)); try{localStorage.setItem("enehou-wb-tab2",v);}catch(e){} }
-document.getElementById("tabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-v]"); if(b){ show(b.dataset.v); window.scrollTo(0,0); } });
+/* タブごとに読んでいた位置を覚えて戻す。選択中のタブをもう一度押すと先頭へ（iPhone の標準アプリと同じ動き） */
+const SCROLL_MEM={};
+document.getElementById("tabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-v]"); if(!b) return;
+  const cur=document.querySelector('#tabs button[aria-selected="true"]'), v=b.dataset.v;
+  if(cur&&cur.dataset.v===v){ window.scrollTo({top:0,behavior:"smooth"}); return; }
+  if(cur) SCROLL_MEM[cur.dataset.v]=window.scrollY;
+  show(v); window.scrollTo(0,SCROLL_MEM[v]||0); });
 buildInputs(); render();
 let first=(location.hash||"").slice(1); if(!VIEWS.includes(first)){ try{ first=localStorage.getItem("enehou-wb-tab2")||"course"; }catch(e){ first="course"; } }
 show(first);
@@ -1067,7 +1127,7 @@ const COURSE = [
     ex:()=>{ const s=EX().S[EX().S.length-1]; const cb=1/3*s.mb*1.5*2+2, cc=1/3*s.mc*1.5*5/3+2; return {intro:"サンプル建物（X方向）1階の主架構の保有 η_c を、部材の変形性能 mη_u から求めます（梁と柱の小さい方を採用）。",
       steps:[["梁の mη_u","5.8 の式から（サンプル建物の値）",s.mb,3,"",false],["梁で決まる η_c",`1/3 × ${f(s.mb,3)} × 1.5 × 2.0 ＋ 2`,cb,3,""],["柱の mη_u","5.8 の式から（サンプル建物の値）",s.mc,3,"",false],["柱で決まる η_c",`1/3 × ${f(s.mc,3)} × 1.5 × 5/3 ＋ 2`,cc,3,""],["採用する η_cf","小さい方",Math.min(cb,cc),3,""],["必要 η_sf（安全限界）","計算タブの値",s.etaSf,4,"",false]],
       after:"必要 η_sf は 0.06 程度で、保有 η_cf（約6）に比べてごく小さい値です。この建物では主架構はほとんど塑性化せず、エネルギーの大半をダンパーが受け持ちます。逆に、ダンパー側の η（単元4）が設計を決めます。"}; },
-    calc:[{v:"calc",el:"outSafe",m:"「η_sfi / η_cf」の列が主架構の判定です。入力欄の「梁 mη_u」「柱 mη_u」を変えると η_cf が変わります。"}],
+    calc:[{v:"calc",el:"outSafe",m:"「η_sfi / η_cf」の列が主架構の判定です。入力欄の「梁 mη<sub>u</sub>」「柱 mη<sub>u</sub>」を変えると η_cf が変わります。"}],
     quiz:[
       {id:"q3-5-1",k:"num",q:"純ラーメンのある層で E_si＝3,000 kN·m、Q_rui＝20,000 kN、δ_rui＝0.030 m。片側の必要累積塑性変形倍率 η_sri を求めよ。",a:2.5,tol:0.01,u:"",e:"η＝3,000÷(2×20,000×0.030)＝2.5。単位は kN·m ÷ (kN×m) で無次元です（mm を使うときは 1,000 倍に注意）。",p:"P29 式(3.3.7)"},
       {id:"q3-5-2",k:"mc",q:"問1の層が梁降伏型の純ラーメンのとき、表3.3.3 で OK になる最も低い部材の種別はどれか。",c:["FA（5.0）","FB（2.75）","FC（2.0）","FD（1.0）"],a:1,e:"必要 2.5 に対し、梁降伏型の FB は 2.75 で OK、FC は 2.0 で NG。部材ランクを1つ上げる（幅厚比を小さくする）ことが、そのまま η_c の余裕になります。",p:"P35 表3.3.3"},
@@ -1118,7 +1178,7 @@ const COURSE = [
     <p><b>T<sub>d</sub></b>：ダンパーが降伏するので、弾性の固有値解析の周期ではなく、損傷限界時の<b>等価剛性 k<sub>i</sub>（δ<sub>i</sub> での割線剛性）</b>で求めた周期です。δ<sub>i</sub> は A<sub>i</sub> 分布の増分解析で決まり、A<sub>i</sub> は T<sub>d</sub> で決まるので、<b>T<sub>d</sub> 仮定 → A<sub>i</sub> → 増分解析 → 等価剛性 → T<sub>d</sub> 修正</b>の収束計算になります。等価剛性は剛性の下限なので T<sub>d</sub> は上限側となり、一般に入力を大きめに見積もる安全側です。略算：T<sub>d</sub>＝h(0.02＋0.01α)、T<sub>d</sub>＝2π√(M(0.48＋0.52N)/k<sub>1</sub>)。</p>
     `,
     ex:()=>{ const R=EX(); const st=[]; R.S.forEach(s=>{ const keq=(s.Kf*s.d+s.Qdi)/s.d; st.push([`${s.name}階 k_fi`,`Q_fi ÷ δ_i ＝ ${f(s.Qf,1)} ÷ ${f(s.d,3)}`,s.Kf,1,"kN/mm"]); st.push([`${s.name}階 等価剛性 k_i`,`(Q_fi ＋ Q_di) ÷ δ_i ＝ (${f(s.Qf,1)} ＋ ${f(s.Qdi,1)}) ÷ ${f(s.d,3)}`,keq,1,"kN/mm"]); st.push([`${s.name}階 弾性剛性 k_fi＋k_di`,`${f(s.Kf,1)} ＋ ${f(s.Kd,1)}`,s.Kf+s.Kd,1,"kN/mm",false]); });
-      return {intro:"サンプル建物（X方向）の各階で、等価剛性と弾性剛性を比べます。ダンパーが降伏している層では、等価剛性が弾性剛性より下がります。",steps:st,after:"1階・2階はダンパーが降伏しているので、等価剛性は弾性剛性の6〜7割程度に下がります（3階は降伏しないので同じ）。剛性が下がる分 T_d は弾性周期より長くなります。サンプル建物の T_d＝1.27 s は、Dynamic PRO でこの等価剛性を使って求めた値です。"}; },
+      return {intro:"サンプル建物（X方向）の各階で、等価剛性と弾性剛性を比べます。ダンパーが降伏している層では、等価剛性が弾性剛性より下がります。",steps:st,after:"1階・2階はダンパーが降伏しているので、等価剛性は弾性剛性の6〜7割（1階 0.61、2階 0.75）に下がります（3階は降伏しないので同じ）。剛性が下がる分 T_d は弾性周期より長くなります。サンプル建物の T_d＝1.27 s は、Dynamic PRO でこの等価剛性を使って求めた値です。"}; },
     calc:[{v:"calc",el:"outDamage",m:"「ダンパー」の列で、損傷限界時にどの層のダンパーが降伏しているかが分かります。"}],
     quiz:[
       {id:"q4-1-1",k:"mc",q:"SS7 の固有値解析で得た1次周期 T＝0.95 s を、そのまま T_d としてエネルギー法の計算に使った。何が問題か。",c:["問題ない","初期剛性による周期なので、ダンパーが降伏した損傷限界時の周期（等価剛性）より短く、A_i 分布や入力の評価がずれる","周期が長すぎる","地盤が考慮されていない"],a:1,e:"稀地震でダンパーが降伏するので、損傷限界時の周期は等価剛性で求める必要があります。T_d と A_i・増分解析は互いに影響するので、収束計算で決めます。",p:"P44〜45"},
@@ -1329,7 +1389,7 @@ const COURSE = [
     <ul><li>第1種：T＜0.576 で 1.5、0.576≦T＜0.64 で 0.864/T、0.64≦T で 1.35</li><li>第2・3種：T＜0.64 で 1.5、0.64≦T＜T<sub>u</sub> で 1.5·T/0.64、T<sub>u</sub>≦T で g<sub>v</sub>（第2種 2.025、第3種 2.7）、T<sub>u</sub>＝0.64·g<sub>v</sub>/1.5</li></ul>
     <p><b>保有水平耐力・剛性・降伏変位</b>：増分解析の荷重−変形はラウンドなので、層間変形角 1/80 か 1/50 の点、または接線剛性が弾性の 1/10 になった点を耐力点とします。混合構造はブレース・ダンパーの分を別に計算して差し引きます。ほかに節点モーメント分割法（下界定理で安全側、剛性は別途）、層ユニット法（梁を分割比で上下階に分ける）があります。</p>
     <p><b>部材の保有変形性能（5.8）</b>：主架構の η を部材ごとに精算するときに使います。</p>
-    <ul><li>H形鋼・角形鋼管・円形鋼管の幅厚比と変形性能 <sub>m</sub>η<sub>u</sub> の関係（図5.8.1〜5.8.7）→ サンプル建物の「梁 mη_u」「柱 mη_u」はここから求めた値</li><li>ブレース：有効細長比 λ<sub>e</sub>＞890/√σ<sub>y</sub> で引張ブレース、以下で引張・圧縮ブレース</li><li>パネルゾーン：τ<sub>m</sub>／μ<sub>m</sub>＝400級 1.67／33、490級 1.50／25、590級 1.33／17</li><li>圧縮引張形ダンパー：α／μ<sub>m</sub>／τ<sub>m</sub>＝LY100 0.06／26／2.5、LY120 0.05／25／2.2、LY225 0.03／18／1.54</li></ul>`,
+    <ul><li>H形鋼・角形鋼管・円形鋼管の幅厚比と変形性能 <sub>m</sub>η<sub>u</sub> の関係（図5.8.1〜5.8.7）→ サンプル建物の「梁 mη<sub>u</sub>」「柱 mη<sub>u</sub>」はここから求めた値</li><li>ブレース：有効細長比 λ<sub>e</sub>＞890/√σ<sub>y</sub> で引張ブレース、以下で引張・圧縮ブレース</li><li>パネルゾーン：τ<sub>m</sub>／μ<sub>m</sub>＝400級 1.67／33、490級 1.50／25、590級 1.33／17</li><li>圧縮引張形ダンパー：α／μ<sub>m</sub>／τ<sub>m</sub>＝LY100 0.06／26／2.5、LY120 0.05／25／2.2、LY225 0.03／18／1.54</li></ul>`,
     ex:()=>{ const R=EX(); return {intro:"サンプル建物の地盤（第2種）の G_s を、T_d と T_s で求めます。",steps:[["T_u",`0.64 × 2.025 ÷ 1.5`,0.864,3,"s"],["稀地震 G_s（T_d）",`T_d＝${f(R.Td,4)} ≧ T_u なので g_v`,R.GsD,3,""],["極稀地震 G_s（T_s）",`T_s＝${f(R.Ts,4)} ≧ T_u なので g_v`,R.GsS,3,""]],after:"T_d・T_s とも T_u（0.864 s）より長いので、G_s は 2.025 で一定です。周期を多少変えても入力は変わりません（単元1 の問題と同じ考え方）。"}; },
     calc:[{v:"calc",el:"common",m:"「地盤種別」を第1種・第3種に変えると G_s と V_d・V_s が変わり、E_d・E_s が大きく変わります。"}],
     quiz:[
@@ -1510,7 +1570,7 @@ function renderToc(){
   COURSE.forEach(u=>{
     h+=`<li class="u">単元${u.id.slice(1)}　${u.t}</li>`;
     if(u.soon){ h+=`<li class="soon">準備中（${u.p}）</li>`; return; }
-    u.secs.forEach(s=>{ h+=`<li><a data-go="sec:${s.id}" ${crView==="sec:"+s.id?'aria-current="page"':""}><span class="mk">${CR.done[s.id]?"✓":""}</span><span>${s.id}　${s.t}</span></a></li>`; });
+    u.secs.forEach(s=>{ h+=`<li><a data-go="sec:${s.id}" ${crView==="sec:"+s.id?'aria-current="page"':""}><span class="mk">${CR.done[s.id]?"✓":""}</span><span>${s.id}　${tx(s.t)}</span></a></li>`; });
     h+=`<li><a data-go="test:${u.id}" ${crView==="test:"+u.id?'aria-current="page"':""}><span class="mk"></span><span>単元${u.id.slice(1)}の総合演習</span></a></li>`;
   });
   h+=`<li class="u">ふりかえり</li><li><a data-go="review" ${crView==="review"?'aria-current="page"':""}><span class="mk"></span>間違えた問題（${CR.wrong.length}問）</a></li>
@@ -1562,7 +1622,7 @@ function renderSec(id){
   const prev=SECS[i-1], next=SECS[i+1];
   const warm=prev&&prev.quiz&&prev.quiz.length?prev.quiz[0]:null;
   const mode=CR.seen[id]?"blank":"full"; CR.seen[id]=(CR.seen[id]||0)+1; crSave();
-  let h=`<div class="lesson"><div><p class="crumb">単元${s.unit.id.slice(1)} ${s.unit.t}　›　${s.id}</p><h2>${s.id}　${s.t}</h2><p class="ref">緑本 ${s.p}　${pdfBtn(s.p,firstPage(s.p)?`緑本 ${firstPage(s.p)}ページを開く`:"緑本（まえがき）を開く")}</p></div>`;
+  let h=`<div class="lesson"><div><p class="crumb">単元${s.unit.id.slice(1)} ${s.unit.t}　›　${s.id}</p><h2>${s.id}　${tx(s.t)}</h2><p class="ref">緑本 ${s.p}　${pdfBtn(s.p,firstPage(s.p)?`緑本 ${firstPage(s.p)}ページを開く`:"緑本（まえがき）を開く")}</p></div>`;
   h+=`<div class="card blk"><h3><span class="tag">1 ねらい</span>この節で分かるようになること</h3><ul>${s.goals.map(g=>`<li>${tx(g)}</li>`).join("")}</ul></div>`;
   if(warm) h+=`<div class="card blk"><h3><span class="tag">2 思い出す</span>前の節の問題（${prev.id}）</h3><p class="note">読む前に、前に学んだことを1問だけ思い出します。</p>${qHTML(warm)}</div>`;
   h+=`<div class="card blk"><h3><span class="tag">${warm?3:2} 本文の要点</span>緑本 ${s.p} を読みながら</h3>${s.body}${s.fig?`<div style="margin-top:12px">${s.fig()}</div>`:""}</div>`;
@@ -1572,8 +1632,8 @@ function renderSec(id){
   h+=`<div class="card blk"><h3><span class="tag t-q">${n++} 確認問題</span>答えるとすぐ解説が出ます　<span class="mono note" id="score" data-ids="${s.quiz.map(q=>q.id).join(",")}"></span></h3>${s.quiz.map((q,k)=>qHTML(q,`Q${k+1}`)).join("")}</div>`;
   h+=`<div class="card blk"><h3><span class="tag t-ok">${n++} まとめ</span>この節の要点</h3><ul>${s.sum.map(x=>`<li>${tx(x)}</li>`).join("")}</ul>
     <label class="f" for="memo" style="margin-top:10px">質問・気づいたこと（このブラウザに保存）<textarea class="memo" id="memo" data-sec="${s.id}">${(CR.memo[s.id]||"").replace(/</g,"&lt;")}</textarea></label></div>`;
-  h+=`<div class="row" style="justify-content:space-between">${prev?`<button class="btn" data-go="sec:${prev.id}">← ${prev.id} ${prev.t}</button>`:`<button class="btn" data-go="home">← 講座のはじめに</button>`}
-    ${next?`<button class="btn pri" data-go="sec:${next.id}">次の節へ：${next.id} ${next.t} →</button>`:`<button class="btn pri" data-go="test:${s.unit.id}">単元の総合演習へ →</button>`}</div></div>`;
+  h+=`<div class="row" style="justify-content:space-between">${prev?`<button class="btn" data-go="sec:${prev.id}">← ${prev.id} ${tx(prev.t)}</button>`:`<button class="btn" data-go="home">← 講座のはじめに</button>`}
+    ${next?`<button class="btn pri" data-go="sec:${next.id}">次の節へ：${next.id} ${tx(next.t)} →</button>`:`<button class="btn pri" data-go="test:${s.unit.id}">単元の総合演習へ →</button>`}</div></div>`;
   CM.innerHTML=h; if(s.after) s.after(); updateScore();
   CM._sec=s;
 }
@@ -1584,7 +1644,7 @@ function renderHome(){
   <div class="card blk"><h3>1つの節の進め方</h3>
     <ol><li><b>ねらい</b>：その節で分かるようになることを確認</li><li><b>思い出す</b>：前の節の問題を1問（思い出す練習で定着させる）</li><li><b>本文の要点</b>：緑本のページを読み、要点と図で整理</li><li><b>例題</b>：サンプル建物の数値で式をたどる。2回目からは穴埋めで自分で計算</li><li><b>試す</b>：計算タブに移って、値を変えて確かめる</li><li><b>確認問題</b>：用語や番号を覚える問題ではなく、「この計画ならどうするか」「なぜそうなるか」「数値はいくつか」を考える問題。答えるとすぐ解説と緑本のページが出る</li><li><b>まとめ・質問メモ</b>：要点3つと、質問したいこと</li></ol>
     <p class="note">間違えた問題は「間違えた問題」に集まります。日をあけて解き直すと忘れにくくなります。</p>
-    <div class="row" style="margin-top:6px">${next?`<button class="btn pri" data-go="sec:${next.id}">${Object.keys(CR.done).length?"続きから":"はじめる"}：${next.id} ${next.t} →</button>`:`<span class="pill ok">公開中の節はすべて終わりました</span>`}
+    <div class="row" style="margin-top:6px">${next?`<button class="btn pri" data-go="sec:${next.id}">${Object.keys(CR.done).length?"続きから":"はじめる"}：${next.id} ${tx(next.t)} →</button>`:`<span class="pill ok">公開中の節はすべて終わりました</span>`}
     ${CR.wrong.length?`<button class="btn" data-go="review">間違えた問題を解き直す（${CR.wrong.length}問）</button>`:""}</div></div>
   <div class="units">${COURSE.map(u=>{ const d=u.secs.filter(s=>CR.done[s.id]).length;
     return `<div class="card"><h3>単元${u.id.slice(1)}　${u.t}</h3><p class="ref">緑本 ${u.p}</p>${u.soon?'<span class="pill wa">準備中</span>':`<div class="bar"><i style="width:${u.secs.length?(d/u.secs.length*100):0}%"></i></div><p class="note">${d}/${u.secs.length}節</p><p><button class="btn" data-go="sec:${u.secs[0].id}">${u.secs[0].id} から</button></p>`}</div>`; }).join("")}</div>
@@ -1600,7 +1660,7 @@ function renderHome(){
 function renderQList(title,lead,ids,back){
   let h=`<div class="lesson"><div><h2>${title}</h2><p class="lead">${lead}</p></div>`;
   if(!ids.length) h+=`<div class="card"><p>問題はありません。</p></div>`;
-  else h+=`<div class="card blk"><h3><span class="tag t-q">問題</span><span class="mono note" id="score" data-ids="${ids.join(",")}"></span></h3>${ids.map((id,k)=>qHTML(QMAP[id],`Q${k+1}`)+`<p class="ref" style="margin:4px 0 0">出典：${SEC_OF_Q[id].id} ${SEC_OF_Q[id].t}（<button class="linkbtn" data-go="sec:${SEC_OF_Q[id].id}">本文へ</button>）</p>`).join("")}</div>`;
+  else h+=`<div class="card blk"><h3><span class="tag t-q">問題</span><span class="mono note" id="score" data-ids="${ids.join(",")}"></span></h3>${ids.map((id,k)=>qHTML(QMAP[id],`Q${k+1}`)+`<p class="ref" style="margin:4px 0 0">出典：${SEC_OF_Q[id].id} ${tx(SEC_OF_Q[id].t)}（<button class="linkbtn" data-go="sec:${SEC_OF_Q[id].id}">本文へ</button>）</p>`).join("")}</div>`;
   h+=`<div class="row"><button class="btn" data-go="${back}">← もどる</button></div></div>`;
   CM.innerHTML=h; updateScore();
 }
@@ -1612,7 +1672,7 @@ function renderTest(uid){
 }
 function renderMemos(){
   const list=SECS.filter(s=>(CR.memo[s.id]||"").trim());
-  const text=list.map(s=>`【${s.id} ${s.t}（緑本 ${s.p}）】\n${CR.memo[s.id].trim()}`).join("\n\n");
+  const text=list.map(s=>`【${s.id} ${s.t.replace(/_/g,"")}（緑本 ${s.p}）】\n${CR.memo[s.id].trim()}`).join("\n\n");
   CM.innerHTML=`<div class="lesson"><div class="row" style="justify-content:space-between"><div><h2>質問メモ一覧</h2><p class="lead">各節の「まとめ」で書いたメモを集めています。勉強会の前などにコピーして使えます。</p></div>${list.length?'<button class="btn pri" id="memoCopy">すべてコピー</button>':""}</div>
     <div class="card">${list.length?`<pre class="calc-lines" id="memoText">${text.replace(/</g,"&lt;")}</pre>`:"<p>まだメモはありません。各節のいちばん下に書けます。</p>"}</div></div>`;
 }
