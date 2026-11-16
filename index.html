@@ -204,6 +204,69 @@ textarea.memo{width:100%;min-height:80px;resize:vertical}
 /* iPhone・iPad では入力欄を 16px 以上にする（それより小さいと Safari が勝手に拡大するため） */
 @media (pointer:coarse){ input,select,textarea,.inputs input{font-size:16px} .btn{min-height:44px} .seg button{min-height:36px} .toc a{padding:10px 8px} }
 @media (max-width:640px){ body{font-size:15.5px} h2{font-size:24px} .card{padding:16px} main{padding-top:14px} .grid2,.flow{gap:14px} }
+
+/* ===== 淡い色（261116）=====
+   考え方：淡い色は「背景・カードの塗り」だけに使い、文字は同じ色相の濃い色（明るさの比 4.5 以上）にする。
+   色は意味で割り当てる（単元ごと・ブロックの役割ごと・タブごと）。色相は6つ（空・ラベンダー・ミント・ピーチ・ローズ・レモン） */
+:root{
+  --sky-bg:#eaf3ff; --sky-fg:#1d4f91; --sky-mid:#6aa6f3;
+  --lav-bg:#f1edff; --lav-fg:#4b3a9c; --lav-mid:#a08ff2;
+  --mint-bg:#e3f5ee; --mint-fg:#17654a; --mint-mid:#58c49d;
+  --peach-bg:#fff0e6; --peach-fg:#8a4210; --peach-mid:#f3a874;
+  --rose-bg:#ffedf2; --rose-fg:#8f2449; --rose-mid:#ef93b1;
+  --lemon-bg:#fff6d6; --lemon-fg:#6b5200; --lemon-mid:#ecc94b;
+  --accent-text:#0b62d6; --q-bg:#f7f5ff; --th-bg:#f6f7fc;
+  --bg:#f5f6fb; --bar:rgba(250,250,255,.78);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sky-bg:rgba(106,166,243,.16); --sky-fg:#a9cbff; --lav-bg:rgba(160,143,242,.17); --lav-fg:#cdc2ff; --mint-bg:rgba(88,196,157,.15); --mint-fg:#9fe3c8;
+  --peach-bg:rgba(243,168,116,.15); --peach-fg:#ffc9a3; --rose-bg:rgba(239,147,177,.15); --rose-fg:#ffb8cf; --lemon-bg:rgba(236,201,75,.14); --lemon-fg:#f5df8f;
+  --accent-text:#5aa9ff; --q-bg:rgba(160,143,242,.12); --th-bg:#2c2c2e; --bg:#000; --bar:rgba(22,22,24,.8)}}
+:root[data-theme="dark"]{
+  --sky-bg:rgba(106,166,243,.16); --sky-fg:#a9cbff; --lav-bg:rgba(160,143,242,.17); --lav-fg:#cdc2ff; --mint-bg:rgba(88,196,157,.15); --mint-fg:#9fe3c8;
+  --peach-bg:rgba(243,168,116,.15); --peach-fg:#ffc9a3; --rose-bg:rgba(239,147,177,.15); --rose-fg:#ffb8cf; --lemon-bg:rgba(236,201,75,.14); --lemon-fg:#f5df8f;
+  --accent-text:#5aa9ff; --q-bg:rgba(160,143,242,.12); --th-bg:#2c2c2e; --bg:#000; --bar:rgba(22,22,24,.8)}
+.hue-sky{--h-bg:var(--sky-bg);--h-fg:var(--sky-fg);--h-mid:var(--sky-mid)}
+.hue-lav{--h-bg:var(--lav-bg);--h-fg:var(--lav-fg);--h-mid:var(--lav-mid)}
+.hue-mint{--h-bg:var(--mint-bg);--h-fg:var(--mint-fg);--h-mid:var(--mint-mid)}
+.hue-peach{--h-bg:var(--peach-bg);--h-fg:var(--peach-fg);--h-mid:var(--peach-mid)}
+.hue-rose{--h-bg:var(--rose-bg);--h-fg:var(--rose-fg);--h-mid:var(--rose-mid)}
+.hue-lemon{--h-bg:var(--lemon-bg);--h-fg:var(--lemon-fg);--h-mid:var(--lemon-mid)}
+body{background:radial-gradient(1200px 520px at 8% -8%,rgba(160,143,242,.16),transparent 60%),radial-gradient(1000px 480px at 100% 0%,rgba(106,166,243,.15),transparent 60%),radial-gradient(900px 420px at 50% 100%,rgba(88,196,157,.08),transparent 60%),var(--bg);background-attachment:fixed}
+.card,.sum .k,.calc-lines{box-shadow:0 1px 2px rgba(60,60,90,.04),0 6px 18px rgba(80,80,140,.05)}
+.hero{background:var(--h-bg);border-radius:var(--r);padding:16px 20px}
+.hero .crumb{color:var(--h-fg);font-weight:600}
+.unit{background:linear-gradient(180deg,var(--h-bg),var(--panel) 85%)}
+.unit h3{color:var(--h-fg)}
+.unit .bar i{background:var(--h-mid)}
+.unit .btn{background:var(--panel);color:var(--h-fg)}
+.toc .u{display:flex;align-items:center;gap:6px}
+.toc .u::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--h-mid,var(--sub));flex:none}
+.tag{background:var(--h-bg,var(--sky-bg));color:var(--h-fg,var(--sky-fg))}
+.blk.hue-sky,.blk.hue-lav,.blk.hue-mint,.blk.hue-peach,.blk.hue-rose,.blk.hue-lemon{box-shadow:inset 0 3px 0 var(--h-mid),0 1px 2px rgba(60,60,90,.04),0 6px 18px rgba(80,80,140,.05)}
+.blk.t-sumcard{background:linear-gradient(180deg,var(--lemon-bg),var(--panel) 70%)}
+.q{background:var(--q-bg)}
+.opt.p-ok{background:var(--mint-bg)} .opt.p-ng{background:var(--rose-bg)}
+.fb.f-ok{box-shadow:inset 3px 0 0 var(--mint-mid)} .fb.f-ng{box-shadow:inset 3px 0 0 var(--rose-mid)}
+.ok{background:var(--mint-bg);color:var(--mint-fg)} .ng{background:var(--rose-bg);color:var(--rose-fg)} .wa{background:var(--lemon-bg);color:var(--lemon-fg)}
+.dmp{background:var(--peach-bg);color:var(--peach-fg)} .el{background:var(--sky-bg);color:var(--sky-fg)}
+.sum .k.k-ok{background:linear-gradient(180deg,var(--mint-bg),var(--panel) 90%)}
+.sum .k.k-ng{background:linear-gradient(180deg,var(--rose-bg),var(--panel) 90%)}
+.sum .k.k-info{background:linear-gradient(180deg,var(--sky-bg),var(--panel) 90%)}
+#warnBox{background:var(--rose-bg)}
+.hint{background:var(--sky-bg);box-shadow:none}
+.kf{background:var(--sky-bg)} .kf.main{background:var(--lav-bg);box-shadow:inset 3px 0 0 var(--lav-mid)}
+.formula{background:var(--lav-bg)}
+.pdfa{background:var(--sky-bg);color:var(--sky-fg)}
+thead th{background:var(--th-bg)}
+.btn{color:var(--accent-text)} .linkbtn{color:var(--accent-text)}
+.btn.pri{background:linear-gradient(180deg,#2a8bff,#0a6ff0);color:#fff}
+#tabs [data-v="course"]{--t:var(--lav-fg)} #tabs [data-v="learn"]{--t:var(--sky-fg)} #tabs [data-v="calc"]{--t:var(--mint-fg)} #tabs [data-v="design"]{--t:var(--peach-fg)} #tabs [data-v="margin"]{--t:var(--rose-fg)} #tabs [data-v="report"]{--t:var(--lemon-fg)} #tabs [data-v="verify"]{--t:var(--sky-fg)}
+nav.tabs button[aria-selected="true"]{color:var(--t)}
+@media (max-width:699px){ header.top{background:rgba(245,246,251,.97)} :root[data-theme="dark"] header.top{background:#000} }
+@media (max-width:699px) and (prefers-color-scheme: dark){ :root:not([data-theme="light"]) header.top{background:#000} }
+.toc a[aria-current="page"]{background:var(--lav-bg);color:var(--lav-fg)}
+.toc a[aria-current="page"] .mk{color:var(--lav-fg)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -626,13 +689,13 @@ function render(){
   const c=state.common, R=compute(c,state[dirKey]); const S=R.S;
   const worstSf=Math.max(...S.map(s=>s.etaSf/s.etaCf)), worstSd=Math.max(...S.map(s=>s.etaSd/s.etaCd));
   document.getElementById("summary").innerHTML=[
-    [`W<sub>e</sub>/E<sub>d</sub> = ${f(R.WeD/R.Ed,2)}`,"損傷限界 "+pill(R.okD)],
-    [`C<sub>1</sub> = ${f(R.C1,3)}`,"層間変形角 "+pill(R.okDrift)],
-    [ratio(Math.min(...S.map(s=>s.rRes))),"残留変形角（最大）"+pill(R.okRes)],
-    [`E<sub>s</sub> = ${f(R.Es,0)}`,"kN·m　安全限界"],
-    [`η<sub>sf</sub>/η<sub>cf</sub> = ${f(worstSf,3)}`,"主架構（最大）"+pill(worstSf<=1)],
-    [`η<sub>sd</sub>/η<sub>cd</sub> = ${f(worstSd,3)}`,"ダンパー（最大）"+pill(worstSd<=1)]
-  ].map(k=>`<div class="k"><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
+    [`W<sub>e</sub>/E<sub>d</sub> = ${f(R.WeD/R.Ed,2)}`,"損傷限界 "+pill(R.okD),R.okD],
+    [`C<sub>1</sub> = ${f(R.C1,3)}`,"層間変形角 "+pill(R.okDrift),R.okDrift],
+    [ratio(Math.min(...S.map(s=>s.rRes))),"残留変形角（最大）"+pill(R.okRes),R.okRes],
+    [`E<sub>s</sub> = ${f(R.Es,0)}`,"kN·m　安全限界",null],
+    [`η<sub>sf</sub>/η<sub>cf</sub> = ${f(worstSf,3)}`,"主架構（最大）"+pill(worstSf<=1),worstSf<=1],
+    [`η<sub>sd</sub>/η<sub>cd</sub> = ${f(worstSd,3)}`,"ダンパー（最大）"+pill(worstSd<=1),worstSd<=1]
+  ].map(k=>`<div class="k ${k[2]==null?"k-info":k[2]?"k-ok":"k-ng"}"><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
 
   // 損傷限界
   let h=`<p class="mono" style="margin-bottom:8px">Σw = ${f(R.W,1)} kN　M = ${f(R.M,1)} t　T<sub>d</sub> = ${f(R.Td,4)} s　G<sub>s</sub> = ${f(R.GsD,3)}　r = ${f(R.rD,3)}　V<sub>d</sub> = ${f(R.Vd,4)} m/s　E<sub>d</sub> = ½MV<sub>d</sub>² = <b>${f(R.Ed,1)}</b> kN·m</p>`;
@@ -649,7 +712,7 @@ function render(){
   h+=`<h3 style="margin-top:18px">P−δ 効果の確認<span class="ref" style="margin-left:8px">緑本 5.5 式(5.5.3)</span></h3><table><thead><tr><th>階</th><th class="n">W/H<br><span class="ref">kN/mm</span></th><th class="n">k<sub>fi</sub><br><span class="ref">kN/mm</span></th><th class="n">安定係数 |k'<sub>pδ</sub>|</th><th class="n">低減係数 a</th><th class="n">主架構 η<sub>c</sub>（低減前 → 採用）</th></tr></thead><tbody>${S.map(s=>`<tr><td>${s.name}</td><td class="n">${f(s.sw/s.H,2)}</td><td class="n">${f(s.Kf,1)}</td><td class="n">${f(s.kpd,4)} ${s.kpd>0.0567?'<span class="pill wa">0.0567 超</span>':""}</td><td class="n">${f(s.apd,3)}</td><td class="n">${f(s.etaCf0,2)} → ${f(s.etaCf,2)}</td></tr>`).join("")}</tbody></table><p class="note" style="margin-top:6px">|k'<sub>pδ</sub>|＝(その層が支える重量 W／階高 H)／k<sub>fi</sub>。0.0567 を超えると、P−δ 効果で吸収能力が下がるので a＝0.367/(|k'<sub>pδ</sub>|−0.05)<sup>0.2</sup> を掛けて低減します。「共通の条件」の「P−δ 効果で主架構 η<sub>c</sub> を低減」で、判定に入れるかを選べます（初期値は サンプル建物 と同じ「しない」）。</p>`;
   document.getElementById("outSafe").innerHTML=h;
   const wb=document.getElementById("warnBox"), pdNote=c.pdMode!=="on"&&S.some(s=>s.kpd>0.0567)?[`P−δ 効果の安定係数が 0.0567 を超える層があります（${S.filter(s=>s.kpd>0.0567).map(s=>s.name+"階").join("・")}）。判定に入れていません。必要なら「P−δ 効果で主架構 η_c を低減」を「する」にしてください。`]:[];
-  wb.hidden=!R.warn.length&&!pdNote.length;
+  wb.hidden=!R.warn.length&&!pdNote.length; wb.style.background=R.warn.length?"var(--rose-bg)":"var(--lemon-bg)";
   wb.innerHTML=(R.warn.length?`<h3><span class="pill ng">確認してください</span></h3><ul>${R.warn.map(x=>`<li>${sub(x)}</li>`).join("")}</ul>`:"")+(pdNote.length?`<p class="note" style="margin-top:${R.warn.length?8:0}px"><span class="pill wa">注意</span> ${sub(pdNote[0])}</p>`:"");
 
   renderDesign(R); renderMargin(); renderReport(R);
@@ -1584,6 +1647,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!document.getEleme
 
 /* 索引 */
 const SECS=[], QMAP={}, SEC_OF_Q={};
+const UNIT_HUE={u0:"sky",u1:"lav",u2:"mint",u3:"peach",u4:"rose",u5:"lemon",u6:"sky"};
 COURSE.forEach(u=>u.secs.forEach(s=>{ s.unit=u; SECS.push(s); (s.quiz||[]).forEach(q=>{ QMAP[q.id]=q; SEC_OF_Q[q.id]=s; }); }));
 const secIdx=id=>SECS.findIndex(s=>s.id===id);
 
@@ -1597,7 +1661,7 @@ function renderToc(){
     <div class="bar" style="margin:8px 0 4px"><i style="width:${(done/SECS.length*100).toFixed(0)}%"></i></div>
     <ol><li><a data-go="home" ${crView==="home"?'aria-current="page"':""}><span class="mk"></span>講座のはじめに・進み具合</a></li>`;
   COURSE.forEach(u=>{
-    h+=`<li class="u">単元${u.id.slice(1)}　${u.t}</li>`;
+    h+=`<li class="u hue-${UNIT_HUE[u.id]||"sky"}">単元${u.id.slice(1)}　${u.t}</li>`;
     if(u.soon){ h+=`<li class="soon">準備中（${u.p}）</li>`; return; }
     u.secs.forEach(s=>{ h+=`<li><a data-go="sec:${s.id}" ${crView==="sec:"+s.id?'aria-current="page"':""}><span class="mk">${CR.done[s.id]?"✓":""}</span><span>${s.id}　${tx(s.t)}</span></a></li>`; });
     h+=`<li><a data-go="test:${u.id}" ${crView==="test:"+u.id?'aria-current="page"':""}><span class="mk"></span><span>単元${u.id.slice(1)}の総合演習</span></a></li>`;
@@ -1651,15 +1715,15 @@ function renderSec(id){
   const prev=SECS[i-1], next=SECS[i+1];
   const warm=prev&&prev.quiz&&prev.quiz.length?prev.quiz[0]:null;
   const mode=CR.seen[id]?"blank":"full"; CR.seen[id]=(CR.seen[id]||0)+1; crSave();
-  let h=`<div class="lesson"><div><p class="crumb">単元${s.unit.id.slice(1)} ${s.unit.t}　›　${s.id}</p><h2>${s.id}　${tx(s.t)}</h2><p class="ref">緑本 ${s.p}　${pdfBtn(s.p,firstPage(s.p)?`緑本 ${firstPage(s.p)}ページを開く`:"緑本（まえがき）を開く")}</p></div>`;
-  h+=`<div class="card blk"><h3><span class="tag">1 ねらい</span>この節で分かるようになること</h3><ul>${s.goals.map(g=>`<li>${tx(g)}</li>`).join("")}</ul></div>`;
-  if(warm) h+=`<div class="card blk"><h3><span class="tag">2 思い出す</span>前の節の問題（${prev.id}）</h3><p class="note">読む前に、前に学んだことを1問だけ思い出します。</p>${qHTML(warm)}</div>`;
-  h+=`<div class="card blk"><h3><span class="tag">${warm?3:2} 本文の要点</span>緑本 ${s.p} を読みながら</h3>${s.body}${s.fig?`<div style="margin-top:12px">${s.fig()}</div>`:""}</div>`;
+  let h=`<div class="lesson"><div class="hero hue-${UNIT_HUE[s.unit.id]||"sky"}"><p class="crumb">単元${s.unit.id.slice(1)} ${s.unit.t}　›　${s.id}</p><h2>${s.id}　${tx(s.t)}</h2><p class="ref">緑本 ${s.p}　${pdfBtn(s.p,firstPage(s.p)?`緑本 ${firstPage(s.p)}ページを開く`:"緑本（まえがき）を開く")}</p></div>`;
+  h+=`<div class="card blk hue-sky"><h3><span class="tag">1 ねらい</span>この節で分かるようになること</h3><ul>${s.goals.map(g=>`<li>${tx(g)}</li>`).join("")}</ul></div>`;
+  if(warm) h+=`<div class="card blk hue-lav"><h3><span class="tag">2 思い出す</span>前の節の問題（${prev.id}）</h3><p class="note">読む前に、前に学んだことを1問だけ思い出します。</p>${qHTML(warm)}</div>`;
+  h+=`<div class="card blk hue-${UNIT_HUE[s.unit.id]||"sky"}"><h3><span class="tag">${warm?3:2} 本文の要点</span>緑本 ${s.p} を読みながら</h3>${s.body}${s.fig?`<div style="margin-top:12px">${s.fig()}</div>`:""}</div>`;
   let n=warm?4:3;
-  if(s.ex) h+=`<div class="card blk" id="exBox"><h3><span class="tag">${n++} 例題</span>サンプル建物の数値で式をたどる</h3><div id="exBody">${exHTML(s,mode)}</div></div>`;
-  if(s.calc) h+=`<div class="card blk"><h3><span class="tag">${n++} 試す</span>計算タブで確かめる</h3>${s.calc.map((c,k)=>`<p>${tx(c.m)}</p><p><button class="btn" data-calc="${k}">${{calc:"計算タブ",margin:"余裕度タブ",design:"設計の目安タブ"}[c.v]}で試す →</button></p>`).join("")}</div>`;
-  h+=`<div class="card blk"><h3><span class="tag t-q">${n++} 確認問題</span>答えるとすぐ解説が出ます　<span class="mono note" id="score" data-ids="${s.quiz.map(q=>q.id).join(",")}"></span></h3>${s.quiz.map((q,k)=>qHTML(q,`Q${k+1}`)).join("")}</div>`;
-  h+=`<div class="card blk"><h3><span class="tag t-ok">${n++} まとめ</span>この節の要点</h3><ul>${s.sum.map(x=>`<li>${sub(x)}</li>`).join("")}</ul>
+  if(s.ex) h+=`<div class="card blk hue-mint" id="exBox"><h3><span class="tag">${n++} 例題</span>サンプル建物の数値で式をたどる</h3><div id="exBody">${exHTML(s,mode)}</div></div>`;
+  if(s.calc) h+=`<div class="card blk hue-peach"><h3><span class="tag">${n++} 試す</span>計算タブで確かめる</h3>${s.calc.map((c,k)=>`<p>${tx(c.m)}</p><p><button class="btn" data-calc="${k}">${{calc:"計算タブ",margin:"余裕度タブ",design:"設計の目安タブ"}[c.v]}で試す →</button></p>`).join("")}</div>`;
+  h+=`<div class="card blk hue-rose"><h3><span class="tag">${n++} 確認問題</span>答えるとすぐ解説が出ます　<span class="mono note" id="score" data-ids="${s.quiz.map(q=>q.id).join(",")}"></span></h3>${s.quiz.map((q,k)=>qHTML(q,`Q${k+1}`)).join("")}</div>`;
+  h+=`<div class="card blk t-sumcard hue-lemon"><h3><span class="tag">${n++} まとめ</span>この節の要点</h3><ul>${s.sum.map(x=>`<li>${sub(x)}</li>`).join("")}</ul>
     <label class="f" for="memo" style="margin-top:10px">質問・気づいたこと（このブラウザに保存）<textarea class="memo" id="memo" data-sec="${s.id}">${(CR.memo[s.id]||"").replace(/</g,"&lt;")}</textarea></label></div>`;
   h+=`<div class="row" style="justify-content:space-between">${prev?`<button class="btn" data-go="sec:${prev.id}">← ${prev.id} ${tx(prev.t)}</button>`:`<button class="btn" data-go="home">← 講座のはじめに</button>`}
     ${next?`<button class="btn pri" data-go="sec:${next.id}">次の節へ：${next.id} ${tx(next.t)} →</button>`:`<button class="btn pri" data-go="test:${s.unit.id}">単元の総合演習へ →</button>`}</div></div>`;
@@ -1676,7 +1740,7 @@ function renderHome(){
     <div class="row" style="margin-top:6px">${next?`<button class="btn pri" data-go="sec:${next.id}">${Object.keys(CR.done).length?"続きから":"はじめる"}：${next.id} ${tx(next.t)} →</button>`:`<span class="pill ok">公開中の節はすべて終わりました</span>`}
     ${CR.wrong.length?`<button class="btn" data-go="review">間違えた問題を解き直す（${CR.wrong.length}問）</button>`:""}</div></div>
   <div class="units">${COURSE.map(u=>{ const d=u.secs.filter(s=>CR.done[s.id]).length;
-    return `<div class="card"><h3>単元${u.id.slice(1)}　${u.t}</h3><p class="ref">緑本 ${u.p}</p>${u.soon?'<span class="pill wa">準備中</span>':`<div class="bar"><i style="width:${u.secs.length?(d/u.secs.length*100):0}%"></i></div><p class="note">${d}/${u.secs.length}節</p><p><button class="btn" data-go="sec:${u.secs[0].id}">${u.secs[0].id} から</button></p>`}</div>`; }).join("")}</div>
+    return `<div class="card unit hue-${UNIT_HUE[u.id]||"sky"}"><h3>単元${u.id.slice(1)}　${u.t}</h3><p class="ref">緑本 ${u.p}</p>${u.soon?'<span class="pill wa">準備中</span>':`<div class="bar"><i style="width:${u.secs.length?(d/u.secs.length*100):0}%"></i></div><p class="note">${d}/${u.secs.length}節</p><p><button class="btn" data-go="sec:${u.secs[0].id}">${u.secs[0].id} から</button></p>`}</div>`; }).join("")}</div>
   <div class="card blk"><h3>緑本PDF（章ごとに分けた軽量版）</h3>
     <p class="note">画面の上に重ねて表示します（右上の「閉じる」かEscキーで戻ります）。各節の見出しと、問題の解説の「PDFで見る」からは、そのページを直接開けます。iPhoneではページの指定が効かず、その章の先頭から表示されることがあります。</p>
     <p class="note" style="margin-top:6px">お手元の緑本PDF（章ごとに分けたもの）を読み込むこともできます。読み込んだPDFはこのブラウザの中にだけ保存されます。<button class="btn" data-go-pdfload="1">PDFを読み込む</button></p>
@@ -1690,7 +1754,7 @@ function renderHome(){
 function renderQList(title,lead,ids,back){
   let h=`<div class="lesson"><div><h2>${title}</h2><p class="lead">${lead}</p></div>`;
   if(!ids.length) h+=`<div class="card"><p>問題はありません。</p></div>`;
-  else h+=`<div class="card blk"><h3><span class="tag t-q">問題</span><span class="mono note" id="score" data-ids="${ids.join(",")}"></span></h3>${ids.map((id,k)=>qHTML(QMAP[id],`Q${k+1}`)+`<p class="ref" style="margin:4px 0 0">出典：${SEC_OF_Q[id].id} ${tx(SEC_OF_Q[id].t)}（<button class="linkbtn" data-go="sec:${SEC_OF_Q[id].id}">本文へ</button>）</p>`).join("")}</div>`;
+  else h+=`<div class="card blk hue-rose"><h3><span class="tag">問題</span><span class="mono note" id="score" data-ids="${ids.join(",")}"></span></h3>${ids.map((id,k)=>qHTML(QMAP[id],`Q${k+1}`)+`<p class="ref" style="margin:4px 0 0">出典：${SEC_OF_Q[id].id} ${tx(SEC_OF_Q[id].t)}（<button class="linkbtn" data-go="sec:${SEC_OF_Q[id].id}">本文へ</button>）</p>`).join("")}</div>`;
   h+=`<div class="row"><button class="btn" data-go="${back}">← もどる</button></div></div>`;
   CM.innerHTML=h; updateScore();
 }
