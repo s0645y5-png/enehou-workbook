@@ -1,0 +1,1670 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>エネルギー法ワークブック</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* レイアウト：上に見出しとタブ、本文は1列。計算タブは「入力（左）→結果（右）」、狭い画面では縦に並ぶ */
+:root{
+  --bg:#f4f6f8; --panel:#ffffff; --ink:#18212b; --sub:#55606d; --line:#d7dde4; --soft:#e9eef3;
+  --accent:#1d5fa8; --accent-soft:#e3edf8; --damper:#b0640a; --damper-soft:#f8ecdc;
+  --ok:#1f7a4a; --ok-soft:#e1f2e8; --ng:#b3261e; --ng-soft:#fbe5e3; --warn:#8a6100; --warn-soft:#fbf1d6;
+  --f-disp:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,"Consolas",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --panel:#1a2129; --ink:#e4e9ef; --sub:#9aa6b3; --line:#2e3843; --soft:#222b35;
+  --accent:#6fa8e8; --accent-soft:#1d2f44; --damper:#e3a052; --damper-soft:#3a2a17;
+  --ok:#5cc28c; --ok-soft:#173326; --ng:#f08a82; --ng-soft:#3d1e1c; --warn:#e3c060; --warn-soft:#352c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --panel:#1a2129; --ink:#e4e9ef; --sub:#9aa6b3; --line:#2e3843; --soft:#222b35;
+  --accent:#6fa8e8; --accent-soft:#1d2f44; --damper:#e3a052; --damper-soft:#3a2a17;
+  --ok:#5cc28c; --ok-soft:#173326; --ng:#f08a82; --ng-soft:#3d1e1c; --warn:#e3c060; --warn-soft:#352c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding-block:10px 0}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand h1{font-family:var(--f-disp);font-size:21px;margin:0;letter-spacing:.04em;text-wrap:balance}
+.brand small{color:var(--sub);font-size:12px}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;width:100%;scrollbar-width:none}
+nav.tabs button{font:inherit;font-size:14px;border:0;background:none;color:var(--sub);padding:8px 12px 10px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{padding-block:20px 60px}
+section.view{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+section.view>*{min-width:0}
+[hidden]{display:none!important}
+h2{font-family:var(--f-disp);font-size:22px;margin:0;letter-spacing:.03em;text-wrap:balance}
+h3{font-size:16px;margin:0 0 6px;text-wrap:balance}
+p{margin:0}
+.lead{color:var(--sub);max-width:70ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.grid2>*{min-width:0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--sub);font-weight:500;font-size:12.5px;background:var(--soft)}
+td.n,th.n{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mono{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.ref{font-size:12px;color:var(--sub);white-space:nowrap}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.ok{background:var(--ok-soft);color:var(--ok)} .ng{background:var(--ng-soft);color:var(--ng)} .wa{background:var(--warn-soft);color:var(--warn)}
+.dmp{background:var(--damper-soft);color:var(--damper)} .el{background:var(--accent-soft);color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+label.f{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--sub)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:5px 7px}
+input[type=number],input.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;text-align:right;width:100%;min-width:72px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:13px;border:0;background:var(--panel);color:var(--sub);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:4px;padding:6px 12px;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.inputs td{padding:3px 4px} .inputs th{white-space:nowrap}
+.inputs input{padding:4px 5px;font-size:13px}
+.note{font-size:13px;color:var(--sub)}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.sum .k{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--panel);display:flex;flex-direction:column;gap:2px;min-width:0}
+.sum .k b{font-family:var(--f-num);font-size:19px;font-weight:500}
+.sum .k span{font-size:12px;color:var(--sub)}
+.steps{display:grid;gap:0;counter-reset:s}
+.step{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.step::before{counter-increment:s;content:counter(s);font-family:var(--f-num);width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:13px}
+.step.d::before{background:var(--damper-soft);color:var(--damper)}
+.formula{font-family:var(--f-num);font-size:13.5px;background:var(--soft);padding:2px 6px;border-radius:3px;white-space:nowrap}
+details.card>summary{cursor:pointer;font-weight:700}
+.calc-lines{font-family:var(--f-num);font-size:12.5px;line-height:1.75;white-space:pre-wrap;background:var(--soft);border-radius:4px;padding:12px;margin:0;max-height:70vh;overflow:auto}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.flow ol{margin:6px 0 0;padding-left:22px}
+.flow li{margin:3px 0}
+svg text{fill:var(--sub);font-family:var(--f-num);font-size:11px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--sub)}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:4px}
+.diff-ok{color:var(--ok)} .diff-ng{color:var(--ng)}
+/* 講座 */
+.course{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}
+.course>*{min-width:0}
+.toc{position:sticky;top:100px;max-height:calc(100vh - 116px);overflow:auto}
+.toc summary{font-weight:700;cursor:pointer}
+.toc ol{list-style:none;margin:6px 0 0;padding:0}
+.toc .u{font-size:12.5px;color:var(--sub);margin:12px 0 2px;font-weight:700}
+.toc a{display:flex;gap:6px;align-items:baseline;padding:4px 6px;border-radius:4px;color:var(--ink);text-decoration:none;font-size:13.5px;cursor:pointer}
+.toc a:hover{background:var(--soft)}
+.toc a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.toc .mk{width:1.1em;flex:none;color:var(--ok);font-weight:700}
+.toc .soon{color:var(--sub);font-size:12.5px;padding:2px 6px}
+@media (max-width:860px){ .course{grid-template-columns:minmax(0,1fr)} .toc{position:static;max-height:none} }
+.bar{height:6px;background:var(--soft);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.lesson{display:grid;gap:16px}
+.lesson p+p{margin-top:8px}
+.lesson ul,.lesson ol{margin:0;padding-left:20px}
+.lesson li{margin:2px 0}
+.blk>h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:3px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.tag.t-q{background:var(--damper-soft);color:var(--damper)}
+.tag.t-ok{background:var(--ok-soft);color:var(--ok)}
+.crumb{font-size:12.5px;color:var(--sub)}
+.q{border:1px solid var(--line);border-radius:6px;padding:12px;display:grid;gap:8px;background:var(--panel)}
+.q+.q{margin-top:10px}
+.qt{font-weight:500}
+.qn{font-family:var(--f-num);color:var(--sub);margin-right:6px}
+.opts{display:grid;gap:6px}
+.opt{font:inherit;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:8px 10px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default;opacity:1}
+.opt.p-ok{background:var(--ok-soft);border-color:var(--ok)}
+.opt.p-ng{background:var(--ng-soft);border-color:var(--ng)}
+.opt.is-ans{box-shadow:inset 0 0 0 2px var(--ok)}
+.fb{border-left:3px solid var(--line);padding:8px 12px;background:var(--soft);border-radius:0 4px 4px 0;font-size:14px}
+.fb.f-ok{border-left-color:var(--ok)} .fb.f-ng{border-left-color:var(--ng)}
+.fb b.r-ok{color:var(--ok)} .fb b.r-ng{color:var(--ng)}
+.pdfv{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:stretch;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 10px 10px}
+.pdfv .box{background:var(--panel);border-radius:8px;width:min(1100px,100%);display:flex;flex-direction:column;overflow:hidden}
+.pdfv .bar2{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pdfv .bar2 b{flex:1;min-width:0;font-size:14px}
+.pdfv iframe{flex:1;width:100%;border:0;background:#525659}
+.pdfa{display:inline-block;font-size:12.5px;cursor:pointer;background:none;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:0 7px;text-decoration:none;white-space:nowrap;font-family:var(--f-body)}
+.pdfa::before{content:"📄 "}
+.pdfa:hover{background:var(--accent-soft)}
+.linkbtn{font:inherit;font-size:13px;border:0;background:none;color:var(--accent);cursor:pointer;padding:0;text-decoration:underline}
+.ex td input{width:120px}
+.ex td input.good{border-color:var(--ok);background:var(--ok-soft)}
+.ex td input.bad{border-color:var(--ng)}
+.kflow{display:grid;gap:4px;max-width:620px}
+.kf{border:1px dashed var(--line);border-radius:4px;padding:5px 10px;font-size:13.5px}
+.kf.main{border:1.5px solid var(--accent);background:var(--accent-soft)}
+.hint{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:6px;padding:8px 12px;margin-bottom:16px;font-size:14px}
+.flash{animation:fl 2s ease-out}
+@keyframes fl{0%{box-shadow:0 0 0 4px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.units .card{display:grid;gap:6px;align-content:start}
+textarea.memo{width:100%;min-height:70px;resize:vertical}
+.fig{max-width:640px}
+.fig figcaption{font-size:12.5px;color:var(--sub);margin-top:4px}
+@media (max-width:640px){ body{font-size:14.5px} .brand h1{font-size:19px} .card{padding:12px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><h1>エネルギー法ワークブック</h1><small>平17国交告第631号／鋼構造・履歴型ダンパー付き</small></div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-v="course">講座</button>
+      <button role="tab" data-v="learn">早見表</button>
+      <button role="tab" data-v="calc">計算</button>
+      <button role="tab" data-v="design">設計の目安</button>
+      <button role="tab" data-v="margin">余裕度</button>
+      <button role="tab" data-v="report">計算書</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="hint" id="hintBar" hidden></div>
+<div class="pdfv" id="pdfView" hidden role="dialog" aria-modal="true" aria-labelledby="pdfTitle"><div class="box">
+  <div class="bar2"><b id="pdfTitle">緑本</b><a class="btn" id="pdfNewTab" target="_blank" rel="noopener" style="text-decoration:none">別タブで開く</a><button class="btn pri" id="pdfClose">閉じる</button></div>
+  <p class="note" id="pdfStatus" style="padding:8px 12px" hidden></p>
+  <iframe id="pdfFrame" title="緑本PDF"></iframe></div></div>
+
+<!-- ========== 講座 ========== -->
+<section class="view" id="v-course">
+  <div class="course">
+    <details class="toc card" id="toc" open></details>
+    <div id="courseMain"></div>
+  </div>
+</section>
+
+<!-- ========== 早見表 ========== -->
+<section class="view" id="v-learn" hidden>
+  <div>
+    <h2>エネルギー法の全体像</h2>
+    <p class="lead">地震で建物に入るエネルギー（必要量）と、建物が吸収できるエネルギー（保有量）を比べて安全を確かめる方法です。稀地震でダンパーの降伏を許容でき、その分を主架構の負担から差し引けるのが特徴です。ページ番号は『鋼構造建築物へのエネルギー法活用マニュアル』（緑本）です。</p>
+  </div>
+
+  <div class="flow">
+    <div class="card">
+      <h3>損傷限界（稀に発生する地震）<span class="ref">告示第4／緑本4.2 P43〜</span></h3>
+      <ol>
+        <li>準備計算：m<sub>i</sub>, M, T<sub>d</sub>, A<sub>i</sub>, Q<sub>fi</sub>, δ<sub>i</sub>, k<sub>fi</sub>, Q<sub>dui</sub>, k<sub>di</sub>, δ<sub>dui</sub></li>
+        <li>必要エネルギー <span class="formula">E<sub>d</sub> = ½·M·V<sub>d</sub>²</span></li>
+        <li>吸収エネルギー <span class="formula">W<sub>e</sub> = Σ(W<sub>fi</sub> + W<sub>dei</sub> + W<sub>dpi</sub>)</span>、n<sub>i</sub>=2</li>
+        <li><span class="formula">E<sub>d</sub> ≦ W<sub>e</sub></span> の確認</li>
+        <li>C<sub>1</sub>（吸収エネルギーが E<sub>d</sub> に達するベースシア）と層間変形角 1/200</li>
+        <li>残留変形（目標 1/1000）</li>
+        <li>地下・基礎（C<sub>1</sub> 時の応力で許容応力度設計）</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>安全限界（極めて稀に発生する地震）<span class="ref">告示第6／緑本4.3 P50〜</span></h3>
+      <ol>
+        <li>準備計算：Q<sub>fui</sub>, Q<sub>dui</sub>, Q<sub>ui</sub>, δ<sub>fui</sub>, δ<sub>dui</sub>, R<sub>e</sub></li>
+        <li><span class="formula">E<sub>s</sub> = ½·M·V<sub>s</sub>² − W<sub>e</sub></span>（W<sub>e</sub> は n<sub>i</sub>=5 で計算し直す）</li>
+        <li>各層への配分 E<sub>si</sub>（耐力分布のずれ p<sub>i</sub> の −n 乗）</li>
+        <li>主架構 E<sub>sfi</sub> とダンパー E<sub>sdi</sub> に分ける</li>
+        <li>必要累積塑性変形倍率 η<sub>s</sub> ≦ 保有 η<sub>c</sub> の確認</li>
+        <li>最大応答変位（告示の規定外だが確認推奨）</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>覚えておきたい「n」と係数</h3>
+    <p class="note">似た記号が多く、取り違えやすいところです。</p>
+    <div class="scroll"><table>
+      <thead><tr><th>記号</th><th class="n">値</th><th>使う場所</th><th>意味</th><th>緑本</th></tr></thead>
+      <tbody>
+        <tr><td>n<sub>i</sub></td><td class="n">2</td><td>損傷限界の W<sub>dpi</sub></td><td>±δ<sub>i</sub> の1ループ分（応答解析の範囲2〜10の下限）</td><td class="ref">P47 式(4.2.6)</td></tr>
+        <tr><td>n<sub>i</sub></td><td class="n">5</td><td>安全限界の W<sub>e</sub></td><td>極稀地震時の下限値（範囲5〜20）</td><td class="ref">P52 式(4.3.6)</td></tr>
+        <tr><td>n<sub>si</sub></td><td class="n">20</td><td>E<sub>sdpi</sub></td><td>主架構が弾性範囲で揺れる間のダンパー吸収（上限値）</td><td class="ref">P55 式(4.3.16)</td></tr>
+        <tr><td>n<sub>di</sub></td><td class="n">10</td><td>E<sub>ddpi</sub></td><td>稀地震1回分のダンパー損傷</td><td class="ref">P55 式(4.3.17)</td></tr>
+        <tr><td>β</td><td class="n">5</td><td>β·E<sub>ddpi</sub></td><td>本震前に経験する稀地震の回数</td><td class="ref">P57</td></tr>
+        <tr><td>n</td><td class="n">4 / 8</td><td>E<sub>si</sub> の配分</td><td>損傷集中指数（全体崩壊形 4、それ以外 8）</td><td class="ref">P54 式(4.3.7)</td></tr>
+        <tr><td>γ<sub>di</sub></td><td class="n">—</td><td>η<sub>sdi</sub></td><td>層の変形のうちダンパー自体の変形の割合（1/γ が変形集中率）</td><td class="ref">P57〜58</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>主な式</h3>
+      <div class="scroll"><table>
+        <tbody>
+          <tr><td>V<sub>d</sub>（T<sub>d</sub>≧0.64）</td><td><span class="formula">1.024·Z·G<sub>s</sub>/2π</span></td><td class="ref">告示第4 表一</td></tr>
+          <tr><td>V<sub>s</sub>（T<sub>s</sub>≧0.64）</td><td><span class="formula">5.12·Z·G<sub>s</sub>/2π</span></td><td class="ref">告示第6</td></tr>
+          <tr><td>W<sub>dpi</sub></td><td><span class="formula">2(δ<sub>i</sub>−δ<sub>dui</sub>)·Q<sub>dui</sub>·n<sub>i</sub></span></td><td class="ref">P47</td></tr>
+          <tr><td>T<sub>s</sub></td><td><span class="formula">T<sub>d</sub>〜1.2T<sub>d</sub> で V<sub>s</sub> 最大</span></td><td class="ref">P53 解4.3.1</td></tr>
+          <tr><td>s<sub>i</sub></td><td><span class="formula">(Σm<sub>j</sub>/M)²·A<sub>i</sub>²·(Q<sub>u1</sub>/δ<sub>fu1</sub>)/(Q<sub>ui</sub>/δ<sub>fui</sub>)</span></td><td class="ref">P54</td></tr>
+          <tr><td>p<sub>i</sub></td><td><span class="formula">α<sub>i</sub>/(α<sub>1</sub>·A<sub>i</sub>)</span></td><td class="ref">P54</td></tr>
+          <tr><td>E<sub>si</sub></td><td><span class="formula">s<sub>i</sub>(p<sub>i</sub>p<sub>ti</sub>)<sup>−n</sup>/Σ … × E<sub>s</sub></span></td><td class="ref">P54</td></tr>
+          <tr><td>η<sub>sfi</sub></td><td><span class="formula">E<sub>sfi</sub>/(2·Q<sub>fui</sub>·δ<sub>fui</sub>)</span></td><td class="ref">P55</td></tr>
+          <tr><td>E<sub>sdi</sub></td><td><span class="formula">E<sub>si</sub>·Q<sub>dui</sub>/Q<sub>ui</sub> + E<sub>sdpi</sub> + β·E<sub>ddpi</sub></span></td><td class="ref">P55</td></tr>
+          <tr><td>η<sub>sdi</sub></td><td><span class="formula">E<sub>sdi</sub>/(2·γ<sub>di</sub>·Q<sub>dui</sub>·δ<sub>dui</sub>)</span></td><td class="ref">P55</td></tr>
+          <tr><td>δ<sub>mi</sub></td><td><span class="formula">(η<sub>sfi</sub>/n<sub>i</sub> + 1)·δ<sub>fui</sub></span>、n<sub>i</sub>=2</td><td class="ref">P59</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card"><h3>計算の流れと緑本の節</h3><p class="note">損傷限界：4.2.2 準備計算 → 4.2.3 E<sub>d</sub> → 4.2.4 W<sub>e</sub> → 4.2.6 C<sub>1</sub> → 4.2.7 残留変形。安全限界：4.3.3 E<sub>s</sub> → 4.3.4 E<sub>si</sub> → 4.3.5 配分と η → 4.3.6 最大応答変位 → 4.3.7 保有性能。</p></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>実務のポイント</h3>
+      <ul style="margin:0;padding-left:20px">
+        <li>T<sub>d</sub> は弾性の固有値ではなく、損傷限界時の<b>等価剛性</b>で求めた周期（SS7の固有値解析は初期剛性なので使えない）。<span class="ref">P44〜45</span></li>
+        <li>ダンパーが降伏するか否かで W<sub>e</sub> の計算が変わる。<span class="ref">P47</span></li>
+        <li>剛性比 k は通常 0.5〜2、耐力分担率 β は 0.1〜0.3 程度で k に応じて決める。β を β<sub>opt</sub> 以下にしておけばダンパーの耐力上昇を気にしなくてよい。<span class="ref">P78〜79</span></li>
+        <li>W<sub>e</sub> のただし書き：損傷限界〜保有水平耐力の台形部分も吸収エネルギーに数えられる。ただし全層の台形を全部足すのは過大評価。<span class="ref">P64〜65</span></li>
+        <li>4.3.6 の最大応答変位はかなり安全側。精度を上げるなら 5.2〜5.4 節。<span class="ref">P59</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>最近の研究からの注意</h3>
+      <p>建築研究報告155号 第7章に、<b>4階建て鉄骨造の物流倉庫（座屈拘束ブレース）</b>の計算例があります。従来の告示どおりに設計した建物でも、<b>1.5V<sub>s</sub> の地震や長く続く地震では1〜2階の梁端部が破断限界を超える</b>という結果でした。1.5V<sub>s</sub> に耐えるには、ダンパー量を1.3倍程度、高強度鋼の柱、ノンスカラップの梁端などが必要とされています。</p>
+      <p class="note" style="margin-top:6px">→「余裕度」タブで入力の大きさを1.5倍・2.0倍にしたときの判定を確かめられます（梁端の疲労評価式そのものは含みません）。</p>
+      <p class="note" style="margin-top:6px"><a href="https://www.kenken.go.jp/japanese/contents/publications/report/155/7.pdf" target="_blank" rel="noopener" style="color:var(--accent)">建築研究報告155号 第7章（PDF）</a></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>記号の辞書</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>記号</th><th>意味</th><th>単位</th></tr></thead>
+      <tbody id="glossary"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ========== 計算 ========== -->
+<section class="view" id="v-calc" hidden>
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <h2>計算</h2>
+      <p class="lead">各階の値はSS7の出力から入力します。セルにExcelの表をそのまま貼り付けると、右と下のセルに続けて入ります。</p>
+    </div>
+    <div class="row">
+      <div class="seg" id="dirSeg"><button data-d="X">X方向</button><button data-d="Y">Y方向</button></div>
+      <button class="btn" id="btnSample">サンプルの値に戻す</button>
+    </div>
+  </div>
+
+  <div class="sum" id="summary"></div>
+
+  <div class="card">
+    <h3>共通の条件</h3>
+    <div class="row" id="common"></div>
+    <p class="note" style="margin-top:8px">M は各階の重量の合計 Σw / 9.8 で自動計算します。T<sub>d</sub> は等価剛性による固有値解析（Dynamic PRO など）の結果を入れてください。</p>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h3>各階の値（上の階から）</h3>
+      <div class="row"><button class="btn" id="addStory">階を追加</button><button class="btn" id="delStory">最下階を削除</button></div>
+    </div>
+    <div class="scroll"><table class="inputs" id="inTable"></table></div>
+    <p class="note" style="margin-top:6px">k<sub>fi</sub> = Q<sub>fi</sub>/δ<sub>i</sub>、δ<sub>dui</sub> = Q<sub>dui</sub>/k<sub>di</sub>、Q<sub>fui</sub> = k<sub>fi</sub>·δ<sub>fui</sub>（サンプル建物の計算と同じバイリニア置換）。主架構の保有 η<sub>c</sub> は 1/3·<sub>m</sub>η<sub>u</sub>·1.5·a<sub>b</sub>+2（a<sub>b</sub>：梁 2.0、柱 5/3）の小さい方。<span class="ref">P35 解3.3.7</span></p>
+  </div>
+
+  <details class="card">
+    <summary>γ<sub>di</sub> をダンパー諸元から求める（座屈拘束ブレース）</summary>
+    <p class="note" style="margin:6px 0">緑本 P58 式(解4.3.4)：γ<sub>di</sub> = λL<sub>br</sub>/(2EA<sub>br</sub>)·(L<sub>br</sub>/L<sub>d</sub>)²·<sub>s</sub>K<sub>d</sub>。<sub>s</sub>K<sub>d</sub> はダンパー1本の等価軸剛性 K<sub>e</sub>×cos²θ で近似しています。</p>
+    <div class="row" id="gammaCalc"></div>
+    <p class="mono" id="gammaOut" style="margin-top:8px"></p>
+  </details>
+
+  <div class="card">
+    <h3>損傷限界（稀に発生する地震）</h3>
+    <div class="scroll" id="outDamage"></div>
+  </div>
+  <div class="card">
+    <h3>安全限界（極めて稀に発生する地震）</h3>
+    <div class="scroll" id="outSafe"></div>
+  </div>
+</section>
+
+<!-- ========== 設計の目安 ========== -->
+<section class="view" id="v-design" hidden>
+  <div>
+    <h2>ダンパー量の目安</h2>
+    <p class="lead">剛性比 k = K<sub>D</sub>/K<sub>F</sub> と耐力分担率 β = Q<sub>dui</sub>/Q<sub>ui</sub> の関係です。β が β<sub>opt</sub> 付近のとき変位応答が最小になり、<sub>U</sub>β を超えるとダンパーの効きが落ちます。<span class="ref">緑本 P78〜79 式(5.6.1)〜(5.6.3)</span></p>
+  </div>
+  <div class="grid2">
+    <div class="card"><div id="betaChart"></div>
+      <div class="legend" style="margin-top:6px">
+        <span><i style="background:var(--sub)"></i><sub>U</sub>β = k/(1+k)</span>
+        <span><i style="background:var(--accent)"></i><sub>U</sub>β<sub>opt</sub> = 1−1/√(1+k)</span>
+        <span><i style="background:var(--ok)"></i>β<sub>opt</sub> = k/(1+k+2√(1+k))</span>
+        <span><i style="background:var(--damper);height:8px;width:8px;border-radius:50%"></i>各階の現在値</span>
+      </div>
+    </div>
+    <div class="card"><div class="scroll" id="betaTable"></div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ========== 余裕度 ========== -->
+<section class="view" id="v-margin" hidden>
+  <div>
+    <h2>入力が大きい地震への余裕</h2>
+    <p class="lead">安全限界の V<sub>s</sub> を何倍かにしたとき、どこから足りなくなるかを見ます。建築研究報告155号では 1.5V<sub>s</sub> を目標とした設計例が示されています。ここでは入力の倍率だけを変えており、梁端部の疲労評価式による限界変形は含みません。</p>
+  </div>
+  <div class="card">
+    <div class="row"><label class="f" for="mulIn">任意の倍率<input id="mulIn" type="number" step="0.1" min="0.5" max="3" value="1.3" style="width:100px"></label></div>
+    <div class="scroll" id="marginTable" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- ========== 計算書 ========== -->
+<section class="view" id="v-report" hidden>
+  <div class="row" style="justify-content:space-between">
+    <div><h2>計算書</h2><p class="lead">式・代入した値・結果を順に並べています。計算タブで選んでいる方向の内容です。</p></div>
+    <button class="btn pri" id="copyRep">すべてコピー</button>
+  </div>
+  <pre class="calc-lines" id="report"></pre>
+</section>
+
+</main>
+
+<script>
+"use strict";
+const G = 9.8;
+const GLOSS = [
+ ["m_i, M","各層の質量、地上部分の全質量（M = Σw/g）","t"],["T_d","損傷限界時の固有周期（等価剛性による）","s"],["T_s","安全限界時の有効固有周期","s"],
+ ["A_i","地震層せん断力係数の分布係数","—"],["G_s","表層地盤による増幅率（告示1457号第10）","—"],["r","地盤種別に応じた V の低減係数（Excelでは γ）","—"],
+ ["V_d, V_s","エネルギーの速度換算値","m/s"],["E_d","損傷限界必要エネルギー ½MV_d²","kN·m"],["W_e","弾性範囲で吸収できるエネルギー","kN·m"],
+ ["E_s","安全限界必要エネルギー ½MV_s² − W_e","kN·m"],["E_si","各層の必要エネルギー吸収量","kN·m"],["Q_fi, δ_i","損傷限界時の主架構の層せん断力、層間変位","kN, mm"],
+ ["k_fi, k_di","主架構、ダンパー部分の水平剛性","kN/mm"],["Q_fui, Q_dui, Q_ui","主架構、ダンパー部分、層全体の保有水平耐力","kN"],
+ ["δ_fui, δ_dui","主架構、ダンパー部分の降伏変位","mm"],["C_1","損傷限界ベースシア係数","—"],["η_s, η_c","必要／保有 累積塑性変形倍率（片側）","—"],
+ ["γ_di","層の変形に対するダンパー自体の変形の寄与率","—"],["R_e, p_ti","偏心率、それによる低減係数","—"],["κ, μ_res","剛性比 k_di/k_fi、残留塑性率","—"]
+];
+document.getElementById("glossary").innerHTML = GLOSS.map(g=>`<tr><td class="mono">${g[0].replace(/_([a-zA-Z0-9]+)/g,"<sub>$1</sub>")}</td><td>${g[1]}</td><td class="mono">${g[2]}</td></tr>`).join("");
+
+/* ---------- サンプル建物（架空の3層の物流倉庫） ---------- */
+const SAMPLE = {
+ common:{Z:1.0, ground:2, useR:true, mode:"proviso", nExp:8, tsMul:1.2, driftLim:200, resLim:1000, maxLim:75, etaCd:400, c1Mode:"auto", c1Fix:0.115, beta:5},
+ X:{Td:1.2738, stories:[
+  {name:"3",H:8200,w:43490.2, Qf:7202.88, d:22.7484, Kd:506.018, Qdu:13080.6, dfu:78.6, Re:0.09, gam:0.103506, mb:4.947644161, mc:3.646359313},
+  {name:"2",H:8200,w:359648,Qf:33006.9,d:30.4106, Kd:2276.2, Qdu:43407.2, dfu:91.85,Re:0.085,gam:0.465592, mb:4.013232426, mc:2.32991372},
+  {name:"1",H:9550,w:374873,Qf:42595.3,d:37.715,  Kd:3242.53, Qdu:58333.1, dfu:112.7,Re:0.039,gam:0.630606, mb:4.013232426, mc:4.673616748}]},
+ Y:{Td:1.2802, stories:[
+  {name:"3",H:8200,w:43490.2, Qf:7935.12, d:24.472,  Kd:422.792, Qdu:12497.7, dfu:79.15,Re:0.09, gam:0.092246, mb:4.947644161, mc:3.646359313},
+  {name:"2",H:8200,w:359648,Qf:38556.9,d:34.0802, Kd:1901.51, Qdu:39076, dfu:93.9, Re:0.085,gam:0.444513, mb:5.046381718, mc:2.32991372},
+  {name:"1",H:9550,w:374873,Qf:43658.6,d:36.8959, Kd:3199.15, Qdu:57968.5, dfu:116.4,Re:0.058,gam:0.622169, mb:5.239626191, mc:4.673616748}]}
+};
+const EXCEL = {
+ X:{Vd:0.330024,Ed:5404.178,WeD:11285.140,C1:0.115,WC1:5607.047,Vs:1.650118,Es0:135104.456,WeS:129992.303,Es:5112.154,
+    Esi:[151.652,1826.910,3133.592],etaSf:[0.020327,0.055598,0.059919],dm:[79.399,94.403,116.076],Esd:[24823.888,171173.139,347078.830],etaSdX:[283.715,177.655,209.789]},
+ Y:{Vd:0.330024,Ed:5404.178,WeD:11351.614,C1:0.115,WC1:5587.888,Vs:1.650118,Es0:135104.456,WeS:128744.601,Es:6359.855,
+    Esi:[246.372,2739.004,3374.479],etaSf:[0.032626,0.080295,0.059254],dm:[80.441,97.670,119.849],Esd:[23862.717,167341.321,338351.496],etaSdX:[280.088,187.524,207.095]}
+};
+
+/* ---------- 計算の仕組み ---------- */
+function Gs(T,ground){
+  if(ground===1) return T<0.576?1.5:(T<0.64?0.864/T:1.35);
+  const gv = ground===2?2.025:2.7, Tu=0.64*gv/1.5;
+  return T<0.64?1.5:(T<Tu?1.5*T/0.64:gv);
+}
+function rFac(T,ground){
+  const Ta=[0,0.576,0.846,1.152][ground], Tb=[0,0.64,0.96,1.28][ground];
+  if(T<0.16) return 1-0.1*T/0.16; if(T<Ta) return 0.9; if(T<Tb) return 0.9+0.1*(T-Ta)/(Tb-Ta); return 1;
+}
+function Vd(T,Z,gs,r){ const c = T<0.16? T*(0.64+6*T) : (T<0.64? T*1.6 : 1.024); return c/(2*Math.PI)*Z*gs*r; }
+function Vs(T,Z,gs,r){ const c = T<0.16? T*(3.2+30*T) : (T<0.64? T*8 : 5.12); return c/(2*Math.PI)*Z*gs*r; }
+function AiList(alphas,T){ return alphas.map(a=>1+(1/Math.sqrt(a)-a)*2*T/(1+3*T)); }
+
+/* ダンパー付き層のバイリニア：層せん断力 Q → 層間変位 δ */
+function dispOf(Q,s){ const Ke=s.Kf+s.Kd; return Q<=Ke*s.ddu ? Q/Ke : (Q-s.Qdu)/s.Kf; }
+/* 変位 δ での吸収エネルギー（kN·m）。nn：ダンパー塑性の累積回数 */
+function energyAt(d,s,nn){
+  const Wf=0.5*s.Kf*d*d/1e3; let Wde,Wdp,yld=d>s.ddu;
+  if(yld){ Wde=0.5*s.Qdu*s.ddu/1e3; Wdp=2*(d-s.ddu)*s.Qdu*nn/1e3; } else { Wde=0.5*s.Kd*d*d/1e3; Wdp=0; }
+  return {Wf,Wde,Wdp,W:Wf+Wde+Wdp,yld};
+}
+
+function compute(c,dir,opt={}){
+  const D=dir, Z=+c.Z, gr=+c.ground, mul=opt.mul||1;
+  const S=D.stories.map(o=>{const s={...o}; for(const k of ["H","w","Qf","d","Kd","Qdu","dfu","Re","gam","mb","mc"]) s[k]=+s[k]; return s;});
+  let cum=0; S.forEach(s=>{ cum+=s.w; s.sw=cum; });
+  const W=cum, M=W/G, N=S.length;
+  S.forEach(s=>{ s.alpha=s.sw/W; s.Kf=s.Qf/s.d; s.ddu=s.Qdu/s.Kd; s.Qfu=s.Kf*s.dfu; s.Qu=s.Qfu+s.Qdu; s.kappa=s.Kd/s.Kf; s.beta=s.Qdu/s.Qu; });
+  const out={S,W,M,N};
+  // 損傷限界
+  const Td=+D.Td; out.Td=Td; out.GsD=Gs(Td,gr); out.rD=c.useR?rFac(Td,gr):1; out.Vd=Vd(Td,Z,out.GsD,out.rD); out.Ed=0.5*M*out.Vd**2;
+  out.AiD=AiList(S.map(s=>s.alpha),Td);
+  S.forEach(s=>{ s.dmg=energyAt(s.d,s,2); s.Qdi=Math.min(s.Kd*s.d,s.Qdu); });
+  out.WeD=S.reduce((a,s)=>a+s.dmg.W,0); out.okD=out.WeD>=out.Ed;
+  // C1
+  const Wtot=C=>S.reduce((a,s,i)=>{const d=dispOf(C*out.AiD[i]*s.sw,s); return a+energyAt(d,s,2).W;},0);
+  let C1;
+  if(opt.c1!=null) C1=opt.c1; else if(c.c1Mode==="fix") C1=+c.c1Fix; else { let lo=0,hi=2; for(let k=0;k<80;k++){const m=(lo+hi)/2; Wtot(m)<out.Ed?lo=m:hi=m;} C1=hi; }
+  out.C1=C1; out.WC1=Wtot(C1);
+  S.forEach((s,i)=>{ s.Qc1=C1*out.AiD[i]*s.sw; s.dc1=dispOf(s.Qc1,s); s.rc1=s.H/s.dc1; s.okDrift=s.rc1>=+c.driftLim;
+    // 残留変形 P49
+    const k=s.kappa, mu=s.dc1/s.ddu; s.muD=mu; let mr=null;
+    if(mu>1){ if(mu<=(k+5)/4) mr=k/(1+k)*(mu-1); else if(k<=5/3) mr=k/4; else if(mu<=k) mr=k/(1+k)*(1+k-Math.sqrt((mu-k)**2+3*k-1)); else mr=k/(1+k)*(1+k-Math.sqrt(3*k-1)); }
+    s.muRes=mr; s.dRes=mr==null?0:mr*s.ddu; s.rRes=mr==null||mr<=0?Infinity:s.H/s.dRes; s.okRes=s.rRes>=+c.resLim; });
+  out.okDrift=S.every(s=>s.okDrift); out.okRes=S.every(s=>s.okRes);
+  // 安全限界
+  let best=-1,Ts=Td; const tm=+c.tsMul;
+  for(let k=200;k>=0;k--){ const T=Td+(tm-1)*Td*k/200; const v=Vs(T,Z,Gs(T,gr),c.useR?rFac(T,gr):1); if(v>best+1e-12){best=v;Ts=T;} }
+  out.Ts=Ts; out.GsS=Gs(Ts,gr); out.rS=c.useR?rFac(Ts,gr):1; out.Vs0=Vs(Ts,Z,out.GsS,out.rS); out.Vs=out.Vs0*mul; out.Es0=0.5*M*out.Vs**2;
+  const mode=opt.mode||c.mode;
+  if(mode==="proviso"){
+    out.Cstar=Math.min(...S.map((s,i)=>s.Qu/(s.sw*out.AiD[i])));
+    S.forEach((s,i)=>{ const Q=out.Cstar*out.AiD[i]*s.sw; s.de=dispOf(Q,s); s.we=energyAt(s.de,s,5); });
+  } else {
+    S.forEach(s=>{ s.de=s.d; s.we=energyAt(s.d,s,5); });
+  }
+  out.WeS=S.reduce((a,s)=>a+s.we.W,0); out.Es=Math.max(0,out.Es0-out.WeS);
+  out.AiS=AiList(S.map(s=>s.alpha),Ts);
+  const s1=S[N-1];
+  S.forEach((s,i)=>{ s.si=s.alpha**2*out.AiS[i]**2*(s1.Qu/s1.dfu)/(s.Qu/s.dfu); s.aq=s.Qu/s.sw; });
+  S.forEach((s,i)=>{ s.pi=s.aq/(s1.aq*out.AiS[i]); s.pti=s.Re<=0.15?1:(s.Re<0.3?1.15-s.Re:0.85); s.g=s.si*Math.pow(s.pi*s.pti,-(+c.nExp)); });
+  const sg=S.reduce((a,s)=>a+s.g,0);
+  S.forEach(s=>{ s.Esi=s.g/sg*out.Es; s.Esf=s.Esi*s.Qfu/s.Qu; s.etaSf=s.Esf*1e3/(2*s.Qfu*s.dfu);
+    s.etaCf=Math.min(1/3*s.mb*1.5*2+2, 1/3*s.mc*1.5*(5/3)+2); s.okEf=s.etaSf<=s.etaCf;
+    s.dm=(s.etaSf/2+1)*s.dfu; s.rm=s.H/s.dm; s.okDm=s.rm>=+c.maxLim;
+    s.E1=s.Esi*s.Qdu/s.Qu; s.Esdp=s.de>s.ddu?2*(s.de-s.ddu)*s.Qdu*20/1e3:0; s.Eddp=s.dc1>s.ddu?2*(s.dc1-s.ddu)*s.Qdu*10/1e3:0;
+    s.Esd=s.E1+s.Esdp+(+c.beta)*s.Eddp; s.etaSd=s.Esd*1e3/(2*s.gam*s.Qdu*s.ddu); s.okEd=s.etaSd<=+c.etaCd; });
+  out.okS=S.every(s=>s.okEf&&s.okEd); out.okDm=S.every(s=>s.okDm);
+  return out;
+}
+
+/* ---------- 状態 ---------- */
+let state, dirKey="X";
+function load(){ try{ const t=localStorage.getItem("enehou-wb-pub-v1"); if(t){ state=JSON.parse(t); return; } }catch(e){} state=JSON.parse(JSON.stringify(SAMPLE)); }
+function save(){ try{ localStorage.setItem("enehou-wb-pub-v1",JSON.stringify(state)); }catch(e){} }
+load();
+
+const f=(v,d=1)=>v==null||!isFinite(v)?"—":v.toLocaleString("ja-JP",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pill=(ok,t1="OK",t2="NG")=>`<span class="pill ${ok?"ok":"ng"}">${ok?t1:t2}</span>`;
+const ratio=r=>isFinite(r)?"1/"+Math.floor(r):"—";
+
+/* ---------- 入力欄 ---------- */
+const COLS=[["name","階",""],["H","階高 H","mm"],["w","重量 w_i","kN"],["Qf","Q_fi","kN"],["d","δ_i","mm"],["Kd","k_di","kN/mm"],["Qdu","Q_dui","kN"],["dfu","δ_fui","mm"],["Re","R_e",""],["gam","γ_di",""],["mb","梁 mη_u",""],["mc","柱 mη_u",""]];
+const sub=t=>t.replace(/_([a-z0-9]+)/gi,"<sub>$1</sub>");
+function buildInputs(){
+  const D=state[dirKey];
+  let h="<thead><tr>"+COLS.map(c=>`<th class="n">${sub(c[1])}${c[2]?`<br><span class="ref">${c[2]}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
+  D.stories.forEach((s,i)=>{ h+="<tr>"+COLS.map((c,j)=>`<td><input class="num" id="in-${dirKey}-${i}-${c[0]}" data-i="${i}" data-j="${j}" value="${s[c[0]]}" inputmode="decimal" aria-label="${s.name}階 ${c[1]}"></td>`).join("")+"</tr>"; });
+  document.getElementById("inTable").innerHTML=h+"</tbody>";
+  const CM=[["Td","T_d (s)",state[dirKey].Td,"dir"],["Z","地域係数 Z",state.common.Z],["ground","地盤種別",state.common.ground,"sel",[[1,"第1種"],[2,"第2種"],[3,"第3種"]]],
+    ["useR","V の低減 r",state.common.useR?1:0,"sel",[[1,"使う"],[0,"使わない"]]],["mode","安全限界の W_e",state.common.mode,"sel",[["proviso","ただし書き"],["kokuji","告示どおり（n_i=5）"]]],
+    ["nExp","損傷集中指数 n",state.common.nExp,"sel",[[8,"8（それ以外）"],[4,"4（全体崩壊形）"]]],["tsMul","T_s の上限 ×T_d",state.common.tsMul,"sel",[[1.2,"1.2（ダンパー付き）"],[1.4,"1.4（ブレース等）"]]],
+    ["c1Mode","C_1 の求め方",state.common.c1Mode,"sel",[["auto","自動（E_d に達する値）"],["fix","値を指定"]]],["c1Fix","指定する C_1",state.common.c1Fix],
+    ["etaCd","ダンパー保有 η_cd",state.common.etaCd],["driftLim","層間変形角 1/",state.common.driftLim,"sel",[[200,"200"],[120,"120"]]],["maxLim","最大応答の目安 1/",state.common.maxLim]];
+  document.getElementById("common").innerHTML=CM.map(c=>{
+    const id="cm-"+c[0];
+    if(c[3]==="sel") return `<label class="f" for="${id}">${sub(c[1])}<select id="${id}" data-k="${c[0]}">${c[4].map(o=>`<option value="${o[0]}" ${String(o[0])===String(c[2])?"selected":""}>${o[1]}</option>`).join("")}</select></label>`;
+    return `<label class="f" for="${id}">${sub(c[1])}<input class="num" id="${id}" data-k="${c[0]}" ${c[3]==="dir"?'data-dir="1"':""} value="${c[2]}" inputmode="decimal" style="width:110px"></label>`;
+  }).join("");
+  document.querySelectorAll("#dirSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.d===dirKey));
+}
+/* 入力値の整形：桁区切りのカンマ・空白を除き、全角数字を半角にする */
+const clean=v=>String(v).replace(/[０-９．－]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/[,，\s　]/g,"");
+const onCommon=e=>{
+  const k=e.target.dataset.k; if(!k) return; let v=e.target.tagName==="SELECT"?e.target.value:clean(e.target.value);
+  if(e.target.dataset.dir){ state[dirKey].Td=v; } else {
+    if(["ground","nExp","tsMul","driftLim"].includes(k)) v=+v; if(k==="useR") v=v==="1"; state.common[k]=v; }
+  save(); render();
+};
+document.getElementById("common").addEventListener("change",onCommon);
+document.getElementById("common").addEventListener("input",e=>{ if(e.target.tagName==="INPUT") onCommon(e); });
+document.getElementById("inTable").addEventListener("input",e=>{
+  const t=e.target; if(t.dataset.i==null) return; const k=COLS[+t.dataset.j][0]; state[dirKey].stories[+t.dataset.i][k]=k==="name"?t.value:clean(t.value); save(); render(false);
+});
+document.getElementById("inTable").addEventListener("paste",e=>{
+  const t=e.target; if(t.dataset.i==null) return; const txt=(e.clipboardData||window.clipboardData).getData("text"); if(!/[\t\n]/.test(txt.trim())) return;
+  e.preventDefault(); const rows=txt.replace(/\r/g,"").replace(/\n$/,"").split("\n").map(r=>r.split("\t"));
+  const i0=+t.dataset.i, j0=+t.dataset.j, st=state[dirKey].stories;
+  rows.forEach((r,a)=>{ const s=st[i0+a]; if(!s) return; r.forEach((v,b)=>{ const col=COLS[j0+b]; if(col) s[col[0]]=col[0]==="name"?v.trim():clean(v); }); });
+  save(); buildInputs(); render(false);
+});
+document.getElementById("dirSeg").addEventListener("click",e=>{ const d=e.target.dataset.d; if(!d) return; dirKey=d; buildInputs(); render(); });
+document.getElementById("btnSample").addEventListener("click",()=>{ state=JSON.parse(JSON.stringify(SAMPLE)); save(); buildInputs(); render(); });
+document.getElementById("addStory").addEventListener("click",()=>{ const st=state[dirKey].stories; const top=st[0]; st.unshift({...top,name:String((+top.name||st.length)+1)}); save(); buildInputs(); render(); });
+document.getElementById("delStory").addEventListener("click",()=>{ const st=state[dirKey].stories; if(st.length>1){ st.pop(); save(); buildInputs(); render(); } });
+
+/* γ の計算 */
+const GC=[["Lbr","芯々長さ L_br (mm)",9870],["Lc","塑性化部長さ λL_br (mm)",2000],["A","塑性化部断面積 A (mm²)",6000],["Ld","設置スパン L_d (mm)",5500],["Ke","軸剛性 K_e (kN/mm)",300],["h","階高 (mm)",8200],["span","スパン L (mm)",11000]];
+document.getElementById("gammaCalc").innerHTML=GC.map(g=>`<label class="f" for="gc-${g[0]}">${sub(g[1])}<input class="num" id="gc-${g[0]}" value="${g[2]}" style="width:120px"></label>`).join("");
+function gammaUpd(){ const v=k=>+document.getElementById("gc-"+k).value; const th=Math.atan(v("h")/(v("span")/2)); const sK=v("Ke")*Math.cos(th)**2;
+  const g=v("Lc")/(2*205*v("A"))*(v("Lbr")/v("Ld"))**2*sK;
+  document.getElementById("gammaOut").innerHTML=`θ = ${f(th*180/Math.PI,2)}°　sK_d = ${f(sK,2)} kN/mm　→　γ_di = ${f(g,4)}`.replace(/_([a-z]+)/g,"<sub>$1</sub>"); }
+document.getElementById("gammaCalc").addEventListener("input",gammaUpd); gammaUpd();
+
+/* ---------- 表示 ---------- */
+function render(){
+  const c=state.common, R=compute(c,state[dirKey]); const S=R.S;
+  const worstSf=Math.max(...S.map(s=>s.etaSf/s.etaCf)), worstSd=Math.max(...S.map(s=>s.etaSd/(+c.etaCd)));
+  document.getElementById("summary").innerHTML=[
+    [`W<sub>e</sub>/E<sub>d</sub> = ${f(R.WeD/R.Ed,2)}`,"損傷限界 "+pill(R.okD)],
+    [`C<sub>1</sub> = ${f(R.C1,3)}`,"層間変形角 "+pill(R.okDrift)],
+    [ratio(Math.min(...S.map(s=>s.rRes))),"残留変形角（最大）"+pill(R.okRes)],
+    [`E<sub>s</sub> = ${f(R.Es,0)}`,"kN·m　安全限界"],
+    [`η<sub>sf</sub>/η<sub>cf</sub> = ${f(worstSf,3)}`,"主架構（最大）"+pill(worstSf<=1)],
+    [`η<sub>sd</sub>/η<sub>cd</sub> = ${f(worstSd,3)}`,"ダンパー（最大）"+pill(worstSd<=1)]
+  ].map(k=>`<div class="k"><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
+
+  // 損傷限界
+  let h=`<p class="mono" style="margin-bottom:8px">Σw = ${f(R.W,1)} kN　M = ${f(R.M,1)} t　T<sub>d</sub> = ${f(R.Td,4)} s　G<sub>s</sub> = ${f(R.GsD,3)}　r = ${f(R.rD,3)}　V<sub>d</sub> = ${f(R.Vd,4)} m/s　E<sub>d</sub> = ½MV<sub>d</sub>² = <b>${f(R.Ed,1)}</b> kN·m</p>`;
+  h+=`<table><thead><tr><th>階</th><th class="n">k<sub>fi</sub><br><span class="ref">kN/mm</span></th><th class="n">δ<sub>dui</sub><br><span class="ref">mm</span></th><th>ダンパー</th><th class="n">W<sub>fi</sub></th><th class="n">W<sub>dei</sub></th><th class="n">W<sub>dpi</sub><br><span class="ref">n=2</span></th><th class="n">計<br><span class="ref">kN·m</span></th><th class="n">A<sub>i</sub></th><th class="n">C<sub>1</sub>時 δ<br><span class="ref">mm</span></th><th class="n">変形角</th><th class="n">残留<br>変形角</th></tr></thead><tbody>`;
+  S.forEach((s,i)=>{ h+=`<tr><td>${s.name}</td><td class="n">${f(s.Kf,1)}</td><td class="n">${f(s.ddu,2)}</td><td>${s.dmg.yld?'<span class="pill dmp">降伏</span>':'<span class="pill el">弾性</span>'}</td><td class="n">${f(s.dmg.Wf,1)}</td><td class="n">${f(s.dmg.Wde,1)}</td><td class="n">${f(s.dmg.Wdp,1)}</td><td class="n">${f(s.dmg.W,1)}</td><td class="n">${f(R.AiD[i],3)}</td><td class="n">${f(s.dc1,2)}</td><td class="n">${ratio(s.rc1)} ${pill(s.okDrift)}</td><td class="n">${s.muRes==null?'<span class="ref">ダンパー弾性</span>':ratio(s.rRes)+" "+pill(s.okRes)}</td></tr>`; });
+  h+=`<tr><th colspan="7">W<sub>e</sub>（合計）</th><th class="n">${f(R.WeD,1)}</th><th colspan="4">${R.okD?pill(true,"E_d ≦ W_e　OK"):pill(false,"","E_d > W_e　NG")}　C<sub>1</sub> = ${f(R.C1,4)}（ΣW = ${f(R.WC1,1)}）</th></tr></tbody></table>`;
+  document.getElementById("outDamage").innerHTML=h.replace(/E_d ([≦>]) W_e/,"E<sub>d</sub> $1 W<sub>e</sub>");
+
+  // 安全限界
+  h=`<p class="mono" style="margin-bottom:8px">T<sub>s</sub> = ${f(R.Ts,4)} s　G<sub>s</sub> = ${f(R.GsS,3)}　V<sub>s</sub> = ${f(R.Vs,4)} m/s　½MV<sub>s</sub>² = ${f(R.Es0,1)}　W<sub>e</sub> = ${f(R.WeS,1)}（${c.mode==="proviso"?"ただし書き":"告示どおり"}）　E<sub>s</sub> = <b>${f(R.Es,1)}</b> kN·m</p>`;
+  h+=`<table><thead><tr><th>階</th><th class="n">Q<sub>ui</sub><br><span class="ref">kN</span></th><th class="n">β=Q<sub>dui</sub>/Q<sub>ui</sub></th><th class="n">W<sub>e</sub>時 δ<br><span class="ref">mm</span></th><th class="n">s<sub>i</sub></th><th class="n">p<sub>i</sub></th><th class="n">E<sub>si</sub></th><th class="n">E<sub>sfi</sub></th><th class="n">η<sub>sfi</sub> / η<sub>cf</sub></th><th class="n">δ<sub>mi</sub><br><span class="ref">mm</span></th><th class="n">E<sub>sdi</sub></th><th class="n">η<sub>sdi</sub> / η<sub>cd</sub></th></tr></thead><tbody>`;
+  S.forEach(s=>{ h+=`<tr><td>${s.name}</td><td class="n">${f(s.Qu,0)}</td><td class="n">${f(s.beta,3)}</td><td class="n">${f(s.de,2)}</td><td class="n">${f(s.si,4)}</td><td class="n">${f(s.pi,3)}</td><td class="n">${f(s.Esi,1)}</td><td class="n">${f(s.Esf,1)}</td><td class="n">${f(s.etaSf,3)} / ${f(s.etaCf,2)} ${pill(s.okEf)}</td><td class="n">${f(s.dm,1)} <span class="ref">${ratio(s.rm)}</span></td><td class="n">${f(s.Esd,0)}</td><td class="n">${f(s.etaSd,1)} / ${f(+c.etaCd,0)} ${pill(s.okEd)}</td></tr>`; });
+  h+=`</tbody></table><p class="note" style="margin-top:8px">E<sub>sdi</sub> = E<sub>si</sub>·Q<sub>dui</sub>/Q<sub>ui</sub> + 2(δ<sub>e</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·20 + ${c.beta}×2(δ<sub>C1</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·10。δ<sub>e</sub> は W<sub>e</sub> を求めた状態の層間変位、δ<sub>C1</sub> は C<sub>1</sub> 時の層間変位。最大応答変位は 1/${c.maxLim} を目安として表示（告示の規定外）。</p>`;
+  document.getElementById("outSafe").innerHTML=h;
+
+  renderDesign(R); renderMargin(); renderReport(R);
+}
+
+function renderDesign(R){
+  const W=520,H=300,pl=44,pb=34,pt=12,pr=14, x=k=>pl+k/3*(W-pl-pr), y=b=>H-pb-b/0.8*(H-pb-pt);
+  const line=fn=>{let p="";for(let i=0;i<=60;i++){const k=i/20;p+=(i?"L":"M")+x(k).toFixed(1)+","+y(Math.min(fn(k),0.8)).toFixed(1);}return p;};
+  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="剛性比と耐力分担率の関係">`;
+  for(let b=0;b<=0.8001;b+=0.2){g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(b)}" y2="${y(b)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(b)+4}" text-anchor="end">${b.toFixed(1)}</text>`;}
+  for(let k=0;k<=3;k+=0.5){g+=`<line x1="${x(k)}" x2="${x(k)}" y1="${pt}" y2="${H-pb}" stroke="var(--line)" stroke-dasharray="${k%1?"2 3":"0"}"/><text x="${x(k)}" y="${H-pb+16}" text-anchor="middle">${k}</text>`;}
+  g+=`<text x="${(W+pl)/2}" y="${H-2}" text-anchor="middle">剛性比 k = k<tspan baseline-shift="sub" font-size="9">di</tspan> / k<tspan baseline-shift="sub" font-size="9">fi</tspan></text><text x="12" y="${pt+8}" >β</text>`;
+  g+=`<path d="${line(k=>k/(1+k))}" fill="none" stroke="var(--sub)" stroke-width="1.6"/>`;
+  g+=`<path d="${line(k=>1-1/Math.sqrt(1+k))}" fill="none" stroke="var(--accent)" stroke-width="1.8"/>`;
+  g+=`<path d="${line(k=>k/(1+k+2*Math.sqrt(1+k)))}" fill="none" stroke="var(--ok)" stroke-width="2.2"/>`;
+  g+=`<path d="M${x(0)},${y(0.1)}L${x(3)},${y(0.1)}" stroke="var(--sub)" stroke-dasharray="4 4"/>`;
+  R.S.forEach(s=>{ const kx=Math.min(s.kappa,3); g+=`<circle cx="${x(kx)}" cy="${y(Math.min(s.beta,0.8))}" r="5" fill="var(--damper)"/><text x="${x(kx)+8}" y="${y(Math.min(s.beta,0.8))-6}" style="fill:var(--damper)">${s.name}F</text>`; });
+  document.getElementById("betaChart").innerHTML=g+"</svg>";
+  let t=`<table><thead><tr><th>階</th><th class="n">k</th><th class="n">β</th><th class="n">β<sub>opt</sub></th><th class="n"><sub>U</sub>β<sub>opt</sub></th><th class="n"><sub>U</sub>β</th><th>判定</th><th class="n">Q<sub>dui</sub>/Σw</th></tr></thead><tbody>`;
+  R.S.forEach(s=>{ const k=s.kappa, bo=k/(1+k+2*Math.sqrt(1+k)), ubo=1-1/Math.sqrt(1+k), ub=k/(1+k);
+    const st=s.beta>ub?'<span class="pill ng">ダンパーが先に降伏しない</span>':(s.beta>ubo?'<span class="pill wa">有効範囲の上限超え</span>':(s.beta<0.1?'<span class="pill wa">0.1未満</span>':(s.beta<=bo?'<span class="pill ok">β_opt以下</span>':'<span class="pill ok">有効範囲内</span>')));
+    t+=`<tr><td>${s.name}</td><td class="n">${f(k,2)}</td><td class="n">${f(s.beta,3)}</td><td class="n">${f(bo,3)}</td><td class="n">${f(ubo,3)}</td><td class="n">${f(ub,3)}</td><td>${st.replace("β_opt","β<sub>opt</sub>")}</td><td class="n">${f(s.Qdu/s.sw*100,1)}%</td></tr>`; });
+  document.getElementById("betaTable").innerHTML=t+"</tbody></table>";
+}
+
+function renderMargin(){
+  const c=state.common, mus=[1.0,1.5,2.0,+document.getElementById("mulIn").value||1.3];
+  let t=`<table><thead><tr><th>V<sub>s</sub> の倍率</th><th class="n">E<sub>s</sub><br><span class="ref">kN·m</span></th><th class="n">主架構 η<sub>sf</sub>/η<sub>cf</sub>（最大）</th><th class="n">ダンパー η<sub>sd</sub>/η<sub>cd</sub>（最大）</th><th class="n">最大応答変形角（最大）</th><th>判定</th></tr></thead><tbody>`;
+  for(const d of ["X","Y"]){ t+=`<tr><th colspan="6">${d}方向</th></tr>`;
+    mus.forEach((m,ix)=>{ const R=compute(c,state[d],{mul:m}); const a=Math.max(...R.S.map(s=>s.etaSf/s.etaCf)), b=Math.max(...R.S.map(s=>s.etaSd/(+c.etaCd))), r=Math.min(...R.S.map(s=>s.rm));
+      const crit=R.S.reduce((p,s)=>s.etaSf/s.etaCf>p.v?{v:s.etaSf/s.etaCf,n:s.name}:p,{v:-1,n:""});
+      t+=`<tr><td class="mono">${ix===3?"任意 ":""}${m.toFixed(2)} V<sub>s</sub></td><td class="n">${f(R.Es,0)}</td><td class="n">${f(a,3)} <span class="ref">${crit.n}F</span></td><td class="n">${f(b,3)}</td><td class="n">${ratio(r)}</td><td>${a<=1&&b<=1&&r>=+c.maxLim?pill(true):[a>1?"主架構η":"",b>1?"ダンパーη":"",r<+c.maxLim?`変形 1/${c.maxLim}超`:""].filter(Boolean).map(x=>`<span class="pill ng">${x}</span>`).join(" ")}</td></tr>`; }); }
+  document.getElementById("marginTable").innerHTML=t+"</tbody></table>";
+}
+document.getElementById("mulIn").addEventListener("input",renderMargin);
+
+function renderReport(R){
+  const c=state.common, S=R.S, L=[]; const p=(...a)=>L.push(a.join(""));
+  p(`■ エネルギー法による検討（${dirKey}方向）　平17国交告第631号／緑本 第Ⅰ編4章`);
+  p(""); p("1. 建物の諸元");
+  p("  階   H(mm)   w_i(kN)     Σw_i(kN)    α_i     k_fi(kN/mm)  k_di(kN/mm)  Q_dui(kN)   δ_dui(mm)  Q_fui(kN)   δ_fui(mm)");
+  S.forEach(s=>p(`  ${s.name.padEnd(3)} ${f(s.H,0).padStart(7)} ${f(s.w,1).padStart(10)} ${f(s.sw,1).padStart(11)} ${f(s.alpha,4).padStart(7)} ${f(s.Kf,2).padStart(11)} ${f(s.Kd,2).padStart(11)} ${f(s.Qdu,1).padStart(10)} ${f(s.ddu,2).padStart(9)} ${f(s.Qfu,1).padStart(10)} ${f(s.dfu,2).padStart(9)}`));
+  p(`  M = Σw/g = ${f(R.W,1)}/9.8 = ${f(R.M,2)} t`);
+  p(""); p("2. 損傷限界（告示第4）");
+  p(`  T_d = ${f(R.Td,4)} s（等価剛性による）　地盤種別：第${c.ground}種　Z = ${c.Z}`);
+  p(`  G_s = ${f(R.GsD,4)}　r = ${f(R.rD,4)}`);
+  p(`  V_d = ${R.Td>=0.64?"1.024":"…"}×Z×G_s×r/2π = ${f(R.Vd,5)} m/s`);
+  p(`  E_d = ½·M·V_d² = 0.5×${f(R.M,2)}×${f(R.Vd,5)}² = ${f(R.Ed,2)} kN·m　（緑本 式4.2.1）`);
+  p("  W_e = Σ{W_fi + W_dei + W_dpi}（緑本 式4.2.2〜4.2.6、n_i = 2）");
+  S.forEach(s=>{ p(`   ${s.name}階: δ_i=${f(s.d,3)} ${s.dmg.yld?">":"≦"} δ_dui=${f(s.ddu,3)} → ダンパー${s.dmg.yld?"降伏":"弾性"}`);
+    p(`        W_fi = ½·Q_fi·δ_i = 0.5×${f(s.Qf,1)}×${f(s.d,3)}/1000 = ${f(s.dmg.Wf,2)}`);
+    p(s.dmg.yld?`        W_dei = ½·Q_dui·δ_dui = ${f(s.dmg.Wde,2)}　W_dpi = 2(δ_i−δ_dui)Q_dui·2 = 2×(${f(s.d,3)}−${f(s.ddu,3)})×${f(s.Qdu,1)}×2/1000 = ${f(s.dmg.Wdp,2)}`:`        W_dei = ½·k_di·δ_i² = ${f(s.dmg.Wde,2)}　W_dpi = 0`); });
+  p(`  W_e = ${f(R.WeD,2)} kN·m ${R.okD?"≧":"<"} E_d = ${f(R.Ed,2)}　→ ${R.okD?"OK":"NG"}（W_e/E_d = ${f(R.WeD/R.Ed,3)}）`);
+  p(""); p(`  C_1 = ${f(R.C1,4)}（${c.c1Mode==="fix"?"指定値":"A_i 分布の外力で吸収エネルギーが E_d に等しくなる値"}、ΣW = ${f(R.WC1,2)} kN·m）`);
+  S.forEach((s,i)=>p(`   ${s.name}階: A_i=${f(R.AiD[i],4)}  Q=${f(s.Qc1,1)} kN  δ=${f(s.dc1,3)} mm  変形角 ${ratio(s.rc1)} ${s.okDrift?"≦":">"} 1/${c.driftLim}`));
+  p("  残留変形（緑本 式解4.2.6〜4.2.9）");
+  S.forEach(s=>p(`   ${s.name}階: κ=${f(s.kappa,3)}  μ_di=${f(s.muD,3)}  ${s.muRes==null?"ダンパー弾性のため対象外":`μ_res=${f(s.muRes,4)}  δ_res=${f(s.dRes,3)} mm  ${ratio(s.rRes)} ${s.okRes?"≦":">"} 1/${c.resLim}`}`));
+  p(""); p("3. 安全限界（告示第6）");
+  p(`  T_s = ${f(R.Ts,4)} s（T_d〜${c.tsMul}T_d で V_s 最大）　G_s = ${f(R.GsS,4)}　r = ${f(R.rS,4)}　V_s = ${f(R.Vs,5)} m/s`);
+  p(`  ½·M·V_s² = ${f(R.Es0,2)} kN·m`);
+  if(c.mode==="proviso"){ p(`  W_e（ただし書き、緑本5.1）：C* = min(Q_ui/(Σw_i·A_i)) = ${f(R.Cstar,4)} の状態、n_i = 5`); }
+  else p("  W_e（告示どおり）：損傷限界時の状態、n_i = 5（緑本 式4.3.2〜4.3.6）");
+  S.forEach(s=>p(`   ${s.name}階: δ=${f(s.de,3)}  W_f=${f(s.we.Wf,2)}  W_de=${f(s.we.Wde,2)}  W_dp=${f(s.we.Wdp,2)}  計 ${f(s.we.W,2)}`));
+  p(`  W_e = ${f(R.WeS,2)}　E_s = ${f(R.Es0,2)} − ${f(R.WeS,2)} = ${f(R.Es,2)} kN·m　（緑本 式4.3.1）`);
+  p(""); p(`  各階の必要エネルギー吸収量 E_si（緑本 式4.3.7〜4.3.11、n = ${c.nExp}）`);
+  S.forEach((s,i)=>p(`   ${s.name}階: A_i(T_s)=${f(R.AiS[i],4)}  s_i=${f(s.si,5)}  α_i=${f(s.aq,4)}  p_i=${f(s.pi,4)}  R_e=${s.Re} p_ti=${f(s.pti,3)}  E_si=${f(s.Esi,2)}`));
+  p(""); p("  主架構（緑本 式4.3.12〜4.3.13、解3.3.7）");
+  S.forEach(s=>p(`   ${s.name}階: E_sfi = E_si·Q_fui/Q_ui = ${f(s.Esf,2)}  η_sfi = E_sfi/(2Q_fui·δ_fui) = ${f(s.etaSf,4)} ${s.okEf?"≦":">"} η_cf = ${f(s.etaCf,3)}  δ_mi = (η/2+1)δ_fui = ${f(s.dm,2)} mm（${ratio(s.rm)}）`));
+  p(""); p(`  ダンパー部分（緑本 式4.3.14〜4.3.17、n_si=20、n_di=10、β=${c.beta}）`);
+  S.forEach(s=>p(`   ${s.name}階: E_si·Q_dui/Q_ui=${f(s.E1,2)}  E_sdpi=${f(s.Esdp,2)}  β·E_ddpi=${f(c.beta*s.Eddp,2)}  E_sdi=${f(s.Esd,2)}\n        η_sdi = E_sdi/(2γ_di·Q_dui·δ_dui) = ${f(s.Esd,1)}×1000/(2×${s.gam}×${f(s.Qdu,1)}×${f(s.ddu,3)}) = ${f(s.etaSd,2)} ${s.okEd?"≦":">"} η_cd = ${c.etaCd}`));
+  p(""); p(`  判定：主架構 ${S.every(s=>s.okEf)?"OK":"NG"}　ダンパー ${S.every(s=>s.okEd)?"OK":"NG"}`);
+  document.getElementById("report").textContent=L.join("\n");
+}
+document.getElementById("copyRep").addEventListener("click",e=>{ const t=document.getElementById("report").textContent; const b=e.target;
+  navigator.clipboard.writeText(t).then(()=>{b.textContent="コピーしました";setTimeout(()=>b.textContent="すべてコピー",1600);}).catch(()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("report"));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="選択しました。コピーしてください";}); });
+
+function renderVerify(){
+  const c={...SAMPLE.common}; let t=`<table><thead><tr><th>項目</th><th>方向</th><th class="n">サンプル建物</th><th class="n">このアプリ</th><th class="n">差</th></tr></thead><tbody>`;
+  const row=(n,d,e,a)=>{ const df=(a-e)/Math.abs(e)*100; t+=`<tr><td>${n}</td><td>${d}</td><td class="n">${f(e,e<10?4:1)}</td><td class="n">${f(a,a<10?4:1)}</td><td class="n ${Math.abs(df)<0.1?"diff-ok":"diff-ng"}">${(df>=0?"+":"")+df.toFixed(2)}%</td></tr>`; };
+  for(const d of ["X","Y"]){ const R=compute(c,SAMPLE[d],{c1:0.115,mode:"proviso"}), E=EXCEL[d];
+    row("V<sub>d</sub> (m/s)",d,E.Vd,R.Vd); row("E<sub>d</sub> (kN·m)",d,E.Ed,R.Ed); row("損傷限界 W<sub>e</sub>",d,E.WeD,R.WeD); row("C<sub>1</sub>=0.115 時の ΣW",d,E.WC1,R.WC1);
+    row("V<sub>s</sub> (m/s)",d,E.Vs,R.Vs); row("½MV<sub>s</sub>²",d,E.Es0,R.Es0); row("安全限界 W<sub>e</sub>（ただし書き）",d,E.WeS,R.WeS); row("E<sub>s</sub>",d,E.Es,R.Es);
+    R.S.forEach((s,i)=>{ row(`E<sub>si</sub> ${s.name}階`,d,E.Esi[i],s.Esi); });
+    R.S.forEach((s,i)=>{ row(`η<sub>sfi</sub> ${s.name}階`,d,E.etaSf[i],s.etaSf); });
+    R.S.forEach((s,i)=>{ row(`δ<sub>mi</sub> ${s.name}階 (mm)`,d,E.dm[i],s.dm); });
+    R.S.forEach((s,i)=>{ row(`E<sub>sdi</sub> ${s.name}階`,d,E.Esd[i],s.Esd); });
+    R.S.forEach((s,i)=>{ row(`η<sub>sdi</sub> ${s.name}階`,d,E.etaSdX[i],s.etaSd); });
+  }
+  document.getElementById("verifyTable").innerHTML=t+"</tbody></table>";
+}
+
+/* ---------- タブ ---------- */
+const VIEWS=["course","learn","calc","design","margin","report"];
+function show(v){ if(!VIEWS.includes(v)) v="course"; VIEWS.forEach(x=>document.getElementById("v-"+x).hidden=x!==v);
+  if(v==="course") document.getElementById("hintBar").hidden=true;
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v)); try{localStorage.setItem("enehou-wb-tab2",v);}catch(e){} }
+document.getElementById("tabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-v]"); if(b){ show(b.dataset.v); window.scrollTo(0,0); } });
+buildInputs(); render();
+let first=(location.hash||"").slice(1); if(!VIEWS.includes(first)){ try{ first=localStorage.getItem("enehou-wb-tab2")||"course"; }catch(e){ first="course"; } }
+show(first);
+</script>
+<script>
+/* エネルギー法ワークブック：講座（緑本を順に学ぶ）
+   1つの節の流れ：ねらい → 思い出す（前の節の小問） → 本文の要点 → 例題 → 計算タブで試す → 確認問題（すぐ解説） → まとめ・質問メモ
+   単元を足すときは COURSE に追加する。本文は緑本の要約（書き写しはしない）。ページは緑本のページ番号。 */
+"use strict";
+
+/* ---------- 学習の記録（このブラウザの中だけに保存） ---------- */
+const CR = (()=>{ try{ return JSON.parse(localStorage.getItem("enehou-course-pub-v1"))||{}; }catch(e){ return {}; } })();
+CR.ans = CR.ans||{}; CR.wrong = CR.wrong||[]; CR.memo = CR.memo||{}; CR.done = CR.done||{}; CR.seen = CR.seen||{};
+const crSave = ()=>{ try{ localStorage.setItem("enehou-course-pub-v1", JSON.stringify(CR)); }catch(e){} };
+
+/* 例題は サンプル建物 の X 方向の値で計算する（計算タブと同じ式） */
+let _ex = null;
+const EX = ()=> _ex || (_ex = compute(SAMPLE.common, SAMPLE.X));
+const tx = t => sub(String(t));   // E_d → E<sub>d</sub>
+
+/* ---------- 図 ---------- */
+function figEnergy(){
+  const W=300,H=170,x0=34,x1=286,y0=140,sc=112;
+  const X=t=>(x0+(x1-x0)*t).toFixed(1), Y=v=>(y0-v*sc).toFixed(1);
+  const sig=(t,c,k)=>1/(1+Math.exp(-(t-c)*k));
+  const path=fn=>{ let p=""; for(let i=0;i<=200;i++){ const t=i/200; p+=(i?"L":"M")+X(t)+","+Y(fn(t)); } return p; };
+  const panel=(title,Eh,Ep,Ee,lbl)=>{
+    const E=t=>Eh(t)+Ep(t)+Ee(t); let mx=0; for(let i=0;i<=200;i++) mx=Math.max(mx,E(i/200));
+    let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${title}">`;
+    g+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="var(--sub)"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="14" stroke="var(--sub)"/>`;
+    g+=`<line x1="${x0}" x2="${x1}" y1="${Y(mx)}" y2="${Y(mx)}" stroke="var(--sub)" stroke-dasharray="4 4"/><text x="${x0+4}" y="${+Y(mx)-4}">E<tspan baseline-shift="sub" font-size="8">max</tspan></text>`;
+    g+=`<path d="${path(E)}" fill="none" stroke="var(--accent)" stroke-width="1.6"/>`;
+    if(lbl.p) g+=`<path d="${path(t=>Eh(t)+Ep(t))}" fill="none" stroke="var(--damper)" stroke-width="1.6"/>`;
+    g+=`<path d="${path(Eh)}" fill="none" stroke="var(--ok)" stroke-width="1.6"/>`;
+    g+=lbl.svg+`<text x="${x1}" y="${y0+16}" text-anchor="end">時間 →</text><text x="${(x0+x1)/2}" y="${H-2}" text-anchor="middle" style="font-family:var(--f-body)">${title}</text></svg>`;
+    return g;
+  };
+  const a=panel("(a) 弾性系", t=>0.62*sig(t,0.38,11), ()=>0, t=>0.42*Math.exp(-(((t-0.3)/0.13)**2))*(0.55+0.45*Math.abs(Math.sin(48*t))), {p:false,
+    svg:`<text x="150" y="40" style="fill:var(--accent)">E（全体）</text><text x="230" y="${y0-0.62*sc+16}" style="fill:var(--ok)">E<tspan baseline-shift="sub" font-size="8">h</tspan>（減衰）</text>`});
+  const b=panel("(b) 弾塑性系", t=>0.3*sig(t,0.4,9), t=>0.62*sig(t,0.36,9), t=>0.1*Math.exp(-(((t-0.28)/0.12)**2))*Math.abs(Math.sin(40*t)), {p:true,
+    svg:`<text x="210" y="${y0-0.92*sc-6}" style="fill:var(--accent)">E</text><text x="236" y="${y0-0.62*sc}" style="fill:var(--damper)">E<tspan baseline-shift="sub" font-size="8">p</tspan>（塑性）</text><text x="236" y="${y0-0.3*sc+14}" style="fill:var(--ok)">E<tspan baseline-shift="sub" font-size="8">h</tspan>（減衰）</text>`});
+  return `<figure class="fig" style="margin:0"><div class="grid2" style="gap:8px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"><div>${a}</div><div>${b}</div></div>
+  <figcaption>エネルギーの時間変化の模式図（緑本 図1.1 を簡略化）。弾性系は揺れが最も激しいとき、弾塑性系は地震の終わりごろに E が最大になる。E<sub>p</sub>・E<sub>h</sub> の線の上と全体 E との差が振動エネルギー E<sub>e</sub>。</figcaption></figure>`;
+}
+
+function figSkeleton(){
+  const W=560,H=200,ox=40,oy=170,sx=58,sy=120;
+  const P=pts=>pts.map((p,i)=>(i?"L":"M")+(ox+p[0]*sx).toFixed(1)+","+(oy-p[1]*sy).toFixed(1)).join("");
+  const bau=(x0,x1,y)=>{ let p=""; for(let i=0;i<=30;i++){ const t=i/30, x=x0+(x1-x0)*t, v=y*(1-Math.pow(1-t,2.2)); p+=(i?"L":"M")+(ox+x*sx).toFixed(1)+","+(oy-v*sy).toFixed(1);} return p; };
+  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="正側の荷重と累積変形の関係">`;
+  g+=`<line x1="${ox}" y1="${oy}" x2="${W-10}" y2="${oy}" stroke="var(--sub)"/><line x1="${ox}" y1="${oy}" x2="${ox}" y2="10" stroke="var(--sub)"/>`;
+  g+=`<text x="${ox-6}" y="${oy-sy+4}" text-anchor="end">1</text><text x="${ox-6}" y="20" text-anchor="end">Q/Q<tspan baseline-shift="sub" font-size="8">y</tspan></text><text x="${W-10}" y="${oy+18}" text-anchor="end">正側の累積変形 Σδ/δ<tspan baseline-shift="sub" font-size="8">y</tspan></text>`;
+  const thick=[[[0,0],[1,1],[1.7,1.05]],[[2.9,1.05],[3.6,1.09]],[[4.9,1.09],[5.6,1.12]]];
+  thick.forEach(t=>{ g+=`<path d="${P(t)}" fill="none" stroke="var(--accent)" stroke-width="3.2"/>`; });
+  g+=`<path d="${P([[1.7,1.05],[0.65,0]])}" fill="none" stroke="var(--sub)" stroke-dasharray="3 3"/><path d="${bau(0.65,2.9,1.05)}" fill="none" stroke="var(--damper)" stroke-width="1.6"/>`;
+  g+=`<path d="${P([[3.6,1.09],[2.55,0]])}" fill="none" stroke="var(--sub)" stroke-dasharray="3 3"/><path d="${bau(2.55,4.9,1.09)}" fill="none" stroke="var(--damper)" stroke-width="1.6"/>`;
+  g+=`<text x="${ox+1.1*sx}" y="${oy-1.2*sy}" style="fill:var(--accent);font-family:var(--f-body)">スケルトン部（太線）</text>`;
+  g+=`<text x="${ox+2.2*sx}" y="${oy-0.45*sy}" style="fill:var(--damper);font-family:var(--f-body)">バウシンガー部</text>`;
+  g+=`<text x="${ox+0.2*sx}" y="${oy-0.12*sy}" style="font-family:var(--f-body)">除荷</text></svg>`;
+  return `<figure class="fig" style="margin:0">${g}<figcaption>正側だけを取り出して変形を足し合わせた模式図（緑本 図1.3(b) を簡略化）。太線（初めて経験する荷重域）をつなぐと、一方向に押した場合（モノトニック）の曲線になる。負側も同じように考える。</figcaption></figure>`;
+}
+
+/* 1-3：層の耐力を変えたときの配分の変化 */
+function distWidget(){
+  return `<div class="card" style="background:var(--soft)">
+    <h3>試してみる：2階の耐力だけを変えると</h3>
+    <div class="row">
+      <label class="f" for="dwr">2階の保有水平耐力（サンプル建物の値に対する割合）<span><input type="range" id="dwr" min="70" max="130" step="5" value="100" style="vertical-align:middle;width:180px"> <output id="dwv" class="mono">100%</output></span></label>
+      <label class="f" for="dwn">損傷集中指数 n<select id="dwn"><option value="4">4（梁崩壊型など）</option><option value="8" selected>8（それ以外）</option></select></label>
+    </div>
+    <div id="dwout" style="margin-top:8px"></div>
+    <p class="note" style="margin-top:6px">E<sub>si</sub> ∝ s<sub>i</sub>·p<sub>i</sub><sup>−n</sup> で配分（サンプル建物のX方向の s<sub>i</sub>・p<sub>i</sub> を使用）。2階の耐力を f 倍すると p<sub>2</sub> は f 倍、s<sub>2</sub> は 1/f 倍になる。</p>
+  </div>`;
+}
+function distBind(){
+  const r=document.getElementById("dwr"); if(!r) return;
+  const upd=()=>{
+    const R=EX(), fct=+r.value/100, n=+document.getElementById("dwn").value;
+    document.getElementById("dwv").textContent=r.value+"%";
+    const share=k=>{ const g=R.S.map(s=>{ const f2=s.name==="2"?k:1; return (s.si/f2)*Math.pow(s.pi*f2*s.pti,-n); }); const t=g.reduce((a,b)=>a+b,0); return g.map(v=>v/t); };
+    const now=share(fct), base=share(1);
+    document.getElementById("dwout").innerHTML=R.S.map((s,i)=>`<div style="display:grid;grid-template-columns:3.2em 1fr 4.6em;gap:8px;align-items:center;margin:3px 0">
+      <span>${s.name}階</span><div class="bar" style="height:14px;position:relative"><i style="width:${(now[i]*100).toFixed(1)}%;background:${s.name==="2"?"var(--damper)":"var(--accent)"}"></i><b style="position:absolute;top:-2px;bottom:-2px;left:${(base[i]*100).toFixed(1)}%;width:2px;background:var(--ink)"></b></div>
+      <span class="mono" style="text-align:right">${(now[i]*100).toFixed(1)}%</span></div>`).join("")+`<p class="note">黒い縦線は 100%（サンプル建物のまま）のときの割合。</p>`;
+  };
+  r.addEventListener("input",upd); document.getElementById("dwn").addEventListener("change",upd); upd();
+}
+
+/* ---------- 講座の中身 ---------- */
+const COURSE = [
+{ id:"u0", t:"はじめに", p:"推薦・監修のことば、まえがき", secs:[
+  { id:"0-1", t:"エネルギー法とこの本の位置づけ", p:"まえがき",
+    goals:["エネルギー法が何と何を比べて安全を確かめる方法かを説明できる","どんな計画のときにエネルギー法を選ぶとよいかを判断できる","調べたいことに応じて、緑本と技術基準解説書を使い分けられる"],
+    body:`<p><b>流れ</b>：1998年の基準法改正で「性能規定」の方向が打ち出され、2000年に限界耐力計算が導入されました。その<b>限界耐力計算と同等の計算法</b>として、2005年（平成17年）6月に告示（平17国交告第631号）が公布され、同年9月1日に施行されたのがエネルギー法です。</p>
+    <p><b>何を比べるか</b>：許容応力度や保有耐力ではなく、<b>地震で建物に入るエネルギー（入力エネルギー）</b>と<b>建物が吸収できるエネルギー（吸収エネルギー）</b>を比べます。限界耐力計算の「変形」の考え方と、従来の「保有耐力」の考え方を合わせて使うもの、と位置づけられています。</p>
+    <p><b>この本（緑本）</b>：告示の逐条解説と計算例は、先に出た『エネルギーの釣合いに基づく耐震計算法の技術基準解説及び計算例とその解説』（日本建築センター、2005年10月）にあります。緑本はそれを<b>鋼構造に絞って補う</b>解説書なので、2冊を併せて使うのが前提です。</p>
+    <div class="scroll"><table><thead><tr><th>編</th><th>内容</th><th>この講座</th></tr></thead><tbody>
+      <tr><td>第Ⅰ編</td><td>1 技術的背景／2 告示の概要／3 ダンパーなし／4 ダンパーあり／5 補足と慣用技術</td><td>単元1〜5</td></tr>
+      <tr><td>第Ⅱ編</td><td>設計例8つ（角形鋼管柱・H形鋼柱・間柱型ダンパー・連層ブレースなど）</td><td>あとで</td></tr>
+      <tr><td>第Ⅲ編</td><td>ダンパーの技術データ、より有効な活用方法、今後の課題</td><td>必要に応じて</td></tr>
+    </tbody></table></div>
+    `,
+    quiz:[
+      {id:"q0-1-1",k:"mc",q:"鉄骨造の物流倉庫に座屈拘束ブレースを入れ、稀に発生する地震でブレースが降伏することを前提に断面を合理化したい。適した計算ルートはどれか。",c:["許容応力度等計算（ルート3）","エネルギー法（告示631号）","許容応力度計算（ルート1）","どのルートでも同じように扱える"],a:1,e:"許容応力度等計算は、稀地震で部材が弾性範囲にあることが前提なので、ダンパーの降伏を見込めません。エネルギー法は稀地震でのダンパー降伏を認め、その吸収エネルギーを設計に取り込めます。時刻歴応答解析＋大臣認定でも可能ですが、手続きが重くなります。",p:"まえがき、P9"},
+      {id:"q0-1-2",k:"mc",q:"サンプル建物の「安全限界時の検討」で、最終的に何と何を比べて OK・NG を判断しているか。",c:["保有水平耐力と必要保有水平耐力","層間変形角と 1/200","必要累積塑性変形倍率 η_s と保有累積塑性変形倍率 η_c","入力エネルギー E_d と 吸収エネルギー W_e"],a:2,e:"安全限界では、入るエネルギー E_s を各層・主架構・ダンパーに配り、η_s（必要）に換算して η_c（保有）と比べます。E_d と W_e の比較は損傷限界（稀地震）の判定です。保有水平耐力の比較はルート3の考え方です。",p:"まえがき、4章で詳しく"},
+      {id:"q0-1-3",k:"mc",q:"検討中に「この告示の条文は、どういう意図で、どこまでを求めているのか」を確かめたくなった。まず見るべき資料はどれか。",c:["緑本 第Ⅱ編の設計例","日本建築センターの技術基準解説書（告示の逐条解説）","緑本 第Ⅲ編のダンパーの技術データ","SS7のマニュアル"],a:1,e:"告示の逐条解説は技術基準解説書にあります。緑本はそれを鋼構造向けに補う本なので、条文の解釈は技術基準解説書、鋼構造での具体的な計算は緑本、と使い分けます（⑤技術基準解説PDFは未入手）。",p:"推薦のことば、まえがき"}
+    ],
+    sum:["エネルギー法＝平17国交告第631号（2005年9月施行）。限界耐力計算と同等の計算法","入力エネルギーと吸収エネルギーを比べて安全を確かめる","緑本は鋼構造向けの補足書。第Ⅰ編が解説、第Ⅱ編が設計例、第Ⅲ編がダンパーのデータ"] }
+]},
+{ id:"u1", t:"技術的背景", p:"第Ⅰ編1章 P3〜8", secs:[
+  { id:"1-1", t:"耐震設計法の流れとエネルギー法の特徴", p:"P3（1.1）",
+    goals:["保有水平耐力・限界耐力計算・エネルギー法で、塑性化によるエネルギー吸収の扱い方がどう違うかを説明できる","崩壊形の違いがエネルギー法の結果にどう効くかを判断できる"],
+    body:`<ul>
+      <li><b>1981年 新耐震設計法</b>：保有水平耐力の考え方が入りました。その背景にあるのが <b>Newmark のエネルギー一定則</b>です。1質点の完全弾塑性系では「最大変形の上限は、弾性系の最大変形時の弾性エネルギーと同じとみなせる」という仮定で、構造の粘り強さに応じて必要な耐力を決めます。ただし、これを多層建物の各層にそのまま当てはめるのは、やや飛躍があるとされています。</li>
+      <li><b>2000年 限界耐力計算</b>：<b>等価線形化法</b>です。剛性を正負の最大応答点を結んだ等価剛性に置き換え、ループで吸収するエネルギーを等価粘性減衰に置き換えた「擬似弾性モデル」で評価します。</li>
+      <li>どちらもエネルギー吸収能力を活かす方法ですが、<b>エネルギーの量そのものを指標にしてはいません</b>。</li>
+    </ul>
+    <p><b>エネルギー法</b>は、地震の作用と建物の抵抗の両方をエネルギーで表し、<b>直接比べる</b>方法です。地震のエネルギーは建物の弱いところに集まり、そこが壊れます。梁崩壊型がよいとされるのは、このエネルギーの集中を避けるためです。エネルギーは向きを持たない量（スカラー量）なので、揺れという動きの現象を、静的な計算に近い形で扱えるのが特徴です。</p>`,
+    quiz:[
+      {id:"q1-1-1",k:"mc",q:"Newmark のエネルギー一定則の考え方に立つと、変形能力（粘り）の大きい骨組の必要耐力はどうなるか。",c:["変形能力によらず同じ","変形能力が大きいほど小さくできる","変形能力が大きいほど大きくする必要がある","剛性だけで決まる"],a:1,e:"弾性系が蓄えるはずのエネルギーを、塑性変形で吸収できれば耐力は小さくてよい、という考え方です。粘りのある骨組ほど構造特性係数 D_s を小さくできるルート3の考え方は、ここから来ています。",p:"P3"},
+      {id:"q1-1-2",k:"mc",q:"エネルギー一定則を多層建物の「各層」にそのまま当てはめることに、緑本が「飛躍がある」としている理由に最も近いものはどれか。",c:["実際の建物は減衰がないから","各層が同じように塑性化するとは限らず、弱い層に損傷が集中しうるから","多層建物は弾性範囲にとどまるから","エネルギーはベクトル量だから"],a:1,e:"1質点系の結果を各層に分けて当てはめると、層ごとの耐力のばらつきによる損傷集中を表せません。エネルギー法は、層への配分則（1-3で学ぶ）でこれを扱います。",p:"P3"},
+      {id:"q1-1-3",k:"mc",q:"エネルギー法が、揺れという動的な現象を「静的な計算に近い形」で扱えるのはなぜか。",c:["地震力を静的な水平力に置き換えているから","エネルギーが向きのない量で、地震の全期間を通した合計として扱えるから","減衰を無視しているから","1次モードだけを考えるから"],a:1,e:"エネルギーは力×変位のスカラー量で、全期間で積分した値です。時々刻々の向きや順序を追わずに、合計の収支（入る量と吸収できる量）で判断できます。その代わり、途中の揺れ方は分かりません（1-5）。",p:"P3、P7"},
+      {id:"q1-1-4",k:"mc",q:"保有水平耐力がほぼ同じ2つの案がある。A案：梁崩壊型（全体崩壊形）、B案：1階の柱が先に降伏する層崩壊型。エネルギー法で有利なのはどちらか。",c:["A案（エネルギーが多くの層・部材に分散する）","B案（1階でまとめて吸収できる）","耐力が同じなので差はない","周期が長い方"],a:0,e:"地震エネルギーは弱いところに集中します。層崩壊型では1階に集中し、必要な塑性変形倍率が大きくなります。梁崩壊型は分散し、告示でも損傷集中指数 n を小さく（4）できます。",p:"P3、P6"}
+    ],
+    sum:["新耐震：Newmark のエネルギー一定則が背景。限界耐力：等価線形化（等価剛性＋等価粘性減衰）","どちらもエネルギー量を直接の指標にはしていない","エネルギー法は、入力と吸収をエネルギーで直接比べる。弱いところへの集中を避けることが大切"] },
+
+  { id:"1-2", t:"地震で建物に入るエネルギー", p:"P3〜5（1.2(1)）",
+    goals:["エネルギーの釣合い式 E_e＋E_h＋E_p＝E の各項を説明できる","入力エネルギーが「総質量と固有周期でほぼ決まる」ことと、E＝½MV_E² の意味を説明できる","サンプル建物の E_d を自分で計算できる"],
+    body:`<p><b>Housner</b> は、地震が建物に与えるエネルギーは<b>総質量と主要な周期だけで決まる安定した量</b>だと考え、弾塑性系では ½MS<sub>V</sub>² ≒ Q<sub>y</sub>·Σδ<sub>p</sub> ＋ ½kδ<sub>y</sub>²（式1.1）がおおよそ成り立つとしました。左辺が入力、右辺が塑性で吸収した分と弾性で蓄えた分です。これを実設計に使える形にしたのが<b>秋山</b>です。</p>
+    <p>揺れの運動方程式に速度を掛けて地震の全期間で積分すると、<b>エネルギーの釣合い式</b>になります（式1.3〜1.4）。</p>
+    <p style="text-align:center"><span class="formula">E<sub>e</sub> ＋ E<sub>h</sub> ＋ E<sub>p</sub> ＝ E</span></p>
+    <ul>
+      <li>E<sub>e</sub>：地震が終わったときの振動エネルギー（運動エネルギー）</li>
+      <li>E<sub>h</sub>：減衰で消費されたエネルギー</li>
+      <li>E<sub>p</sub>：骨組の塑性変形（履歴）で吸収されたエネルギー</li>
+      <li>E：地震によって入ったエネルギーの総量</li>
+    </ul>
+    <p>秋山は、E の最大値 E<sub>max</sub> が<b>主に総質量と固有周期で決まり、強度・質量分布・剛性分布にはあまりよらない</b>ことを確かめ、速度に換算した V<sub>E</sub> を使って次のように表しました（式1.5）。</p>
+    <p style="text-align:center"><span class="formula">E ＝ ½ · M · V<sub>E</sub>²</span></p>
+    <p>設計用の V<sub>E</sub> は、いろいろな地震波の速度応答スペクトルを包む<b>折れ線（バイリニア）</b>です。塑性化すると実際の周期が伸びるので、短周期側の立ち上がりを急にしてあります。告示の V<sub>d</sub>（稀地震）・V<sub>s</sub>（極稀地震）はこの考え方の値です。</p>`,
+    fig:figEnergy,
+    ex:()=>{ const R=EX(); return { intro:"サンプル建物（X方向）の値で、稀に発生する地震のエネルギー E_d を求めます。M の単位を t、V の単位を m/s にすると、E は kN·m になります。",
+      steps:[
+        ["地上部分の重量の合計 Σw","各階の重量を足す（SS7の出力）",R.W,1,"kN",false],
+        ["総質量 M",`Σw ÷ g ＝ ${f(R.W,1)} ÷ 9.8`,R.M,1,"t"],
+        ["表層地盤の増幅率 G_s",`第2種地盤、T_d＝${f(R.Td,4)} s ≧ T_u＝0.864 s なので g_v`,R.GsD,3,"",false],
+        ["速度換算値 V_d",`T_d≧0.64 なので 1.024×Z×G_s×r ÷ 2π ＝ 1.024×1.0×${f(R.GsD,3)}×1.0 ÷ 6.2832`,R.Vd,4,"m/s"],
+        ["損傷限界の入力エネルギー E_d",`½ × M × V_d² ＝ 0.5 × ${f(R.M,1)} × ${f(R.Vd,4)}²`,R.Ed,1,"kN·m"]],
+      after:"この E_d が、稀な地震で建物に入るエネルギーの目安です。損傷限界の検討では、これを建物が弾性範囲（ダンパーは降伏してもよい）で吸収できるか、W_e ≧ E_d を確かめます（単元4）。" }; },
+    calc:[{v:"calc",el:"outDamage",m:"いちばん上の行の M・T_d・G_s・V_d・E_d が例題と同じ値です。「共通の条件」で地盤種別や Z を変えて、E_d がどう変わるか見てください（値はサンプル建物のままにしておくと例題と一致します）。"}],
+    quiz:[
+      {id:"q1-2-1",k:"num",q:"地上部分の重量の合計が Σw＝490,000 kN、V_d＝0.33 m/s の建物の E_d を求めよ（g＝9.8）。",a:2722.5,tol:0.01,u:"kN·m",e:"M＝490,000÷9.8＝50,000 t。E_d＝0.5×50,000×0.33²＝2,722.5 kN·m。t×(m/s)²＝kN·m なので、重量（kN）を g で割ってから使うのを忘れないようにします。",p:"P5 式(1.5)"},
+      {id:"q1-2-2",k:"mc",q:"設計変更で床の積載荷重が増え、建物の重量が10%増えた（固有周期の変化は無視する）。E_d はどうなるか。",c:["変わらない","約10%増える","約21%増える","約5%増える"],a:1,e:"E＝½MV² で、V は周期で決まるので M に比例して約10%増えます。一方、吸収側の W_e は耐力と変形で決まるので、重量だけ増えると W_e/E_d の余裕が減ります。",p:"P4〜5"},
+      {id:"q1-2-3",k:"mc",q:"ダンパーを追加して層の強度・剛性の分布を変えても、建物に入るエネルギーはほとんど変わらない。では、ダンパーの効果はどこに表れるか。",c:["入力エネルギー E を減らす","吸収側を増やし、主架構が受け持つ分や損傷の集中を減らす","質量を減らす","速度換算値 V を下げる"],a:1,e:"入力は主に総質量と周期で決まる安定量です。ダンパーは吸収側（W_e、ダンパーが受け持つ E_sdi）を増やし、主架構の η_sf を小さくする形で効きます。ただし剛性が上がり周期が短くなると、V が変わる範囲もあります。",p:"P4"},
+      {id:"q1-2-4",k:"num",q:"T≧0.64 s では V_s＝5.12/1.024×V_d＝5V_d である。½MV_s² は E_d の何倍になるか。",a:25,tol:0.01,u:"倍",e:"エネルギーは速度の2乗に比例するので 5²＝25 倍。極めて稀な地震では、稀な地震の25倍のエネルギーを、弾性で吸収できる分（W_e）を差し引いたうえで塑性変形で吸収する必要があります。",p:"P5、告示第4・第6"},
+      {id:"q1-2-5",k:"mc",q:"T_d＝1.27 s の建物（第2種地盤）を、柱を細くして T_d＝1.5 s に柔らかくした。E_d はどうなるか（重量は同じとする）。",c:["周期が長くなるので小さくなる","T_u（0.864 s）以上では V_d が一定なので、ほとんど変わらない","大きくなる","ゼロになる"],a:1,e:"第2種地盤では T≧T_u＝0.864 s で G_s＝2.025 一定、T≧0.64 s で V_d の係数も一定なので、V_d は周期によらず一定です。長周期側で柔らかくしても入力は減らず、変形が増えるだけになりやすい点に注意します。計算タブで T_d を変えて確かめられます。",p:"P5、告示第4"},
+      {id:"q1-2-6",k:"mc",q:"弾塑性系では、入力エネルギー E が地震の終わりごろに最大になる。その理由はどれか。",c:["地震動が終わりに大きくなるから","塑性変形で吸収したエネルギーは戻らず、たまっていくから","減衰が終わりに小さくなるから","固有周期が短くなるから"],a:1,e:"弾性で蓄えたエネルギーは振動として出入りしますが、塑性変形で吸収した分は熱などになって戻りません。そのため塑性吸収が積み上がり、終了時付近で最大になります（図1.1）。",p:"P4〜5"}
+    ],
+    sum:["E_e＋E_h＋E_p＝E（振動＋減衰＋塑性＝入力）","入力エネルギーは主に総質量と固有周期で決まる安定量 → E＝½MV_E²","告示の V_d・V_s はこの V_E。サンプル建物では E_d≒4,323 kN·m"] },
+
+  { id:"1-3", t:"エネルギーの各層への配分", p:"P5〜6（1.2(2)）",
+    goals:["配分の式 E_pi/E_p＝s_i·p_i^−n / Σ s_j·p_j^−n の各記号を説明できる","耐力分布の偏り p_i が、配分にどれだけ効くかを計算できる","耐力の調整や崩壊形が、各層の損傷にどう影響するかを判断できる"],
+    body:`<p>入力エネルギー E が分かっても、それが<b>どの層にどれだけ配られるか</b>が分からなければ設計できません。特に損傷に関係する E<sub>p</sub>（E から E<sub>h</sub> と E<sub>e</sub> を差し引いたもの）の配分が問題です。E<sub>e</sub> は、建物が弾性範囲で吸収できるエネルギー（告示の W<sub>e</sub>）に当たります。</p>
+    <p>秋山は、各層への配分を次の式で表しました（式1.6、1.7）。</p>
+    <p style="text-align:center"><span class="formula">E<sub>pi</sub> / E<sub>p</sub> ＝ s<sub>i</sub>·p<sub>i</sub><sup>−n</sup> / Σ s<sub>j</sub>·p<sub>j</sub><sup>−n</sup></span></p>
+    <ul>
+      <li><b>s<sub>i</sub></b>：理想的な耐力分布（全層が同じ塑性変形倍率になる分布）のときの、各層への配分の比。上の層ほど小さい</li>
+      <li><b>p<sub>i</sub> ＝ α<sub>i</sub> / (α<sub>1</sub>·α̂<sub>i</sub>)</b>：設計した建物の耐力分布が、理想の分布 α̂<sub>i</sub> からどれだけずれているか。1 より小さいと「理想より弱い層」</li>
+      <li><b>n</b>：損傷集中指数。柱崩壊型や耐力が劣化する筋かい構造など、損傷が集中しやすいもので 8〜12、梁崩壊型など集中しにくいもので 4〜8</li>
+    </ul>
+    <p>p<sub>i</sub> の <b>−n 乗</b>で配分されるので、理想より少し弱い層に、エネルギーが大きく集中します。<b>耐力分布の偏りを避けること</b>が大切です。理想の分布 α̂<sub>i</sub> は、結果が近いことから告示では <b>A<sub>i</sub> 分布</b>を使います（告示の n は 4 か 8。単元3で学びます）。</p>`,
+    fig:distWidget, after:distBind,
+    ex:()=>{ const R=EX(), n=8, g=R.S.map(s=>s.si*Math.pow(s.pi*s.pti,-n)), t=g.reduce((a,b)=>a+b,0);
+      const steps=[]; R.S.forEach((s,i)=>{ steps.push([`${s.name}階 s_i・p_i（サンプル建物）`,`s_i＝${f(s.si,4)}、p_i＝${f(s.pi,3)}、偏心の低減 p_ti＝${f(s.pti,2)}`,s.si,4,"",false]); });
+      R.S.forEach((s,i)=>{ steps.push([`${s.name}階の配分比`,`s_i(p_i p_ti)^−8 ÷ Σ ＝ ${f(g[i],4)} ÷ ${f(t,4)}`,g[i]/t*100,1,"%"]); });
+      return { intro:"サンプル建物（X方向）の値で、安全限界の E_s を各層に配る割合を求めます（n＝8）。告示の配分は、この式に偏心の低減 p_ti を加えたものです。", steps,
+        after:`3階は p_i が大きい（耐力に余裕がある）ので配分はわずかです。1階と2階で大半を受け持ちます。計算タブの E_si はこの割合に E_s（${f(R.Es,0)} kN·m）を掛けた値です。` }; },
+    calc:[{v:"calc",el:"outSafe",m:"「E_si」の列が各層への配分です。「共通の条件」の「損傷集中指数 n」を 8 と 4 で切り替えて、配分の偏りがどう変わるか見てください。"}],
+    quiz:[
+      {id:"q1-3-1",k:"num",q:"n＝8 で、ある層の p_i が 0.9（理想の耐力分布より10%弱い）とき、その層の配分の重み p_i^−n は何倍になるか。",a:2.323,tol:0.02,u:"倍",e:"0.9^−8＝1/0.4305≒2.32。耐力が10%弱いだけで重みは約2.3倍になります。n＝4 なら 1.52 倍です。わずかな耐力のでこぼこが損傷の集中に大きく効く、というのがこの式の実務上の意味です。",p:"P6 式(1.6)"},
+      {id:"q1-3-2",k:"num",q:"2層の建物で、1階 s₁＝1.0・p₁＝1.0、2階 s₂＝0.6・p₂＝0.9、n＝8 とする。E_p のうち2階に配られる割合は何%か。",a:58.2,tol:0.02,u:"%",e:"重みは 1階 1.0×1.0^−8＝1.0、2階 0.6×0.9^−8＝0.6×2.323＝1.394。2階の割合＝1.394÷(1.0＋1.394)＝58.2%。p₂＝1.0 なら 0.6÷1.6＝37.5% なので、10%弱いだけで割合が1.5倍以上になります。",p:"P5〜6 式(1.6)"},
+      {id:"q1-3-3",k:"mc",q:"サンプル建物のモデル（X方向）の3階は p_i＝1.11 で耐力に余裕がある。経済設計のつもりで3階のダンパーを減らし、p_i を 1.0 付近まで下げると、どうなると考えられるか。",c:["3階の配分はほとんど変わらない","3階に配られるエネルギーが大きく増える（n＝8 なら約2.3倍）","1階に配られるエネルギーが大きく増える","建物全体に入るエネルギーが減る"],a:1,e:"(1.11/1.0)^8≒2.3 なので、3階の重みは約2.3倍になります。耐力を A_i 分布にそろえるほど配分は s_i に近づきます。余裕を削る場合は、その層の η_s が η_c に収まるかを計算タブで確かめます。",p:"P6"},
+      {id:"q1-3-4",k:"mc",q:"上の階だけを A_i 分布よりかなり強くしても、建物全体の安全性はあまり上がらない。その理由として最も適切なのはどれか。",c:["上の階は質量が小さいから","上の階の p_i が大きくなり配分が減る一方、相対的に弱い下の階にエネルギーが集まるから","入力エネルギーが増えるから","周期が短くなるから"],a:1,e:"配分は相対的な弱さで決まります。一部の層だけを強くすると、ほかの層が相対的に弱くなり、そこに集中します。バランスよく A_i 分布に近づけるのが基本です。",p:"P6"},
+      {id:"q1-3-5",k:"mc",q:"告示の計算で損傷集中指数 n を 4（全体崩壊形）として扱いたい。実務上、何を確かめておく必要があるか。",c:["偏心率が 0.15 以下であること","増分解析などで、梁降伏が先行する全体崩壊形になっていること","層間変形角が 1/200 以下であること","ダンパーが降伏しないこと"],a:1,e:"n＝4 は損傷が集中しにくい全体崩壊形（梁崩壊型）のときの値で、それ以外は 8 です。n を下げると下層への集中が小さく評価されるので、崩壊形の確認が根拠になります。計算タブの「損傷集中指数 n」で違いを比べられます。",p:"P6、P54"}
+    ],
+    sum:["E_pi/E_p＝s_i·p_i^−n / Σ s_j·p_j^−n","p_i＝耐力分布の理想（A_i 分布）からのずれ。弱い層に −n 乗で集中する","n：集中しにくい梁崩壊型 4〜8、集中しやすい柱崩壊型など 8〜12（告示は 4 か 8）"] },
+
+  { id:"1-4", t:"鋼構造のエネルギー吸収能力", p:"P6〜7（1.2(3)）",
+    goals:["累積塑性変形倍率 η の考え方（正側・負側に分けて累積する）を説明できる","スケルトン部とバウシンガー部の違いを説明できる","エネルギーから η を求める計算ができる"],
+    body:`<p>鋼構造では、骨組の<b>エネルギー吸収能力</b>で崩壊を判断する考え方が定着しています。荷重を降伏耐力 Q<sub>y</sub>、変形を降伏変位 δ<sub>y</sub> で割って無次元にし、変形の倍率（δ/δ<sub>y</sub>）で考えます。</p>
+    <p>実際の荷重−変形のループを<b>正側と負側に分け</b>、それぞれの側で変形を足し合わせていくのが<b>累積塑性変形</b>の基本です。足し合わせた図は次の2つの部分からなります。</p>
+    <ul>
+      <li><b>スケルトン部</b>：初めて経験する荷重域の部分。つなげると、一方向に押した（モノトニック）ときの荷重−変形と一致する</li>
+      <li><b>バウシンガー部</b>：それ以外の部分。鋼は反対側の応力を受けたあと剛性が下がる（バウシンガー効果）ので、その柔らかくなった領域</li>
+    </ul>
+    <p>鋼構造の吸収能力の考え方は次の4点にまとめられます。</p>
+    <ol>
+      <li>累積変形の考え方を使い、正側・負側それぞれの荷重−累積変形を考える</li>
+      <li>それぞれはスケルトン部とバウシンガー部からなる</li>
+      <li>スケルトン部は正負で独立していて、モノトニックの荷重−変形に対応する。モノトニックでの変形能力は繰返しを受けても確保される</li>
+      <li>バウシンガー部の吸収量は、スケルトン部の吸収量に対する一定の比率（下限ぎみ）で見込めば安全側に推定できる</li>
+    </ol>
+    <p>モノトニックでの変形能力は、部材の<b>引張破断や局部座屈</b>で決まります。部材ごとの変形能力は第Ⅰ編 5.8 にまとめられています。</p>`,
+    fig:figSkeleton,
+    ex:()=>{ const s=EX().S[EX().S.length-1]; return { intro:"エネルギーを η に換算する例です。サンプル建物（X方向）の1階の主架構が、安全限界で受け持つエネルギー E_sfi から、片側の必要累積塑性変形倍率 η_sfi を求めます（式は単元4で詳しく学びます）。",
+      steps:[
+        ["1階 主架構の剛性 k_f",`Q_f ÷ δ ＝ ${f(s.Qf,1)} ÷ ${f(s.d,3)}`,s.Kf,1,"kN/mm",false],
+        ["主架構の耐力 Q_fu",`k_f × δ_fu ＝ ${f(s.Kf,1)} × ${f(s.dfu,2)}`,s.Qfu,0,"kN"],
+        ["主架構が受け持つエネルギー E_sf","計算タブの値",s.Esf,1,"kN·m",false],
+        ["必要累積塑性変形倍率 η_sf",`E_sf ÷ (2 × Q_fu × δ_fu) ＝ ${f(s.Esf,1)}×1000 ÷ (2 × ${f(s.Qfu,0)} × ${f(s.dfu,2)})`,s.etaSf,4,""]],
+      after:"分母の 2·Q_fu·δ_fu は「降伏耐力 × 降伏変位」の四角形2つ分＝正負1回ずつ降伏変位だけ塑性変形したときの吸収量です。η は「そのような塑性変形を片側で何回分しているか」を表します。この建物はダンパーが多くを受け持つので、主架構の η はとても小さくなっています。" }; },
+    calc:[{v:"calc",el:"outSafe",m:"「η_sfi / η_cf」の列が、主架構の必要 η と保有 η の比較です。"}],
+    quiz:[
+      {id:"q1-4-1",k:"num",q:"降伏耐力 Q_y＝10,000 kN、降伏変位 δ_y＝20 mm の層が、塑性変形で 6,000 kN·m のエネルギーを吸収する必要がある。片側の必要累積塑性変形倍率 η＝E/(2·Q_y·δ_y) を求めよ。",a:15,tol:0.01,u:"",e:"η＝6,000×1,000 ÷ (2×10,000×20)＝15。kN·m を kN·mm にそろえるため1,000倍します。2·Q_y·δ_y は、正負1回ずつ降伏変位分だけ塑性変形したときの吸収量です。",p:"P6〜7、P55 式(4.3.13)"},
+      {id:"q1-4-2",k:"num",q:"問1と同じ層で、必要 η は同じまま降伏耐力だけを 1.5 倍（15,000 kN、δ_y は 20 mm のまま）にすると、吸収できるエネルギーの量は何 kN·m になるか。",a:9000,tol:0.01,u:"kN·m",e:"E＝η×2·Q_y·δ_y＝15×2×15,000×20÷1,000＝9,000 kN·m。逆に、必要な吸収量 6,000 kN·m が同じなら η は 10 に下がります。耐力を上げると、同じエネルギーを小さな塑性変形で吸収できる、という関係です。",p:"P6〜7"},
+      {id:"q1-4-3",k:"mc",q:"部材の変形能力は、ふつう一方向に押す（モノトニック）実験で調べる。その結果を、地震のような繰返しを受ける骨組の吸収能力に使える理由はどれか。",c:["地震では繰返しが起きないから","正側・負側のスケルトン部が独立していて、モノトニックの荷重−変形に対応するから","バウシンガー効果で耐力が上がるから","鋼材は疲労しないから"],a:1,e:"荷重−変形を正負に分けて累積すると、太線（スケルトン部）をつなげた曲線がモノトニックの曲線と一致します。このため、モノトニックの変形能力から繰返しでの吸収能力を推定できます。",p:"P7"},
+      {id:"q1-4-4",k:"mc",q:"保有累積塑性変形倍率 η_c が足りないとき、主架構側でとれる対策として、この節の考え方に合うものはどれか。",c:["減衰定数を大きく仮定する","幅厚比を小さくして局部座屈を防ぐ、梁端の破断を防ぐディテール（ノンスカラップなど）にする","固有周期を長くする","重量を増やす"],a:1,e:"骨組の変形能力は、部材の局部座屈や引張破断で決まります。幅厚比を小さくする（部材ランクを上げる）、梁端の破断を防ぐ、といった対策が η_c を上げます。部材ごとの変形性能は 5.8 にあります。",p:"P7、5.8"},
+      {id:"q1-4-5",k:"mc",q:"バウシンガー部の吸収量を「スケルトン部に対する一定の比率（下限ぎみ）」で見込むことの実務上の意味はどれか。",c:["吸収量を過大に見込んで経済設計にするため","実際の繰返しパターンに依存する部分を、安全側に簡略化して評価するため","バウシンガー部を無視するため","スケルトン部を無視するため"],a:1,e:"バウシンガー部の量は揺れ方で変わり、正確には決められません。下限ぎみの比率にしておけば、実際の吸収能力を下回る側（安全側）で評価できます。",p:"P7"}
+    ],
+    sum:["正側・負側に分けて変形を累積して考える（累積塑性変形倍率 η）","スケルトン部＝モノトニックの曲線、バウシンガー部＝剛性が軟化した部分","η＝E/(2·Q_y·δ_y) の形でエネルギーと η を行き来できる"] },
+
+  { id:"1-5", t:"1章のまとめ：エネルギー法の長所と限界", p:"P7（1.3）",
+    goals:["エネルギー法の特徴が、設計を進めるうえでどう役立つかを説明できる","エネルギー法だけでは分からないことと、それを補う方法を判断できる"],
+    body:`<p>エネルギーの釣合いに基づく設計法の特徴は、次の3つです。</p>
+    <ol>
+      <li>地震で入るエネルギーの総量が、主に<b>総質量と1次固有周期で決まる安定した量</b>であること</li>
+      <li>エネルギーの<b>層への配分則</b>が確立していること</li>
+      <li><b>必要性能</b>（地震の入力エネルギー）と<b>保有性能</b>（骨組の吸収能力）が独立していて、比べるだけで安全性を確かめられること</li>
+    </ol>
+    <p>法律の面では、<b>稀に発生する地震（一次設計）でダンパーの降伏を認め</b>、損傷限界からダンパーの吸収効果を取り込める設計ルートである点も特徴です。</p>
+    <p><b>長所</b>：エネルギーがどう配られるかに注目して、建物の揺れ方を大きくつかみながら設計できます。<br><b>限界</b>：エネルギーは地震の全期間で積分した値なので、<b>揺れている途中の細かい情報（いつ、どれだけ変形したか）は分かりません</b>。プッシュオーバー解析や時刻歴応答解析なども併用し、いろいろな角度から確かめるのが望ましいとされています。</p>`,
+    calc:[{v:"margin",m:"エネルギー法の結果だけでは途中の揺れ方は分かりません。ここでは入力を1.5倍・2倍にしたときにどこから足りなくなるかを見て、余裕の程度をつかみます。"}],
+    quiz:[
+      {id:"q1-5-1",k:"mc",q:"エネルギー法で各層の η はすべて OK になった。しかし、外装材（ALC・カーテンウォール）が極稀地震時の層間変形に追従できるかも確かめたい。どう考えるのがよいか。",c:["η が OK なら変形も問題ない","エネルギー法の結果だけでは途中の最大変形は分からないので、最大応答変位の算定（4.3.6、5.4）や時刻歴応答解析などで別に確かめる","層間変形角 1/200 の確認で十分","偏心率で判断する"],a:1,e:"エネルギーは全期間の積分値なので、応答の途中でいつどれだけ変形したかは分かりません。緑本は 4.3.6・5.4 で最大変形の推定方法を示し、時刻歴応答解析などの併用を勧めています。",p:"P7、4.3.6、5.4"},
+      {id:"q1-5-2",k:"mc",q:"「必要性能（入力）と保有性能（吸収能力）が独立している」ことの、設計を進めるうえでの利点はどれか。",c:["入力エネルギーを計算しなくてよい","断面やダンパー量を変えても入力側はほとんど変わらないので、吸収側を見直すだけで比較検討を回せる","保有性能を計算しなくてよい","どちらか一方が満足すればよい"],a:1,e:"入力は主に質量と周期で決まるので、部材やダンパーを変えた案どうしの比較では、主に吸収側（W_e、配分、η_c）の変化を見れば済みます。ただし剛性が変わって周期が大きく変わる場合は、入力側も計算し直します。",p:"P7"},
+      {id:"q1-5-3",k:"mc",q:"建築研究報告155号では、告示どおりに設計した物流倉庫でも、継続時間の長い地震動や 1.5V_s の入力で梁端が破断限界を超えるとされた。エネルギー法の設計で実務的にとれる対応はどれか。",c:["告示を満たしていれば何もしなくてよい","入力の倍率を上げたときの余裕（余裕度タブ）を確かめ、ダンパー量や梁端ディテールに余裕を持たせる","損傷集中指数 n を小さくする","V_s を小さく仮定する"],a:1,e:"告示の V_s は1つの基準なので、それを超える入力への余裕は別に確かめる必要があります。余裕度タブで 1.5V_s のときにどこから足りなくなるかを見て、ダンパー量・柱材・梁端ディテールを考えます。",p:"P7、建研報告155号"}
+    ],
+    sum:["特徴：①入力は M と T で決まる ②層への配分則 ③必要と保有を独立に比較","一次設計でダンパーの降伏を認め、吸収効果を取り込める","途中の揺れ方は分からない → ほかの解析も併用する"] }
+]},
+{ id:"u2", t:"告示の概要", p:"第Ⅰ編2章 P9〜16", secs:[
+  { id:"2-1", t:"告示の法的な位置づけ", p:"P9",
+    goals:["計画中の建物にエネルギー法を使えるか、向いているかを判断できる","手続き（確認・適判）と、満たすべき規定を説明できる","許容応力度等計算から切り替えたとき、何が合理化されるかを説明できる"],
+    body:`<ul>
+      <li><b>根拠</b>：令第81条第2項第一号ロのただし書きに基づく告示（平17国交告第631号）。エネルギーの釣合いに基づく耐震計算を中心とした構造計算の規定です。</li>
+      <li><b>同等性</b>：<b>限界耐力計算</b>（令第82条の5、平12建告第1457号）と同等。このため<b>耐久性等関係規定（令第36条第1項）を除き、仕様規定を除外</b>できます。超高層を除く、鉄骨造・RC造などの一般の建物に使えます。</li>
+      <li><b>ダンパー付き建物</b>：これまでは大臣認定などが必要でしたが、エネルギー法で検証すれば<b>建築主事等の確認（構造計算適合性判定が必要）</b>で建てられるようになりました。ダンパーで効率よくエネルギーを吸収させるため、<b>稀に発生する地震でダンパー部分が降伏することを認め</b>、そのときの損傷や残留変形を評価します。</li>
+      <li><b>G<sub>s</sub></b>：限界耐力計算と同じく表層地盤の増幅率を使えます。平成19年の告示第1457号の改正で、稀地震では<b>許容応力度計算とほぼ同じベースシア係数</b>が確保されるようになっています。</li>
+      <li><b>減衰が大きい建物・粘性系ダンパー</b>：V<sub>d</sub>・V<sub>s</sub> を別に設定できるとされていますが、評価方法は研究途上です。</li>
+      <li><b>免震建物</b>：免震告示（平12建告第2009号）の計算に限られるので、<b>エネルギー法は使えません</b>。</li>
+    </ul>`,
+    quiz:[
+      {id:"q2-1-1",k:"mc",q:"次の計画のうち、エネルギー法で検討するのに向いているのはどれか。",c:["中間層免震＋オイルダンパーの事務所","座屈拘束ブレース（履歴型ダンパー）付きの鉄骨造4階建て物流倉庫","高さ 60 m を超える超高層の事務所","粘性ダンパーだけで制振する集合住宅"],a:1,e:"履歴型ダンパー付きの一般的な鉄骨造はエネルギー法の得意分野です。免震建物は免震告示の計算に限られ、超高層は対象外です。粘性系ダンパーは V_d・V_s を別に設定できるとされるものの評価方法が研究途上なので、時刻歴応答解析＋大臣認定が現実的です。",p:"P9"},
+      {id:"q2-1-2",k:"mc",q:"エネルギー法で設計したダンパー付きの物流倉庫を申請する。手続きとして正しいものはどれか。",c:["大臣認定が必要","建築主事等の確認＋構造計算適合性判定","建築主事等の確認だけ（適判は不要）","届出だけでよい"],a:1,e:"以前はダンパー付き建物の安全性確認に大臣認定などが必要でしたが、エネルギー法で検証すれば確認で建てられます。ただし構造計算適合性判定は必要です。工程計画では適判の期間を見込みます。",p:"P9"},
+      {id:"q2-1-3",k:"mc",q:"許容応力度等計算からエネルギー法に切り替えると、稀に発生する地震に対する主架構の断面はどうなる傾向にあるか（ダンパーの降伏は考えないものとする）。",c:["大幅に小さくできる","平成19年の改正で、許容応力度計算とほぼ同じベースシア係数が確保されるようになったので、大きくは変わらない","必ず大きくなる","地震力を考えなくてよくなる"],a:1,e:"平成19年の告示第1457号改正で、稀地震の G_s の扱いが見直され、損傷限界時のベースシアは許容応力度計算とほぼ同等になりました。エネルギー法の合理化の効果は、主に稀地震でのダンパー降伏を見込めること、極稀地震での吸収能力の評価から生まれます。",p:"P9"},
+      {id:"q2-1-4",k:"mc",q:"エネルギー法を使う理由として「限界耐力計算と同等なので仕様規定の多くを除外できる」がある。それでも必ず満たす必要があるのはどれか。",c:["耐久性等関係規定（令第36条第1項に定めるもの）","ルート3の D_s の規定","偏心率 0.15 以下","剛性率 0.6 以上"],a:0,e:"耐久性等関係規定は、どの計算ルートでも除外できません。偏心・剛性率の規定はルート2・3のもので、エネルギー法では偏心は p_ti（配分の割増し）として計算に反映します。",p:"P9"}
+    ],
+    sum:["令81条2項1号ロただし書きの告示。限界耐力計算と同等 → 耐久性等関係規定以外の仕様規定を除外できる","ダンパー付き建物が確認（適判あり）で建てられる。稀地震でダンパー降伏を認める","免震建物・超高層には使えない。粘性ダンパー等の評価は研究途上"] },
+
+  { id:"2-2", t:"告示の構成（第1〜第9）", p:"P9〜10、図2.1",
+    goals:["稀地震と極稀地震で、それぞれ何を確かめるのかと、その理由を説明できる","ダンパー部分に求められる条件が、計算の前提とどうつながっているかを説明できる"],
+    body:`<p>告示は第1から第9まであります。<b>エネルギー法の本体は第1・第4・第6</b>で、それ以外は許容応力度計算や限界耐力計算とほぼ同じです。</p>
+    <div class="kflow" role="list">
+      <div class="kf main" role="listitem"><b>第1</b>　用語の定義：「主架構」と「ダンパー部分」</div>
+      <div class="kf" role="listitem"><b>第2</b>　中程度の荷重・外力（地震以外）：許容応力度</div>
+      <div class="kf" role="listitem"><b>第3</b>　最大級の荷重・外力（地震以外）：材料強度。極めて稀な暴風でのダンパーの損傷も</div>
+      <div class="kf main" role="listitem"><b>第4</b>　稀に発生する地震：①エネルギー ②層間変形角 ③残留変形</div>
+      <div class="kf" role="listitem"><b>第5</b>　地下部分の許容応力度</div>
+      <div class="kf main" role="listitem"><b>第6</b>　極めて稀に発生する地震：エネルギー</div>
+      <div class="kf" role="listitem"><b>第7</b>　使用上の支障</div>
+      <div class="kf" role="listitem"><b>第8</b>　外装材等</div>
+      <div class="kf" role="listitem"><b>第9</b>　土砂災害の防止</div>
+    </div>
+    <ul style="margin-top:10px">
+      <li><b>第1 ダンパー部分の条件</b>：<b>鉛直荷重を支えない形式</b>にする。復元力特性はおおむね<b>完全弾塑性型</b>で、負荷・除荷のときに剛性や耐力が下がらないこと。取付け部の設計にも注意。</li>
+      <li><b>第3 暴風</b>：高層でアスペクト比が大きいと、<b>風直角方向</b>の風圧でダンパーの塑性変形が累積するおそれがあります。影響が大きい場合は、<b>ダンパーの耐力を無視し、主架構だけ</b>で安全を確かめます。</li>
+      <li><b>第4</b>：稀地震でもエネルギーで確かめ、<b>ダンパーの降伏を認める</b>のが特徴。<b>第6</b>：ダンパー部分と主架構の損傷を、エネルギーの大小で確かめます。</li>
+      <li>平成19年の告示第831号により、エネルギー法でも<b>構造計算概要書</b>の添付が必要です（書式は P11〜16、記入例は第Ⅱ編 設計例3の末尾）。</li>
+    </ul>`,
+    calc:[{v:"calc",el:"outDamage",m:"第4（稀に発生する地震）の3項目：E_d ≦ W_e、C_1 時の層間変形角、残留変形角が、この表に並んでいます。"},{v:"calc",el:"outSafe",m:"第6（極めて稀に発生する地震）：主架構とダンパー部分の η の判定が、この表に並んでいます。"}],
+    quiz:[
+      {id:"q2-2-1",k:"mc",q:"稀に発生する地震でダンパーの降伏を認める代わりに、許容応力度計算にはない確認が加わる。地震後の建物の使い続けやすさに関わるその確認はどれか。",c:["残留変形（ダンパー降伏後に残る層の傾き）","偏心率","保有水平耐力","風圧力"],a:0,e:"ダンパーが降伏すると、地震後に層が傾いたまま残るおそれがあります。そのため第4で残留変形を確かめます（緑本の目標は 1/1000 以下、単元4で学びます）。計算タブの「残留変形角」の列がこれです。",p:"P10 図2.1、P49"},
+      {id:"q2-2-2",k:"mc",q:"設計中、ダンパー（座屈拘束ブレース）を、上の梁を支える柱の代わりに鉛直荷重も負担する配置にしたくなった。エネルギー法の考え方で、問題になる点はどれか。",c:["問題ない","ダンパー部分は鉛直荷重を支えない形式とする必要がある。降伏・損傷を前提にした部材に鉛直支持を頼ると、地震時に支持が損なわれるおそれがある","剛性が上がりすぎる","n_i が変わる"],a:1,e:"告示第1で、ダンパー部分は鉛直荷重を支えない形式とすることが求められています。ダンパーは繰返し降伏させる前提の部材なので、鉛直支持は主架構に持たせます。",p:"P9"},
+      {id:"q2-2-3",k:"mc",q:"告示が、ダンパー部分の復元力特性を「おおむね完全弾塑性型で、負荷・除荷時に剛性や耐力が低下しないもの」としているのはなぜか。",c:["見た目をそろえるため","W_dp＝2(δ−δ_du)·Q_du·n など、ダンパーの吸収エネルギーの式が、降伏後も一定の耐力を保つ前提で組まれているから","価格を下げるため","剛性を上げるため"],a:1,e:"ダンパーの吸収エネルギーは、降伏耐力 Q_du が繰返しても保たれるとして計算します。耐力が落ちる部材では、この式で吸収量を過大に見込むことになります。製品を選ぶときに性能データ（第Ⅲ編）で確かめる点です。",p:"P9、P47"},
+      {id:"q2-2-4",k:"mc",q:"塔状比の大きい高層のダンパー付き建物で、極めて稀な暴風の検討をする。風直角方向の影響が大きい場合、どのように確かめるか。",c:["ダンパーの耐力を見込んで確かめる","ダンパーの耐力を無視し、主架構だけの耐力で確かめる","暴風は地震より小さいので確かめなくてよい","ダンパーの耐力を2倍にして確かめる"],a:1,e:"風直角方向の揺れは繰返し回数が多く、ダンパーの塑性変形が累積して損傷するおそれがあります。そのため主架構だけで安全を確かめます。一般的な低層の物流倉庫では問題になりにくい項目です。",p:"P9"},
+      {id:"q2-2-5",k:"mc",q:"第4の層間変形角（1/200）は、どの外力の状態で確かめるか。エネルギー法らしい決め方を選べ。",c:["C_0＝0.2 の地震力","A_i 分布の外力を大きくしていき、建物の吸収エネルギーが E_d に達したときのベースシア C_1 の状態","保有水平耐力に達したとき","風荷重"],a:1,e:"エネルギー法では、稀地震のエネルギー E_d をちょうど吸収する状態を「損傷限界時」とみなし、そのときのベースシア C_1 で層間変形角と地下・基礎の応力を確かめます。計算タブの C_1 は、この考え方で自動計算しています（サンプル建物は 0.115 に固定）。",p:"P10、P48"}
+    ],
+    sum:["本体は第1（用語）・第4（稀地震）・第6（極稀地震）","第4：エネルギー・層間変形角・残留変形／第6：エネルギー（η で比較）","ダンパー部分は鉛直荷重を支えない、完全弾塑性型。風直角方向が大きいときは主架構だけで確認"] }
+]},
+{ id:"u3", t:"ダンパーなしの建物", p:"第Ⅰ編3章 P17〜40", secs:[
+  { id:"3-1", t:"損傷限界の流れと準備計算", p:"P17〜18（3.1〜3.2.2）",
+    goals:["稀地震の検討（損傷限界）の手順を、なぜその順なのかと合わせて説明できる","Q_fi・δ_i・k_fi を、増分解析の結果からどう読み取るかが分かる","A_i を T_d から計算できる"],
+    body:`<p>3章は、ダンパーのない建物（純ラーメン、純ブレース、ラーメンとブレースの混合構造）の計算です。ダンパー付き（4章）の土台になるので、まずここで流れをつかみます。ダンパーがない建物では、主架構を単に「架構」と呼びます。</p>
+    <p><b>損傷限界の流れ（図3.2.1）</b></p>
+    <ol><li>準備計算：m<sub>i</sub>、M、Q<sub>fi</sub>、k<sub>fi</sub>、δ<sub>i</sub>、A<sub>i</sub>、T<sub>d</sub></li><li>入るエネルギー E<sub>d</sub> と、弾性で吸収できるエネルギー W<sub>e</sub> を求める</li><li>E<sub>d</sub> ≦ W<sub>e</sub> を確かめる</li><li>損傷限界ベースシア C<sub>1</sub> を求め、そのときの層間変形角を確かめる</li><li>地下・基礎の安全性を確かめる</li></ol>
+    <p><b>準備計算のポイント</b></p>
+    <ul>
+      <li><b>A<sub>i</sub></b>：ふつうの A<sub>i</sub> と同じ式で、周期 T を損傷限界時の周期 T<sub>d</sub> に置き換えます（ダンパーなしなら T＝T<sub>d</sub>）。<span class="formula">A<sub>i</sub>＝1＋(1/√α<sub>i</sub>−α<sub>i</sub>)·2T<sub>d</sub>/(1＋3T<sub>d</sub>)</span>、α<sub>i</sub> はその階より上の重量の割合。</li>
+      <li><b>Q<sub>fi</sub></b>：鉛直荷重がかかった状態で A<sub>i</sub> 分布の水平力を少しずつ増やし（増分解析）、<b>架構のどこかが短期許容応力度に達した時点</b>の各層の層せん断力。</li>
+      <li><b>δ<sub>i</sub></b>：その時点の層間変位。<b>k<sub>fi</sub>＝Q<sub>fi</sub>/δ<sub>i</sub></b>。告示は Q と k から δ を出す書き方ですが、増分解析を使うのが原則なのでこの順で求めます。</li>
+    </ul>
+    `,
+    ex:()=>{ const R=EX(); const st=[]; R.S.forEach((s,i)=>{ st.push([`${s.name}階 α_i`,`その階より上の重量 ÷ 全重量 ＝ ${f(s.sw,1)} ÷ ${f(R.W,1)}`,s.alpha,4,"",false]); st.push([`${s.name}階 A_i`,`1＋(1/√${f(s.alpha,4)}−${f(s.alpha,4)})×2×${f(R.Td,4)}/(1＋3×${f(R.Td,4)})`,R.AiD[i],4,""]); });
+      return {intro:"サンプル建物（X方向、T_d＝1.2738 s）の A_i を求めます。3階は屋根だけで軽いので α_i が小さく、A_i が大きくなります。",steps:st,after:"3階の A_i が 3.2 と大きいのは、物流倉庫の上階が軽い（重量の6%弱）ためです。損傷限界の外力も、安全限界の配分（p_i）も、この A_i 分布が基準になります。"}; },
+    calc:[{v:"calc",el:"outDamage",m:"「A_i」の列が損傷限界の A_i です。T_d を変えると A_i も変わります。"}],
+    quiz:[
+      {id:"q3-1-1",k:"mc",q:"SS7 の増分解析の結果から Q_fi・δ_i を拾うとき、どの時点の値を使うか。",c:["最初のステップ（外力ゼロに近い）","架構のどこかの部材が短期許容応力度に達した時点","保有水平耐力に達した時点","層間変形角が 1/200 になった時点"],a:1,e:"損傷限界は「架構が弾性範囲にとどまる限界」なので、どこかの部材が短期許容応力度に達する時点です。サンプル建物では、検定値が 0.99 から 1.0 になるステップを使っています。",p:"P18"},
+      {id:"q3-1-2",k:"num",q:"屋根階の重量の割合 α＝0.0559、T_d＝1.2738 s のとき、A_i はいくらか。",a:3.205,tol:0.01,u:"",e:"1/√0.0559＝4.230、4.230−0.0559＝4.174。2×1.2738/(1＋3×1.2738)＝2.5476/4.8214＝0.5284。A_i＝1＋4.174×0.5284＝3.205。サンプル建物の3階と同じ値です。",p:"P18 式(解3.2.1)"},
+      {id:"q3-1-3",k:"mc",q:"告示では A_i の式の T を T_d（損傷限界時の周期）に置き換える。ダンパー付きの建物で、この置き換えが効いてくるのはなぜか。",c:["ダンパー付きは重量が変わるから","稀地震でダンパーが降伏し、等価剛性が下がって、弾性の1次周期より T_d が長くなるから","地盤が変わるから","置き換えても値は同じだから"],a:1,e:"ダンパーなしでは T と T_d は等しいですが、ダンパー付きは稀地震でダンパーが降伏するので、等価剛性で求めた T_d は弾性周期より長くなります。SS7 の固有値（初期剛性）をそのまま使えない理由です（単元4）。",p:"P18、P44〜45"},
+      {id:"q3-1-4",k:"mc",q:"増分解析で、Q_fi を先に決めてから k_fi＝Q_fi/δ_i とする。剛性 k_fi を弾性の初期剛性ではなくこの割線で求める意味はどれか。",c:["計算を簡単にするため","損傷限界までの荷重−変形を1本の直線に置き換え、W_fi＝½Q_fi·δ_i と整合させるため","剛性を大きく見せるため","A_i を変えるため"],a:1,e:"吸収エネルギーは ½Q_fi·δ_i（三角形の面積）で計算します。損傷限界点を結んだ割線剛性にしておけば、エネルギーと剛性・変位の関係がそろいます。",p:"P18、P20"}
+    ],
+    sum:["損傷限界：準備計算 → E_d・W_e → E_d≦W_e → C_1 と層間変形角 → 地下・基礎","Q_fi・δ_i は増分解析で「どこかの部材が短期許容応力度に達した時点」の値、k_fi＝Q_fi/δ_i","A_i は T を T_d に置き換えて計算する"] },
+
+  { id:"3-2", t:"E_d・W_e の比較と C_1・層間変形角", p:"P19〜21（3.2.3〜3.2.7）",
+    goals:["W_e＝Σ½Q_fi·δ_i の意味と、耐力・剛性が W_e にどう効くかを説明できる","ダンパーなしの建物で C_1 と層間変位を √(E_d/W_e) から求められる","地盤種別による低減 r と、地下・基礎の検討の考え方が分かる"],
+    body:`<ul>
+      <li><b>E<sub>d</sub>＝½MV<sub>d</sub>²</b>。V<sub>d</sub> は T<sub>d</sub>・Z・G<sub>s</sub> で決まります（単元1）。地盤種別を確かめた場合は、短周期で修正係数 <b>r</b>（0.9〜1.0）を掛けられます。限界耐力計算で4階以下の建物の地震力を低減できる考え方を、エネルギーに合わせたものです。</li>
+      <li><b>W<sub>e</sub>＝Σ W<sub>fi</sub>、W<sub>fi</sub>＝½Q<sub>fi</sub>·δ<sub>i</sub></b>：ダンパーがなければ、架構が弾性範囲で蓄えるひずみエネルギーそのものです（A<sub>i</sub> 分布の荷重のもとで）。</li>
+      <li><b>判定</b>：E<sub>d</sub> ≦ W<sub>e</sub>。</li>
+      <li><b>C<sub>1</sub> と層間変形角</b>：A<sub>i</sub> 分布の外力で、ひずみエネルギーの合計が E<sub>d</sub> に等しくなる状態のベースシアが C<sub>1</sub>。ダンパーがなければ完全に弾性なので、外力を γ 倍するとエネルギーは γ² 倍になります。<br><span class="formula">γ＝√(E<sub>d</sub>/W<sub>e</sub>)、δ<sub>C1,i</sub>＝γ·δ<sub>i</sub></span><br>層間変形角は <b>1/200</b>（著しい損傷のおそれがなければ 1/120）以下。内外装や設備に支障がないことを確かめる目的です。</li>
+      <li><b>地下・基礎</b>：C<sub>1</sub> のときの上部構造の応力と、地下部分の地震力（令88条4項）で許容応力度設計。極稀地震で柱の引抜きなど大きな力が出そうなら、それにも配慮しておくのが望ましいとされています。</li>
+    </ul>`,
+    ex:()=>{ const R=EX(); const Wf=R.S.reduce((a,s)=>a+s.dmg.Wf,0), g=Math.sqrt(R.Ed/Wf), s1=R.S[R.S.length-1], d=g*s1.d;
+      return {intro:"もしサンプル建物の建物にダンパーがなかったら、を計算してみます。主架構だけの W_e（Σ½Q_fi·δ_i）と、C_1 時の1階の層間変形角を求めます。",
+        steps:[...R.S.map(s=>[`${s.name}階 W_fi`,`½ × ${f(s.Qf,1)} × ${f(s.d,3)} ÷ 1000`,s.dmg.Wf,1,"kN·m"]),
+          ["主架構だけの W_e","Σ W_fi",Wf,1,"kN·m"],["E_d","単元1で計算した値",R.Ed,1,"kN·m",false],
+          ["外力の倍率 γ",`√(E_d / W_e) ＝ √(${f(R.Ed,1)} ÷ ${f(Wf,1)})`,g,3,""],
+          ["1階の C_1 時層間変位",`γ × δ_1 ＝ ${f(g,3)} × ${f(s1.d,3)}`,d,1,"mm"],
+          ["1階の層間変形角 1/○",`階高 ÷ 変位 ＝ ${f(s1.H,0)} ÷ ${f(d,1)}`,s1.H/d,0,""]],
+        after:`主架構だけでは W_e が E_d の約 ${f(Wf/R.Ed*100,0)}% しかなく、E_d ≦ W_e を満たしません（NG）。仮に弾性のまま耐えたとしても、1階の層間変形角は 1/${Math.floor(s1.H/d)} で 1/200 を超えます。ダンパーの弾性・塑性の吸収分（W_dei、W_dpi）を足して初めて成り立つ建物だと分かります（単元4）。`}; },
+    calc:[{v:"calc",el:"outDamage",m:"「W_fi」の列が主架構の分、「W_dei」「W_dpi」がダンパーの分です。主架構だけでは E_d に足りないことを確かめてください。"}],
+    quiz:[
+      {id:"q3-2-1",k:"num",q:"ダンパーなしの建物で W_e＝8,000 kN·m、E_d＝5,400 kN·m だった。損傷限界時（W_e を求めた状態）の1階の層間変位が 30 mm のとき、C_1 時の1階の層間変位は何 mm か。",a:24.65,tol:0.01,u:"mm",e:"γ＝√(5,400/8,000)＝0.822、δ_C1＝0.822×30＝24.6 mm。エネルギーは変位の2乗に比例するので、比の平方根で外力・変位を縮めます。",p:"P21 式(解3.2.3)(解3.2.4)"},
+      {id:"q3-2-2",k:"num",q:"問1の建物で、W_e を求めた状態のベースシア係数が 0.20 だった。C_1 はいくらか。",a:0.1643,tol:0.01,u:"",e:"弾性なので外力も γ 倍。C_1＝0.822×0.20＝0.164。E_d が W_e より小さいので、損傷限界の外力（許容応力度に達する外力）より小さい力でエネルギーの釣合いがとれる、という意味です。",p:"P21"},
+      {id:"q3-2-3",k:"num",q:"ある層で Q_fi を変えずに、剛性 k_fi だけを 1.25 倍にした（ブレースを足したが耐力は決まる部材が変わらない、など）。その層の W_fi は元の何倍になるか。",a:0.8,tol:0.01,u:"倍",e:"W_fi＝½Q_fi·δ_i＝½Q_fi²/k_fi なので、Q が同じなら k に反比例して 1/1.25＝0.8 倍。耐力を上げずに硬くすると、弾性で蓄えられるエネルギーはかえって減ります。W_e を増やすには損傷限界耐力 Q_fi を上げるのが効きます（Q の2乗で効く）。",p:"P20 式(3.2.3)"},
+      {id:"q3-2-4",k:"mc",q:"ダンパーなしの建物で E_d＞W_e（NG）になった。まず検討すべき方向として最も合理的なものはどれか。",c:["剛性だけを上げる","損傷限界耐力（短期許容応力度に達する層せん断力）を上げる、または入力側（重量）を見直す","n を 4 にする","T_s の範囲を広げる"],a:1,e:"W_e は Q_fi² に比例し、k_fi に反比例します。耐力を上げるのが最も効き、重量を減らせば E_d も下がります。剛性だけを上げても W_e は増えません。履歴型ダンパーを入れて稀地震で降伏させる、という選択肢がエネルギー法ならではの方法です（単元4）。",p:"P20〜21"},
+      {id:"q3-2-5",k:"mc",q:"地下・基礎の検討について、緑本が「法令上の要求に加えて望ましい」としていることはどれか。",c:["地下は検討しなくてよい","極めて稀な地震で柱の引抜きなど大きな力が地下に出そうな場合、それにも損傷が生じないよう確かめておく","C_1 を 2 倍にする","基礎は保有水平耐力で設計する"],a:1,e:"法令上は C_1 時の応力＋令88条4項の地震力による許容応力度設計ですが、極稀地震での大きな引抜きなどにも配慮しておくのが望ましいとしています。ブレース付き架構の柱脚・杭で特に注意します。",p:"P21"}
+    ],
+    sum:["W_e＝Σ½Q_fi·δ_i＝Σ½Q_fi²/k_fi：耐力の2乗に比例、剛性に反比例","ダンパーなしは弾性なので γ＝√(E_d/W_e)、δ_C1＝γ·δ_i、C_1 も γ 倍","サンプル建物の建物は主架構だけでは W_e≒E_d の1/3 → ダンパーが前提"] },
+
+  { id:"3-3", t:"安全限界の準備計算と E_s・T_s", p:"P22〜26（3.3.1〜3.3.3）",
+    goals:["E_s＝½MV_s²−W_e の意味（塑性で吸収すべき量）を説明できる","構造形式によって T_s の範囲（1.2T_d・1.4T_d）が変わる理由を説明できる","W_e のただし書きが何を補うものかを説明できる"],
+    body:`<p><b>安全限界の流れ（図3.3.1）</b>：準備計算 → 建物全体の E<sub>s</sub> → 各層の E<sub>si</sub> → （混合構造なら）ラーメンとブレースへの配分 → 必要 η<sub>s</sub> → 保有 η<sub>c</sub> と比較 → 最大変形（告示の規定外だが重要）。</p>
+    <p><b>準備計算</b>：各層の保有水平耐力 Q<sub>rui</sub>（ラーメン）・Q<sub>bui</sub>（ブレース）・Q<sub>ui</sub>＝Q<sub>rui</sub>＋Q<sub>bui</sub>、水平剛性、降伏変位 δ<sub>rui</sub>＝Q<sub>rui</sub>/k<sub>ri</sub>・δ<sub>bui</sub>＝Q<sub>bui</sub>/k<sub>bi</sub>、偏心率 R<sub>e</sub>。ブレース率 <b>β<sub>bi</sub>＝Q<sub>bui</sub>/Q<sub>ui</sub> は保有耐力の比</b>で、弾性時のせん断力分担率（剛性の比）ではない点に注意します。混合構造では、各要素の降伏変位 δ<sub>rui</sub>・δ<sub>bui</sub> が配分を決める直接の指標です。</p>
+    <p><b>E<sub>s</sub>＝½MV<sub>s</sub>² − W<sub>e</sub></b>：第1項は極稀地震で入るエネルギー（減衰で消費される分はあらかじめ除いてある）、第2項は弾性で耐えられる分。差が、<b>塑性変形で吸収しなければならない量</b>です。</p>
+    <p><b>T<sub>s</sub></b>：塑性化で周期が伸びるので、T<sub>d</sub> から一定の範囲で V<sub>s</sub> が最大になる T<sub>s</sub> を使います。</p>
+    <ul><li>構造形式（一）：筋かいのない鋼構造の剛節架構など、塑性変形後も剛性・耐力が下がらないもの → <b>T<sub>d</sub>〜1.2T<sub>d</sub></b></li><li>構造形式（二）：それ以外（純ブレース、ラーメンとブレースの混合）→ <b>T<sub>d</sub>〜1.4T<sub>d</sub></b>。一部の層に筋かいがあっても、その層が塑性化しなければ（一）でよい</li></ul>
+    <p>G<sub>s</sub> を略算（地盤種別）で求めると V<sub>s</sub>−T<sub>s</sub> は折れ線になり、範囲の上限側で最大になります。精算の G<sub>s</sub> ではそうなるとは限りません。</p>
+    <p><b>W<sub>e</sub> のただし書き（解図3.3.3）</b>：告示の W<sub>e</sub> は「最も弱い層が許容応力度に達するまで」の三角形の分だけです。損傷限界から保有水平耐力までの間に弾性で蓄えられる分（台形の部分）を数えないので安全側すぎることがあります。そこで、A<sub>i</sub> 分布の増分解析で<b>いずれかの層が降伏変位 δ<sub>ui</sub> に達するまで</b>の吸収エネルギーを W<sub>e</sub> にしてよい、というのがただし書きです（混合構造ではブレース側の小さい降伏変位を使う）。詳しくは 5.1（単元5）。</p>`,
+    ex:()=>{ const R=EX(); return {intro:"サンプル建物（X方向）の安全限界の入力エネルギーと E_s です。ダンパー付きなので構造形式（一）扱いで T_s は T_d〜1.2T_d、W_e はただし書きで求めています。",
+      steps:[["T_s の範囲",`T_d〜1.2T_d ＝ ${f(R.Td,4)}〜${f(R.Td*1.2,4)} s`,R.Ts,4,"s",false],
+        ["V_s",`T_s≧0.64 なので 5.12 × Z × G_s ÷ 2π ＝ 5.12 × 1.0 × ${f(R.GsS,3)} ÷ 6.2832`,R.Vs,4,"m/s"],
+        ["入るエネルギー ½MV_s²",`0.5 × ${f(R.M,1)} × ${f(R.Vs,4)}²`,R.Es0,0,"kN·m"],
+        ["弾性で耐える分 W_e（ただし書き、n_i＝5）","計算タブの値",R.WeS,0,"kN·m",false],
+        ["塑性で吸収すべき E_s",`${f(R.Es0,0)} − ${f(R.WeS,0)}`,R.Es,0,"kN·m"]],
+      after:"この建物は W_e（ただし書き）が ½MV_s² の 96%を占め、塑性で吸収すべき E_s は小さくなります。ダンパーが降伏後も繰り返し吸収する分（W_dpi、n_i＝5）が W_e に含まれているためです。告示どおり（損傷限界の状態）で W_e を求めると E_s はずっと大きくなります（計算タブで切り替えて比べられます）。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"いちばん上の行に T_s・V_s・½MV_s²・W_e・E_s があります。「共通の条件」の「安全限界の W_e」を「告示どおり」に切り替えて、E_s の変化を見てください。"}],
+    quiz:[
+      {id:"q3-3-1",k:"mc",q:"一部の層だけに筋かいがある鉄骨ラーメンの建物。安全限界の T_s の範囲を T_d〜1.2T_d（構造形式（一））として扱ってよいのはどんな場合か。",c:["筋かいの本数が少ない場合","筋かいのある層が塑性化しない場合","筋かいが引張ブレースの場合","T_d が 1 秒以上の場合"],a:1,e:"構造形式（二）が 1.4T_d と広いのは、ブレースなどで塑性化による周期の伸びが大きいためです。筋かいのある層が塑性化しなければ、周期の伸びはラーメンと同程度なので（一）でよいとされています。",p:"P25"},
+      {id:"q3-3-2",k:"num",q:"第2種地盤、Z＝1.0、T_d＝1.0 s、総質量 M＝50,000 t、W_e＝3,000 kN·m の建物の E_s を求めよ（構造形式（一）、G_s は略算）。",a:65072,tol:0.01,u:"kN·m",e:"T_s の範囲 1.0〜1.2 s はいずれも T_u＝0.864 s 以上なので G_s＝2.025 一定。V_s＝5.12×2.025÷2π＝1.650 m/s。½MV_s²＝0.5×50,000×1.650²＝68,072 kN·m。E_s＝68,072−3,000＝65,072 kN·m。",p:"P24〜25"},
+      {id:"q3-3-3",k:"mc",q:"W_e のただし書き（いずれかの層が降伏変位に達するまでの吸収エネルギーを W_e としてよい）を使うと、計算結果はどう変わるか。",c:["W_e が小さくなり E_s が大きくなる","W_e が大きくなり E_s が小さくなる（損傷限界〜保有耐力の間に弾性で蓄える分を数えられる）","E_d が変わる","T_s が変わる"],a:1,e:"告示の W_e は許容応力度までの三角形だけで、保有耐力までの台形の部分を数えません。ただし書きでこれを数えると W_e が増え、塑性で吸収すべき E_s が減ります。サンプル建物もただし書きを使っています。",p:"P26、5.1"},
+      {id:"q3-3-4",k:"mc",q:"ラーメンとブレースの混合構造で、ブレース率 β_bi を求める。正しいのはどれか。",c:["弾性時にブレースが負担するせん断力の割合（剛性の比）","ブレースの保有水平耐力 ÷ 層の保有水平耐力","ブレースの本数 ÷ 柱の本数","ブレースの断面積 ÷ 柱の断面積"],a:1,e:"β_bi＝Q_bui/Q_ui で、保有耐力の比です。従来の「剛性比（弾性時のせん断力分担率）」とは違うので、計算書でも取り違えないようにします。",p:"P23"}
+    ],
+    sum:["E_s＝½MV_s²−W_e＝塑性変形で吸収しなければならない量","T_s：周期の伸びを見込む。ラーメン・ダンパー付き 1.2T_d、ブレース・混合 1.4T_d","ただし書きで W_e に損傷限界〜保有耐力の弾性分を加えられる（E_s が減る）"] },
+
+  { id:"3-4", t:"各層への配分 E_si", p:"P26〜28（3.3.4）",
+    goals:["E_si の式の s_i・p_i・p_ti・n を、サンプル建物の値で追える","偏心と崩壊形が配分にどう効くかを判断できる","n＝4 にできる架構とできない架構を見分けられる"],
+    body:`<p style="text-align:center"><span class="formula">E<sub>si</sub>＝s<sub>i</sub>(p<sub>i</sub>·p<sub>ti</sub>)<sup>−n</sup> / Σ s<sub>j</sub>(p<sub>j</sub>·p<sub>tj</sub>)<sup>−n</sup> × E<sub>s</sub></span></p>
+    <ul>
+      <li><b>s<sub>i</sub>＝(Σm<sub>j</sub>/M)²·A<sub>i</sub>²·(Q<sub>u1</sub>·δ<sub>fui</sub>)/(Q<sub>ui</sub>·δ<sub>fu1</sub>)</b>：理想的な耐力分布（全層が同程度に塑性化する A<sub>i</sub> 分布）のときの配分比。1章の式の k<sub>1</sub>/k<sub>i</sub> が、保有耐力と降伏変位の比で表されています。</li>
+      <li><b>p<sub>i</sub>＝α<sub>i</sub>/(α<sub>1</sub>·A<sub>i</sub>)</b>、<b>α<sub>i</sub>＝Q<sub>ui</sub>/(Σm<sub>j</sub>·g)</b>：保有水平せん断力係数の A<sub>i</sub> 分布からのずれ。</li>
+      <li><b>p<sub>ti</sub></b>：偏心でねじれると配分が増えることを見込む低減係数。R<sub>e</sub>≦0.15 で 1、0.15〜0.3 で 1.15−R<sub>e</sub>、0.3 以上で 0.85。R<sub>e</sub> は剛性の偏心なので、<b>耐力の偏心が大きい場合は別に十分な配慮</b>が必要です。</li>
+      <li><b>n</b>：耐力のでこぼこに対するエネルギー集中の敏感さ。
+        <br>（一）n＝4：最上階の柱頭と1階の柱脚を除くすべての柱梁接合部で、柱の耐力が梁より十分大きい架構（梁降伏型、パネル降伏型、損傷分散型骨組）
+        <br>（二）n＝8：それ以外（柱降伏型、部分層崩壊型）。<b>ブレースとの混合構造は、ブレースの座屈で層の耐力が落ちることがあるので、一般に（二）</b></li>
+    </ul>`,
+    ex:()=>{ const R=EX(), s1=R.S[R.S.length-1]; const st=[]; R.S.forEach((s,i)=>{ st.push([`${s.name}階 α_i`,`Q_ui ÷ Σw ＝ ${f(s.Qu,0)} ÷ ${f(s.sw,1)}`,s.aq,4,""]); });
+      R.S.forEach((s,i)=>{ st.push([`${s.name}階 p_i`,`α_i ÷ (α_1 × A_i(T_s)) ＝ ${f(s.aq,4)} ÷ (${f(s1.aq,4)} × ${f(R.AiS[i],4)})`,s.pi,4,""]); });
+      return {intro:"サンプル建物（X方向）で p_i を求めます。A_i は T_s で計算し直した値を使います。",steps:st,after:"1階を基準に、2階は p＝1.01 でほぼ理想どおり、3階は 1.11 で余裕があります。この建物の R_e は 0.04〜0.09（≦0.15）なので p_ti＝1 です。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"「s_i」「p_i」「E_si」の列で配分を確かめられます。入力欄の R_e を 0.25 にすると p_ti＝0.9 になり、その層の E_si が増えます。"}],
+    quiz:[
+      {id:"q3-4-1",k:"num",q:"ある層の偏心率が R_e＝0.20 で、p_i＝1.0 だった。n＝8 のとき、偏心を考えた重み (p_i·p_ti)^−n は、偏心がない場合の何倍か。",a:1.507,tol:0.01,u:"倍",e:"p_ti＝1.15−0.20＝0.95。0.95^−8＝1.507。偏心率 0.2 でその層の配分の重みは約1.5倍になります。偏心をできるだけ避ける設計が大切です。",p:"P27 式(3.3.6)"},
+      {id:"q3-4-2",k:"mc",q:"柱梁耐力比を十分にとった梁降伏型の架構に、各層に引張・圧縮ブレースを組み合わせた混合構造。損傷集中指数 n はどう扱うのが一般的か。",c:["梁降伏型なので 4","ブレースの座屈で層の耐力が下がることがあるので、一般に 8","ブレースがあるので 2","12"],a:1,e:"ブレースが座屈すると層の耐力が落ち、その層に損傷が集中しやすくなります。そのため混合構造は細長比にもよりますが一般に（二）n＝8 として扱います。",p:"P28"},
+      {id:"q3-4-3",k:"num",q:"1階の保有水平せん断力係数 α_1＝0.30、ある層の α_i＝0.42、その層の A_i＝1.6 のとき、p_i はいくらか。",a:0.875,tol:0.01,u:"",e:"p_i＝0.42÷(0.30×1.6)＝0.875。その層の耐力は A_i 分布で見ると1階より12.5%弱く、n＝8 なら重みは 0.875^−8≒2.9倍になります。上階の耐力を A_i 分布並みに確保することの大切さが分かります。",p:"P27 式(3.3.4)"},
+      {id:"q3-4-4",k:"mc",q:"平面的に、片側にだけ耐力の大きいブレース構面があり、剛性の偏心率 R_e は 0.12 だが、耐力の偏心は大きい。緑本の考え方に合う対応はどれか。",c:["R_e≦0.15 なので p_ti＝1 で問題ない","R_e による低減は剛性の偏心だけを見ているので、耐力の偏心に対して余裕のある設計をする（偏心をなくす工夫も）","n を 4 にする","偏心はエネルギー法では考えない"],a:1,e:"剛性の偏心が大きいと耐力の偏心も大きいのがふつうなので、通常は R_e の低減で安全側です。しかし耐力の偏心が大きい場合は十分な配慮が必要とされています。",p:"P27"}
+    ],
+    sum:["E_si∝s_i(p_i·p_ti)^−n：理想の配分 s_i × 耐力のずれ p_i と偏心 p_ti の −n 乗","p_i＝α_i/(α_1·A_i)、α_i＝Q_ui/Σw（A_i は T_s で計算）","n＝4 は柱が十分強い全体崩壊形だけ。ブレース混合は一般に 8"] },
+
+  { id:"3-5", t:"必要 η と保有 η：純ラーメン・純引張ブレース", p:"P28〜29、P34〜37（3.3.5〜3.3.6）",
+    goals:["η_s＝E_si/(2Q_ui·δ_ui) を計算し、保有 η_c と比べられる","保有 η_c の表の値（FA〜FD）と、サンプル建物の主架構の η_c の式のつながりを説明できる","引張ブレースの扱い（細長比 890/√F、η_c＝3.25）の理由を説明できる"],
+    body:`<p><b>必要累積塑性変形倍率（片側）</b>：鋼構造の吸収能力は、多くの実験で「エネルギー ÷ (降伏耐力×降伏変位)」の倍率の形で整理されているので、必要側も同じ形にそろえます。</p>
+    <p style="text-align:center"><span class="formula">純ラーメン η<sub>sri</sub>＝E<sub>si</sub>/(2Q<sub>rui</sub>·δ<sub>rui</sub>)</span>　<span class="formula">純引張ブレース η<sub>sbi</sub>＝E<sub>si</sub>/(2Q<sub>bui</sub>·δ<sub>bui</sub>)</span></p>
+    <p>「片側」とは、正方向（または負方向）の塑性変形で吸収する分。逆方向にも同じだけあると考えるので、エネルギー総量の 1/2 に対応します（分母の2）。</p>
+    <p><b>保有累積塑性変形倍率（純ラーメン、表3.3.3）</b></p>
+    <div class="scroll"><table><thead><tr><th>部材の種別</th><th class="n">柱降伏型</th><th class="n">梁降伏型</th></tr></thead><tbody>
+    <tr><td>FA</td><td class="n">7.0</td><td class="n">5.0</td></tr><tr><td>FB</td><td class="n">3.25</td><td class="n">2.75</td></tr><tr><td>FC</td><td class="n">2.0</td><td class="n">2.0</td></tr><tr><td>FD</td><td class="n">1.0</td><td class="n">1.0</td></tr></tbody></table></div>
+    <p>根拠は次の式（解3.3.7）です。<span class="formula">η<sub>c</sub>＝(δ<sub>my</sub>/δ<sub>ry</sub>)·η<sub>cm</sub>·a<sub>p</sub>·a<sub>b</sub>＋η<sub>cd</sub></span></p>
+    <ul><li>δ<sub>my</sub>/δ<sub>ry</sub>＝1/3：限界を決める部材が層の降伏変形に占める割合</li><li>a<sub>p</sub>＝1.5：パネルの吸収による割増し</li><li>a<sub>b</sub>：バウシンガー効果による割増し（柱 5/3、梁 2.0）</li><li>η<sub>cd</sub>＝2：耐力劣化域の吸収分</li></ul>
+    <p>→ 柱降伏型 η<sub>c</sub>＝0.83η<sub>cm</sub>＋2、梁降伏型 η<sub>c</sub>＝η<sub>cm</sub>＋2。<b>サンプル建物の主架構の η<sub>c</sub>＝1/3·<sub>m</sub>η<sub>u</sub>·1.5·a<sub>b</sub>＋2 はこの式</b>で、部材の変形性能 <sub>m</sub>η<sub>u</sub> を 5.8 から求めて入れています。ロール成形の角形鋼管（BCR など）には FA がありません。</p>
+    <p><b>引張ブレース</b>：細長比が <b>890/√F</b> を超えるブレースは、座屈後の安定耐力が引張耐力の16%以下と小さいので、安全限界では圧縮側を無視して<b>引張ブレース</b>として扱います（損傷限界の W<sub>e</sub> では座屈耐力まで数えてよい）。引張ブレース自体の変形能力は10以上ありますが、純引張ブレース構造の η<sub>c</sub> は <b>3.25</b> と小さくしてあります。一方向の伸びがそのまま残留変形になるためで、この値で層間変形角 1/80〜1/140 程度の残留に相当します。</p>`,
+    ex:()=>{ const s=EX().S[EX().S.length-1]; const cb=1/3*s.mb*1.5*2+2, cc=1/3*s.mc*1.5*5/3+2; return {intro:"サンプル建物（X方向）1階の主架構の保有 η_c を、部材の変形性能 mη_u から求めます（梁と柱の小さい方を採用）。",
+      steps:[["梁の mη_u","5.8 の式から（サンプル建物の値）",s.mb,3,"",false],["梁で決まる η_c",`1/3 × ${f(s.mb,3)} × 1.5 × 2.0 ＋ 2`,cb,3,""],["柱の mη_u","5.8 の式から（サンプル建物の値）",s.mc,3,"",false],["柱で決まる η_c",`1/3 × ${f(s.mc,3)} × 1.5 × 5/3 ＋ 2`,cc,3,""],["採用する η_cf","小さい方",Math.min(cb,cc),3,""],["必要 η_sf（安全限界）","計算タブの値",s.etaSf,4,"",false]],
+      after:"必要 η_sf は 0.06 程度で、保有 η_cf（約6）に比べてごく小さい値です。この建物では主架構はほとんど塑性化せず、エネルギーの大半をダンパーが受け持ちます。逆に、ダンパー側の η（単元4）が設計を決めます。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"「η_sfi / η_cf」の列が主架構の判定です。入力欄の「梁 mη_u」「柱 mη_u」を変えると η_cf が変わります。"}],
+    quiz:[
+      {id:"q3-5-1",k:"num",q:"純ラーメンのある層で E_si＝3,000 kN·m、Q_rui＝20,000 kN、δ_rui＝0.030 m。片側の必要累積塑性変形倍率 η_sri を求めよ。",a:2.5,tol:0.01,u:"",e:"η＝3,000÷(2×20,000×0.030)＝2.5。単位は kN·m ÷ (kN×m) で無次元です（mm を使うときは 1,000 倍に注意）。",p:"P29 式(3.3.7)"},
+      {id:"q3-5-2",k:"mc",q:"問1の層が梁降伏型の純ラーメンのとき、表3.3.3 で OK になる最も低い部材の種別はどれか。",c:["FA（5.0）","FB（2.75）","FC（2.0）","FD（1.0）"],a:1,e:"必要 2.5 に対し、梁降伏型の FB は 2.75 で OK、FC は 2.0 で NG。部材ランクを1つ上げる（幅厚比を小さくする）ことが、そのまま η_c の余裕になります。",p:"P35 表3.3.3"},
+      {id:"q3-5-3",k:"mc",q:"サンプル建物の主架構の保有 η の式「1/3·mη_u·1.5·2.0＋2」で、2.0 は何を表すか。",c:["安全率","バウシンガー効果による割増し（梁の場合）","正負の2方向","n_i＝2"],a:1,e:"a_b はバウシンガー効果による割増し係数で、梁 2.0、柱 5/3。1.5 はパネルの吸収による割増し a_p、1/3 は限界を決める部材が層の変形に占める割合、最後の＋2 は耐力劣化域の吸収分です。",p:"P35 式(解3.3.7)"},
+      {id:"q3-5-4",k:"num",q:"SN490 級（F＝325 N/mm²）のブレースで、安全限界で引張ブレースとして扱うかどうかの境目の細長比 890/√F はいくらか。",a:49.4,tol:0.01,u:"",e:"890÷√325＝890÷18.03＝49.4。細長比がこれを超えると座屈後の耐力が小さいので圧縮側を無視します。SN400（F＝235）なら 58.1 です。",p:"P30"},
+      {id:"q3-5-5",k:"mc",q:"引張ブレースそのものの塑性変形能力は10以上あるのに、純引張ブレース構造の保有 η_c は 3.25 と小さい。その理由はどれか。",c:["ブレースが座屈するから","一方向に伸びた分がそのまま地震後の残留変形になり、また復元力のない不安定な変形が大きくなるから","接合部が弱いから","n＝8 だから"],a:1,e:"引張ブレースはスリップ型の履歴で、累積した伸びが残留変形として残ります。地震後の残留変形を小さくする配慮から 3.25 としています（残留変形角 1/80〜1/140 程度に相当）。",p:"P37"}
+    ],
+    sum:["η_s＝E_si/(2Q_u·δ_u)（片側＝総量の1/2）","η_c（表3.3.3）＝1/3·η_cm·1.5·a_b＋2。サンプル建物の主架構 η_c はこの式","λ＞890/√F のブレースは安全限界で引張ブレース扱い。純引張ブレース構造の η_c は 3.25（残留変形の配慮）"] },
+
+  { id:"3-6", t:"混合構造の配分と最大応答変位", p:"P30〜34、P38〜40（3.3.5.3〜3.3.7）",
+    goals:["ラーメンと引張ブレースの混合構造で、エネルギーがどちらに集まるかを説明できる","最大変形の予測式の考え方（a_r、a_b）が分かる","μ_max＝η/n_1＋1 で最大応答変位を求められる"],
+    body:`<p><b>混合構造では、エネルギーが「弾塑性系」に集まる</b>：引張ブレースはスリップ型（一度伸びると、次は伸びを取り戻すまで力を出さない）なので、繰返しの中で吸収する量が小さく、エネルギーは弾塑性系のラーメンに集中します。そこで、層の最大変形 δ<sub>mi</sub> を予測し、それをもとにラーメンとブレースに配分します（式3.3.9〜3.3.12）。</p>
+    <ul>
+      <li>配分係数 <b>a<sub>r</sub></b>（ラーメン）：β<sub>bi</sub>＜0.3 で 4.0、β<sub>bi</sub>≧0.3 で 8.0。<b>a<sub>b</sub>＝2.0</b>（引張ブレース：正負両側でスリップするので2）。応答解析から決めた値です。</li>
+      <li>η<sub>sri</sub>＝a<sub>r</sub>(δ<sub>mi</sub>−δ<sub>rui</sub>)/(2δ<sub>rui</sub>)、η<sub>sbi</sub>＝a<sub>b</sub>(δ<sub>mi</sub>−δ<sub>bui</sub>)/(2δ<sub>bui</sub>)。δ<sub>mi</sub>＜δ<sub>rui</sub> ならラーメンは弾性（η＝0）。</li>
+      <li>引張・圧縮ブレースとの混合（細長比 ≦ 890/√F）は、ブレースを弾塑性系要素とスリップ系要素の並列に分けて考えます（解図3.3.6）。小さな繰返しでループを描くブレースの弾塑性要素にエネルギーが集中します。保有 η は弾塑性要素 25、スリップ要素 10。幅厚比の制限（表3.3.1）は、局部座屈部の割れによる早期破断を防ぐためのものです。</li>
+      <li><b>簡易法（表3.3.7）</b>：層全体の Q<sub>ui</sub>・δ<sub>ui</sub> で η<sub>s</sub> を求め、細長比・ブレース率・部材ランクから η<sub>c</sub> を読む方法。<b>δ<sub>rui</sub>/δ<sub>bui</sub> が 2〜4 の「通常の」混合構造でしか使えません</b>。</li>
+    </ul>
+    <p><b>最大応答変位（3.3.7）</b>：告示は求めていませんが、算定しておくことが望ましいとされています。</p>
+    <p style="text-align:center"><span class="formula">μ<sub>max</sub>＝η/n<sub>1</sub>＋1</span>　（ラーメン n<sub>1</sub>＝2、引張ブレース n<sub>1</sub>＝1）</p>
+    <p>n<sub>1</sub> は「応答中に何回くらい同じ振幅を繰り返すか」に当たる係数です。P−δ 効果が大きく変形が一方向に偏る建物では、n<sub>1</sub> をもっと小さく（変形を大きく）見込む必要があります（5.5）。</p>`,
+    ex:()=>{ const R=EX(); const st=[]; R.S.forEach(s=>{ st.push([`${s.name}階 μ_max`,`η_sf ÷ 2 ＋ 1 ＝ ${f(s.etaSf,4)} ÷ 2 ＋ 1`,s.etaSf/2+1,4,""]); st.push([`${s.name}階 最大応答変位 δ_m`,`μ_max × δ_fu ＝ ${f(s.etaSf/2+1,4)} × ${f(s.dfu,2)}`,s.dm,1,"mm"]); st.push([`${s.name}階 変形角 1/○`,`${f(s.H,0)} ÷ ${f(s.dm,1)}`,s.rm,0,""]); });
+      const b=R.S[R.S.length-1];
+      return {intro:"サンプル建物（X方向）の主架構の最大応答変位を、μ_max＝η/n_1＋1（n_1＝2）で求めます（4章の 4.3.6 と同じ形）。",steps:st,after:`主架構の η が小さいので μ_max はほぼ1、つまり最大変位はほぼ主架構の降伏変位 δ_fu です。それでも1階の変形角は 1/${Math.floor(b.rm)} あり、余裕度タブで 1.5V_s にすると 1/75 の目安を超えます。最大変形は告示の規定外ですが、外装材や設備の追従性の確認に使います。`}; },
+    calc:[{v:"margin",m:"入力を 1.5 倍・2 倍にしたときの「最大応答変形角」の列を見てください。主架構の η が小さくても、変形の目安が先に足りなくなることがあります。"}],
+    quiz:[
+      {id:"q3-6-1",k:"mc",q:"ラーメンと引張ブレース（細長比が大きい）の混合構造。極稀地震のエネルギーは、主にどちらに集まると考えるか。",c:["引張ブレース（スリップ系）","ラーメン（弾塑性系）","半分ずつ","耐力の比で配る"],a:1,e:"スリップ系の引張ブレースは、一度伸びると次の繰返しでは伸びを取り戻すまで力を出さず、吸収量が小さくなります。そのためエネルギーは弾塑性系のラーメンに集中し、ふつうはラーメン側の η が設計を決めます。",p:"P31、P37"},
+      {id:"q3-6-2",k:"num",q:"純ラーメンの層で、必要累積塑性変形倍率 η＝3.0、降伏変位 δ_y＝30 mm。最大応答変位 δ_max を求めよ（n_1＝2）。",a:75,tol:0.01,u:"mm",e:"μ_max＝3.0/2＋1＝2.5、δ_max＝2.5×30＝75 mm。階高 4,000 mm なら 1/53 です。",p:"P40 式(解3.3.10)"},
+      {id:"q3-6-3",k:"mc",q:"問2の建物が、柱の軸力が大きく P−δ 効果が無視できない場合、最大応答変位の見込み方はどう変えるべきか。",c:["n_1 を大きくする（変位を小さく見込む）","n_1 を小さくする（変位を大きく見込む）","変える必要はない","n を 4 にする"],a:1,e:"P−δ 効果が大きいと応答変形が一方向に偏りやすく、同じ η でも最大変形が大きくなります。n_1 を小さくして安全側に見込みます（5.5 参照）。",p:"P40"},
+      {id:"q3-6-4",k:"mc",q:"混合構造の簡易法（表3.3.7：層全体の η を細長比・ブレース率・部材ランクで読む）を使えないのはどんな場合か。",c:["ブレース率が 0.3 以上","ラーメンとブレースの降伏変位の比 δ_rui/δ_bui が 2〜4 の範囲を外れる場合","部材ランクが FA の場合","ブレースが引張・圧縮ブレースの場合"],a:1,e:"表3.3.7 は δ_rui/δ_bui が 2〜4 の範囲での下限値です。範囲外では、3.3.5.3・3.3.5.4 の方法でラーメンとブレースに分けて検討します。",p:"P39〜40"},
+      {id:"q3-6-5",k:"mc",q:"ラーメンと引張ブレースの混合構造で、ブレース率 β_bi を 0.25 から 0.35 に増やした。ラーメンへの配分係数 a_r はどうなり、それは何を意味するか。",c:["4.0 → 8.0。ブレースが多いほど、少ない塑性変形でもラーメンに大きな塑性エネルギーが入ると見込む","8.0 → 4.0。ラーメンの負担が減る","変わらない","ブレースの係数が変わる"],a:0,e:"β_bi≧0.3 で a_r＝8.0。ブレースの多い混合構造では、ラーメンの塑性化が小さくても大きなエネルギーが集中しやすい、という応答解析の結果を反映しています。ブレースを増やせば安全側になるとは限らない点に注意します。",p:"P30"}
+    ],
+    sum:["混合構造ではエネルギーは弾塑性系（ラーメン、ブレースの弾塑性要素）に集まる","配分は最大変形 δ_mi の予測から：a_r＝4.0／8.0（β_bi≧0.3）、a_b＝2.0","最大応答変位 μ_max＝η/n_1＋1（ラーメン 2、引張ブレース 1）。P−δ が大きいと n_1 を小さく"] }
+]},
+{ id:"u4", t:"ダンパー付きの建物", p:"第Ⅰ編4章 P41〜63", secs:[
+  { id:"4-1", t:"ダンパー部分と準備計算・T_d", p:"P41〜46（4.1〜4.2.2）",
+    goals:["告示の対象になるダンパーの条件と、その実務上の意味を説明できる","4つの n（2・5・10・20）がそれぞれ何を表すかを、使う場面と結び付けて説明できる","T_d を等価剛性で求める理由と、収束計算の手順が分かる"],
+    body:`<p><b>ダンパー部分</b>：告示では「地震のエネルギーを吸収するための弾塑性系の部材で、復元力特性がおおむね完全弾塑性型、繰返し後も剛性・耐力が下がらないもの」。取り付けるための接合部・部材も含めて「ダンパー部分」と呼びます。代表例は<b>座屈拘束ブレース型</b>（芯鋼材の軸方向の伸び縮み）、<b>シアーパネル型・壁パネル型</b>（鋼板のせん断変形）。材料強度が規定されている材料が必要で、鉛や摩擦系は使えません。</p>
+    <p>「鉛直荷重を支えない形式」は、建方時の積層で鉛直力によるひずみが出てはいけない、という意味ではありません（そのひずみはダンパーが降伏すると初期に消えます）。</p>
+    <p><b>4つの n</b>（ダンパーの塑性変形の累積の程度。応答解析で得られた範囲から、検討ごとに安全側の値を選んでいる）</p>
+    <div class="scroll"><table><thead><tr><th>場面</th><th class="n">n</th><th>安全側の理由</th></tr></thead><tbody>
+      <tr><td>損傷限界の W<sub>e</sub>（ダンピング効果）</td><td class="n">n<sub>i</sub>＝2</td><td>範囲 2〜10 の下限（吸収を小さく）</td></tr>
+      <tr><td>安全限界の W<sub>e</sub></td><td class="n">n<sub>i</sub>＝5</td><td>範囲 5〜20 の下限（吸収を小さく → E<sub>s</sub> 大）</td></tr>
+      <tr><td>安全限界前に受けた稀地震の損傷 E<sub>ddpi</sub></td><td class="n">n<sub>di</sub>＝10</td><td>範囲 2〜10 の上限（損傷を大きく）</td></tr>
+      <tr><td>主架構の弾性範囲での繰返し E<sub>sdpi</sub></td><td class="n">n<sub>si</sub>＝20</td><td>範囲 5〜20 の上限（損傷を大きく）</td></tr>
+    </tbody></table></div>
+    <p><b>同じ現象でも、吸収側に数えるときは小さく、損傷側に数えるときは大きく</b>とる、という組み立てです。</p>
+    <p><b>T<sub>d</sub></b>：ダンパーが降伏するので、弾性の固有値解析の周期ではなく、損傷限界時の<b>等価剛性 k<sub>i</sub>（δ<sub>i</sub> での割線剛性）</b>で求めた周期です。δ<sub>i</sub> は A<sub>i</sub> 分布の増分解析で決まり、A<sub>i</sub> は T<sub>d</sub> で決まるので、<b>T<sub>d</sub> 仮定 → A<sub>i</sub> → 増分解析 → 等価剛性 → T<sub>d</sub> 修正</b>の収束計算になります。等価剛性は剛性の下限なので T<sub>d</sub> は上限側となり、一般に入力を大きめに見積もる安全側です。略算：T<sub>d</sub>＝h(0.02＋0.01α)、T<sub>d</sub>＝2π√(M(0.48＋0.52N)/k<sub>1</sub>)。</p>
+    `,
+    ex:()=>{ const R=EX(); const st=[]; R.S.forEach(s=>{ const keq=(s.Kf*s.d+s.Qdi)/s.d; st.push([`${s.name}階 k_fi`,`Q_fi ÷ δ_i ＝ ${f(s.Qf,1)} ÷ ${f(s.d,3)}`,s.Kf,1,"kN/mm"]); st.push([`${s.name}階 等価剛性 k_i`,`(Q_fi ＋ Q_di) ÷ δ_i ＝ (${f(s.Qf,1)} ＋ ${f(s.Qdi,1)}) ÷ ${f(s.d,3)}`,keq,1,"kN/mm"]); st.push([`${s.name}階 弾性剛性 k_fi＋k_di`,`${f(s.Kf,1)} ＋ ${f(s.Kd,1)}`,s.Kf+s.Kd,1,"kN/mm",false]); });
+      return {intro:"サンプル建物（X方向）の各階で、等価剛性と弾性剛性を比べます。ダンパーが降伏している層では、等価剛性が弾性剛性より下がります。",steps:st,after:"1階・2階はダンパーが降伏しているので、等価剛性は弾性剛性の6〜7割程度に下がります（3階は降伏しないので同じ）。剛性が下がる分 T_d は弾性周期より長くなります。サンプル建物の T_d＝1.27 s は、Dynamic PRO でこの等価剛性を使って求めた値です。"}; },
+    calc:[{v:"calc",el:"outDamage",m:"「ダンパー」の列で、損傷限界時にどの層のダンパーが降伏しているかが分かります。"}],
+    quiz:[
+      {id:"q4-1-1",k:"mc",q:"SS7 の固有値解析で得た1次周期 T＝0.95 s を、そのまま T_d としてエネルギー法の計算に使った。何が問題か。",c:["問題ない","初期剛性による周期なので、ダンパーが降伏した損傷限界時の周期（等価剛性）より短く、A_i 分布や入力の評価がずれる","周期が長すぎる","地盤が考慮されていない"],a:1,e:"稀地震でダンパーが降伏するので、損傷限界時の周期は等価剛性で求める必要があります。T_d と A_i・増分解析は互いに影響するので、収束計算で決めます。",p:"P44〜45"},
+      {id:"q4-1-2",k:"mc",q:"安全限界の W_e では n_i＝5（範囲5〜20の下限）、E_sdpi では n_si＝20（範囲の上限）を使う。どちらも主架構が弾性範囲での繰返しなのに、なぜ違う値なのか。",c:["誤植","W_e は吸収側（大きくとると危険側）なので下限、E_sdpi はダンパーの損傷側（小さくとると危険側）なので上限をとる","建物の高さで違う","ダンパーの種類で違う"],a:1,e:"同じ繰返しでも、建物を守る側（吸収できる量）として数えるときは小さく、ダンパーを傷める側（損傷）として数えるときは大きくとって、両方で安全側になるように組み立てています。",p:"P44"},
+      {id:"q4-1-3",k:"mc",q:"鉛ダンパーのように、完全弾塑性に近い履歴を示すが材料強度が規定されていない材料を、ダンパー部分として告示で使えるか。",c:["使える","使えない（材料強度が規定されている必要がある）","大臣認定なしで使える","損傷限界だけ使える"],a:1,e:"告示の下でダンパーとして使える材料は、材料強度が規定されている必要があります。鉛や摩擦系は、完全弾塑性型でも使えません。",p:"P42"},
+      {id:"q4-1-4",k:"num",q:"鉄骨造の建物（α＝1）、高さ h＝25 m の T_d の略算値（T_d＝h(0.02＋0.01α)）を求めよ。",a:0.75,tol:0.01,u:"s",e:"25×(0.02＋0.01)＝0.75 s。収束計算の最初の仮定値として使います。最初の仮定がよければすぐ収束します。",p:"P45 式(解4.2.1)"}
+    ],
+    sum:["ダンパー：完全弾塑性型・劣化なし・材料強度の規定あり・鉛直荷重を支えない","n は吸収側で小さく（2、5）、損傷側で大きく（10、20）とる","T_d は等価剛性による周期。T_d → A_i → 増分解析 → 等価剛性 の収束計算"] },
+
+  { id:"4-2", t:"ダンパー付きの W_e と損傷限界の検証", p:"P46〜48（4.2.3〜4.2.5）",
+    goals:["W_e＝Σ(W_fi＋W_dei＋W_dpi) の各項を、ダンパーが降伏する層・しない層で計算し分けられる","W_dpi＝2(δ_i−δ_dui)Q_dui·n_i の意味（±δ_i の1ループ）を説明できる","ダンパー量を変えると W_e がどう変わるかを判断できる"],
+    body:`<p style="text-align:center"><span class="formula">W<sub>e</sub>＝Σ{ W<sub>fi</sub> ＋ W<sub>dei</sub> ＋ W<sub>dpi</sub> }</span></p>
+    <ul>
+      <li><b>W<sub>fi</sub>＝½Q<sub>fi</sub>·δ<sub>i</sub></b>：主架構の弾性ひずみエネルギー</li>
+      <li><b>W<sub>dei</sub>＝½Q*<sub>dui</sub>·δ*<sub>dui</sub></b>：ダンパーの弾性ひずみエネルギー。降伏する層は Q*＝Q<sub>dui</sub>、降伏しない層は損傷限界時のダンパーのせん断力 Q<sub>di</sub>（δ*＝Q*/k<sub>di</sub>）</li>
+      <li><b>W<sub>dpi</sub>＝2(δ<sub>i</sub>−δ<sub>dui</sub>)·Q<sub>dui</sub>·n<sub>i</sub></b>（n<sub>i</sub>＝2）：ダンパーの塑性ひずみエネルギー。降伏しない層は 0</li>
+    </ul>
+    <p>W<sub>dpi</sub> の考え方（解図4.2.2）：±δ<sub>i</sub> の間を1往復すると、ダンパーは幅 2(δ<sub>i</sub>−δ<sub>dui</sub>)、高さ 2Q<sub>dui</sub> の平行四辺形のループを描き、面積は 4(δ<sub>i</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>。n<sub>i</sub>＝2 はこの<b>1ループ分</b>に当たります（地震応答解析の範囲 2〜10 の下限）。</p>
+    <p><b>判定</b>：E<sub>d</sub> ≦ W<sub>e</sub>。主架構は許容応力度以内のまま、ダンパーの弾性＋塑性の吸収で稀地震のエネルギーを受け止める、という形です。</p>`,
+    fig:()=>{ const s=EX().S[EX().S.length-1], W=420,H=220,ox=210,oy=110,sx=150/(s.d*1.15),sy=90/(s.Qdu*1.1);
+      const P=pts=>pts.map((p,i)=>(i?"L":"M")+(ox+p[0]*sx).toFixed(1)+","+(oy-p[1]*sy).toFixed(1)).join("");
+      const d=s.d,du=s.ddu,Q=s.Qdu;
+      let g=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="ダンパーの1ループ">`;
+      g+=`<line x1="20" y1="${oy}" x2="${W-20}" y2="${oy}" stroke="var(--sub)"/><line x1="${ox}" y1="10" x2="${ox}" y2="${H-10}" stroke="var(--sub)"/>`;
+      g+=`<path d="${P([[-d,-Q],[-d+2*du,Q],[d,Q],[d-2*du,-Q],[-d,-Q]])}" fill="var(--damper-soft)" stroke="var(--damper)" stroke-width="2"/>`;
+      g+=`<path d="${P([[0,0],[du,Q]])}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>`;
+      g+=`<text x="${ox+d*sx}" y="${oy+16}" text-anchor="middle">δ_i</text><text x="${ox-d*sx}" y="${oy+16}" text-anchor="middle">−δ_i</text><text x="${ox+du*sx}" y="${oy+16}" text-anchor="middle" style="fill:var(--accent)">δ_du</text>`;
+      g+=`<text x="${ox+6}" y="${oy-Q*sy-6}">Q_du</text><text x="${ox-60}" y="${oy-30}" style="fill:var(--damper);font-family:var(--f-body)">1ループの面積</text><text x="${ox-60}" y="${oy-16}" style="fill:var(--damper)">4(δ_i−δ_du)Q_du</text></svg>`;
+      return `<figure class="fig" style="margin:0;max-width:440px">${g.replace(/δ_i/g,"δᵢ").replace(/δ_du/g,"δ<tspan baseline-shift='sub' font-size='8'>du</tspan>").replace(/Q_du/g,"Q<tspan baseline-shift='sub' font-size='8'>du</tspan>")}<figcaption>サンプル建物（X方向）1階のダンパーの履歴（縮尺どおり）。±δ<sub>i</sub> を1往復すると平行四辺形のループを描く。n<sub>i</sub>＝2 で W<sub>dpi</sub>＝2·2(δ<sub>i</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>＝このループ1つ分。</figcaption></figure>`; },
+    ex:()=>{ const R=EX(); const st=[]; R.S.forEach(s=>{ const y=s.dmg.yld;
+      st.push([`${s.name}階 降伏判定`,`δ_i＝${f(s.d,2)} ${y?">":"≦"} δ_dui＝${f(s.ddu,2)} → ${y?"降伏":"弾性"}`,s.ddu,2,"mm",false]);
+      st.push([`${s.name}階 W_fi`,`½ × ${f(s.Qf,1)} × ${f(s.d,3)} ÷ 1000`,s.dmg.Wf,1,"kN·m"]);
+      st.push([`${s.name}階 W_dei`,y?`½ × Q_dui × δ_dui ＝ ½ × ${f(s.Qdu,1)} × ${f(s.ddu,3)} ÷ 1000`:`½ × k_di × δ_i² ＝ ½ × ${f(s.Kd,1)} × ${f(s.d,3)}² ÷ 1000`,s.dmg.Wde,1,"kN·m"]);
+      st.push([`${s.name}階 W_dpi`,y?`2 × (${f(s.d,3)} − ${f(s.ddu,3)}) × ${f(s.Qdu,1)} × 2 ÷ 1000`:"ダンパー弾性なので 0",s.dmg.Wdp,1,"kN·m"]); });
+      st.push(["W_e（合計）","Σ",R.WeD,1,"kN·m"]);
+      return {intro:"サンプル建物（X方向）の損傷限界の W_e を、層ごとに計算します。3階はダンパーが降伏しないので式が変わります。",steps:st,after:`W_e＝${f(R.WeD,0)} kN·m ≧ E_d＝${f(R.Ed,0)} kN·m で OK（約2.1倍）。主架構だけ（W_fi の合計）では足りず、1・2階のダンパーの塑性吸収 W_dpi が大半を占めます。`}; },
+    calc:[{v:"calc",el:"outDamage",m:"入力欄で1階の Q_dui を2割減らしてみてください。W_dpi と W_e、判定がどう変わるか確かめられます（終わったら「サンプルの値に戻す」）。"}],
+    quiz:[
+      {id:"q4-2-1",k:"num",q:"ある層で δ_i＝30 mm、δ_dui＝18 mm、Q_dui＝70,000 kN。損傷限界の W_dpi（n_i＝2）を求めよ。",a:3360,tol:0.01,u:"kN·m",e:"2×(30−18)×70,000×2÷1,000＝3,360 kN·m。±30 mm の1往復で描くループ1つ分の面積です。",p:"P47 式(4.2.6)"},
+      {id:"q4-2-2",k:"mc",q:"ダンパーの降伏耐力 Q_dui を大きくしすぎて、損傷限界時（δ_i）にダンパーが降伏しなくなった。W_e への影響として正しいものはどれか。",c:["W_dpi が増えるので W_e は増える","W_dpi が 0 になり、ダンパーは弾性の分（½k_di·δ_i²）しか吸収しない。耐力を上げたのに W_e が減ることがある","変わらない","W_fi が 0 になる"],a:1,e:"ダンパーの吸収効果（ダンピング）は降伏して初めて大きく効きます。強すぎるダンパーは降伏せず、ただの硬いブレースになります。耐力と剛性の比（β と k）を適切に選ぶことが大切です（5.6）。",p:"P47、P78〜79"},
+      {id:"q4-2-3",k:"mc",q:"サンプル建物の3階は、損傷限界時にダンパーが降伏していない。この層の W_dei の計算で正しいものはどれか。",c:["½·Q_dui·δ_dui","½·Q_di·δ*_dui（Q_di は損傷限界時のダンパーのせん断力＝k_di·δ_i）","0","2(δ_i−δ_dui)Q_dui·2"],a:1,e:"降伏しない層は、損傷限界時に実際にダンパーに生じている力 Q_di で弾性エネルギーを計算します。½k_di·δ_i² と同じです。",p:"P47 式(4.2.4)"},
+      {id:"q4-2-4",k:"num",q:"問1の層のダンパーの弾性分 W_dei（降伏している）を求めよ。",a:630,tol:0.01,u:"kN·m",e:"½×70,000×18÷1,000＝630 kN·m。塑性分 W_dpi（3,360）の約1/5で、ダンパーの吸収は降伏後の塑性分が中心であることが分かります。",p:"P47 式(4.2.4)"}
+    ],
+    sum:["W_e＝Σ(½Q_fi·δ_i ＋ ½Q*_du·δ*_du ＋ 2(δ_i−δ_du)Q_du·2)","n_i＝2 は ±δ_i の1ループ分。ダンパーが降伏しない層は W_dpi＝0","強すぎるダンパーは降伏せず、吸収効果が出ない"] },
+
+  { id:"4-3", t:"C_1・層間変形角と残留変形", p:"P48〜50（4.2.6〜4.2.8）",
+    goals:["ダンパー付き建物で C_1 を増分解析から求める考え方が分かる","残留変形の式を κ と μ_di から使える","残留変形を小さくする設計の方向を判断できる"],
+    body:`<p><b>C<sub>1</sub></b>：A<sub>i</sub> 分布の外力で、主架構とダンパーのひずみエネルギーの合計（ダンパーの塑性分は 2n<sub>i</sub> 倍）が E<sub>d</sub> に等しくなるときのベースシア。ダンパーの降伏で非線形になるので、ダンパーなしのように √(E<sub>d</sub>/W<sub>e</sub>) では求まらず、<b>増分解析で吸収エネルギーが E<sub>d</sub> を超えた時点</b>を C<sub>1</sub> とします。C<sub>1</sub> は層間変形・残留変形・地下部分の検討だけに使い、大きめにとれば安全側なので、E<sub>d</sub> とぴったり一致しなくてもかまいません。層間変形角は <b>1/200</b>（著しい損傷のおそれがなければ 1/120）以下。</p>
+    <p><b>残留変形（告示第4第五号）</b>：稀地震でダンパーの降伏を認めた代わりに、地震後に建物が傾いたまま残らないかを確かめます。主架構に比べてダンパーの負担が大きいと生じやすくなります。緑本は、鉄骨精度の柱の倒れの管理値などから<b>残留層間変形角 1/1000 以下</b>を設計目標としています。稀地震では主架構が弾性で元に戻ろうとする力が残るので、地震を何回か受けても残留変形は積み上がりません。</p>
+    <p>κ＝k<sub>di</sub>/k<sub>fi</sub>（剛性比）、μ<sub>di</sub>＝δ<sub>i</sub>/δ<sub>dui</sub>（C<sub>1</sub> 時のダンパーの塑性率）として、</p>
+    <ul>
+      <li>μ<sub>di</sub> ≦ (κ＋5)/4 のとき <span class="formula">μ<sub>res</sub>＝κ/(1＋κ)·(μ<sub>di</sub>−1)</span></li>
+      <li>μ<sub>di</sub> ≧ (κ＋5)/4 かつ κ ≦ 5/3 のとき <span class="formula">μ<sub>res</sub>＝κ/4</span></li>
+      <li>κ ≧ μ<sub>di</sub> ≧ (κ＋5)/4 かつ κ ≧ 5/3 のとき <span class="formula">μ<sub>res</sub>＝κ/(1＋κ)·{1＋κ−√((μ<sub>di</sub>−κ)²＋3κ−1)}</span></li>
+      <li>μ<sub>di</sub> ≧ κ かつ κ ≧ 5/3 のとき <span class="formula">μ<sub>res</sub>＝κ/(1＋κ)·(1＋κ−√(3κ−1))</span></li>
+    </ul>
+    <p>δ<sub>res</sub>＝μ<sub>res</sub>·δ<sub>dui</sub>。<b>主架構に対してダンパーが硬い（κ が大きい）ほど、残留は大きく</b>なります。</p>`,
+    ex:()=>{ const R=EX(); const st=[]; R.S.forEach(s=>{ st.push([`${s.name}階 C_1 時の層間変位`,`A_i分布の外力 ${f(s.Qc1,0)} kN のとき`,s.dc1,2,"mm",false]); st.push([`${s.name}階 κ`,`k_di ÷ k_fi ＝ ${f(s.Kd,1)} ÷ ${f(s.Kf,1)}`,s.kappa,3,""]); st.push([`${s.name}階 μ_di`,`δ ÷ δ_dui ＝ ${f(s.dc1,2)} ÷ ${f(s.ddu,2)}`,s.muD,3,""]); if(s.muRes!=null) st.push([`${s.name}階 残留変位 δ_res`,`μ_res × δ_dui ＝ ${f(s.muRes,4)} × ${f(s.ddu,2)}`,s.dRes,2,"mm"]); });
+      return {intro:`サンプル建物（X方向）で、C_1（自動計算＝${f(R.C1,4)}）のときの層間変位と残留変形を求めます。`,steps:st,after:"1階の κ は 2.8 と大きく（ダンパーが主架構の約3倍硬い）、残留変形が出やすい形です。それでも C_1 時の μ_di が 1.5 程度と小さいので、残留変形角は 1/1000 を十分下回ります。3階はダンパーが降伏しないので残留変形は生じません。"}; },
+    calc:[{v:"calc",el:"outDamage",m:"「C_1 時 δ」「変形角」「残留変形角」の列で確かめられます。「C_1 の求め方」を「値を指定」にすると サンプル建物 と同じ 0.115 で計算できます。"}],
+    quiz:[
+      {id:"q4-3-1",k:"num",q:"κ＝1.0、μ_di＝1.8、δ_dui＝20 mm の層の残留変位 δ_res を求めよ。",a:5,tol:0.01,u:"mm",e:"(κ＋5)/4＝1.5。μ_di＝1.8 ≧ 1.5 かつ κ＝1.0 ≦ 5/3 なので式(解4.2.7)で μ_res＝κ/4＝0.25。δ_res＝0.25×20＝5 mm。階高 4,000 mm なら 1/800 で、目標の 1/1000 を超えます。",p:"P49"},
+      {id:"q4-3-2",k:"mc",q:"残留変形が 1/1000 を超えそうな層がある。最も効果的な対策の方向はどれか。",c:["ダンパーをもっと硬く（κ を大きく）する","主架構の剛性を上げる、またはダンパーの剛性を下げて κ を小さくする（主架構の元に戻す力を相対的に強くする）","T_d を長くする","n を 8 にする"],a:1,e:"残留変形は、ダンパーが降伏して残した変形を主架構が押し戻しきれずに残るものです。κ＝k_di/k_fi が小さいほど主架構の戻す力が相対的に強く、残留は小さくなります。",p:"P49"},
+      {id:"q4-3-3",k:"mc",q:"増分解析の荷重ステップの都合で、吸収エネルギーが E_d をやや超えたステップ（E_d の 1.04 倍）で C_1 とした。この扱いは妥当か。",c:["不可。ぴったり一致させる必要がある","妥当。C_1 は層間変形・残留変形・地下の検討にだけ使い、大きめにとれば安全側","C_1 を小さい方に補間しなければならない","n_i を変えて合わせる"],a:1,e:"緑本は、C_1 の状態は大きめに想定すれば安全側なので、E_d を超えていればその状態を C_1 として検討を進めてよいとしています。",p:"P48"},
+      {id:"q4-3-4",k:"mc",q:"稀地震を何回か受けても、残留変形は積み上がらないとされる。その理由はどれか。",c:["ダンパーが弾性だから","稀地震では主架構が弾性範囲にあり、建物全体に元の位置に戻ろうとする力が残っているから","残留変形は毎回ゼロになるから","地盤が戻すから"],a:1,e:"主架構は弾性なので、ダンパーの塑性変形があっても戻す力が働き続けます。そのため残留変形は地震ごとに積み上がりません（ばらつきは大きい）。",p:"P49"}
+    ],
+    sum:["C_1：増分解析で吸収エネルギーが E_d を超えた時点（大きめは安全側）。層間変形角 1/200","残留変形：κ＝k_di/k_fi と μ_di から μ_res、δ_res＝μ_res·δ_dui。目標 1/1000","ダンパーが硬い（κ 大）ほど残留が大きい"] },
+
+  { id:"4-4", t:"安全限界の E_s・E_si（ダンパー付き）", p:"P50〜54（4.3.1〜4.3.4）",
+    goals:["安全限界の W_e を n_i＝5 で計算し直す理由が分かる","E_s≦0 のときの扱いを説明できる","ダンパー付き建物の E_si の配分の考え方が分かる"],
+    body:`<p><b>流れ（図4.3.1）</b>：準備計算 → E<sub>s</sub> → 各層の E<sub>si</sub> → 主架構とダンパーへの配分 → 必要 η<sub>sf</sub>・η<sub>sd</sub> → 保有 η<sub>cf</sub>・η<sub>cd</sub>（ダンパーの保有性能には最大応答変位が必要）→ 比較。</p>
+    <p><b>準備計算</b>：保有水平耐力を主架構 Q<sub>fui</sub> とダンパー Q<sub>dui</sub> に分けて求めます（Q<sub>ui</sub>＝Q<sub>fui</sub>＋Q<sub>dui</sub>）。降伏変位 δ<sub>fui</sub>＝Q<sub>fui</sub>/k<sub>fi</sub>、δ<sub>dui</sub>＝Q<sub>dui</sub>/k<sub>di</sub>。</p>
+    <p><b>E<sub>s</sub>＝½MV<sub>s</sub>²−W<sub>e</sub></b>：ダンパー付きは構造形式（一）なので T<sub>s</sub> は T<sub>d</sub>〜1.2T<sub>d</sub>。<b>W<sub>e</sub> は n<sub>i</sub>＝5 で計算し直す</b>ので、損傷限界の W<sub>e</sub>（n<sub>i</sub>＝2）とは値が違います。ただし書き（5.1）を使えば、損傷限界〜保有耐力の間の分も加えられます。</p>
+    <p><b>E<sub>s</sub>≦0 のとき</b>：極稀地震のエネルギーを、主架構が弾性のまま（ダンパーの塑性吸収込みで）受け止められるということ。主架構の検討は不要になり、ダンパーのエネルギーの検討だけ行います。</p>
+    <p><b>E<sub>si</sub></b>：ダンパーなしと同じ式（3.3.4）で配分します。n は、ダンパーを含めた架構の崩壊形が全体崩壊形なら 4、そうでなければ 8。</p>`,
+    ex:()=>{ const c={...SAMPLE.common}, P=compute(c,SAMPLE.X,{mode:"proviso"}), K=compute(c,SAMPLE.X,{mode:"kokuji"});
+      return {intro:"サンプル建物（X方向）で、安全限界の W_e を「ただし書き」と「告示どおり（損傷限界の状態で n_i＝5）」で比べます。",
+        steps:[["½MV_s²","単元3で計算",P.Es0,0,"kN·m",false],["W_e（告示どおり、n_i＝5）","損傷限界時の δ_i で n_i＝5",K.WeS,0,"kN·m"],["E_s（告示どおり）",`${f(K.Es0,0)} − ${f(K.WeS,0)}`,K.Es,0,"kN·m"],["W_e（ただし書き、n_i＝5）","いずれかの層が Q_ui に達する状態",P.WeS,0,"kN·m"],["E_s（ただし書き）",`${f(P.Es0,0)} − ${f(P.WeS,0)}`,P.Es,0,"kN·m"]],
+        after:"告示どおりでは E_s がずっと大きく、主架構の η_sf が 2・3階で η_cf を超えます（計算タブで確かめられます）。ただし書きでは E_s が 1/20 以下になり、主架構はほぼ弾性、代わりにダンパーの E_sdpi（主架構弾性範囲での繰返し、n_si＝20）が大きくなります。サンプル建物はただし書きを使っています。どちらで計算したかを、計算書で明示しておく必要があります。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"「共通の条件」→「安全限界の W_e」を切り替えて、主架構とダンパーの η がどう入れ替わるか見てください。"}],
+    quiz:[
+      {id:"q4-4-1",k:"mc",q:"損傷限界で計算した W_e（n_i＝2）を、安全限界の E_s＝½MV_s²−W_e にそのまま使った。何が問題か。",c:["問題ない","安全限界では n_i＝5 で W_e を計算し直す必要がある（ダンパーの塑性分が 2.5 倍になる）","W_e を 0 にしなければならない","n_i＝20 にしなければならない"],a:1,e:"極稀地震では、主架構が弾性範囲で揺れる間のダンパーの繰返しを n_i＝5（範囲5〜20の下限）で見込みます。W_dpi が 2.5 倍になるので、損傷限界の W_e とは値が違います。",p:"P52〜53"},
+      {id:"q4-4-2",k:"mc",q:"ダンパーを大幅に増やしたところ、E_s＝½MV_s²−W_e が負になった。その後の検討はどうなるか。",c:["計算できないので設計し直す","E_s＝0 とし、主架構の η の検討は不要。ダンパー部分のエネルギーの検討は行う","主架構だけ検討する","W_e を減らして正にする"],a:1,e:"E_s≦0 は、極稀地震でも主架構が保有耐力レベルに達しない軽い損傷ということです。主架構の検討は不要になりますが、ダンパーには E_sdpi などのエネルギーが入るので検討します。最大変位は W_e＝½MV_s² となる状態から求めます。",p:"P53、P59"},
+      {id:"q4-4-3",k:"num",q:"ある層でダンパーが降伏し、損傷限界の W_dpi（n_i＝2）が 3,360 kN·m だった。同じ δ_i で安全限界の W_dpi（n_i＝5）はいくらか。",a:8400,tol:0.01,u:"kN·m",e:"3,360×5/2＝8,400 kN·m。n_i に比例します。",p:"P52 式(4.3.6)"},
+      {id:"q4-4-4",k:"mc",q:"ダンパー付き建物で T_s の範囲を T_d〜1.2T_d（構造形式（一））とできるのはなぜか。",c:["ダンパーは鉛直荷重を支えないから","告示のダンパーは塑性変形後も剛性・耐力が低下しない復元力特性を持つとされ、筋かいとは異なる扱いだから","ダンパーは小さいから","T_d が長いから"],a:1,e:"ダンパーは完全弾塑性型で劣化しないので、「塑性変形後に剛性・耐力が低下しないもの」として構造形式（一）に当たります。",p:"P52〜53"}
+    ],
+    sum:["安全限界の W_e は n_i＝5 で計算し直す（ただし書きも使える）","E_s≦0 なら主架構の検討は不要、ダンパーは検討する","ただし書きか告示どおりかで、主架構とダンパーのどちらが厳しくなるかが入れ替わる"] },
+
+  { id:"4-5", t:"主架構とダンパーへの配分・γ_di", p:"P55〜58（4.3.5）",
+    goals:["E_sfi・E_sdi の各項の意味と、上限値として組み立てられている理由を説明できる","γ_di（変形集中率）の意味と求め方が分かる","サンプル建物の η_sdi の計算と緑本の式の違いを説明できる"],
+    body:`<p><b>主架構</b>：<span class="formula">E<sub>sfi</sub>＝E<sub>si</sub>·Q<sub>fui</sub>/Q<sub>ui</sub></span>、<span class="formula">η<sub>sfi</sub>＝E<sub>sfi</sub>/(2Q<sub>fui</sub>·δ<sub>fui</sub>)</span><br>E<sub>si</sub> がすべて主架構の塑性変形 Δδ<sub>p</sub> の過程で吸収されると仮定し、そのとき同じ変形を受けるダンパーと<b>耐力の比で</b>分けたもの。実際には Δδ<sub>p</sub> を伴わない過程でもダンパーが吸収するので、主架構への配分の<b>上限値</b>です。</p>
+    <p><b>ダンパー</b>：<span class="formula">E<sub>sdi</sub>＝E<sub>si</sub>·Q<sub>dui</sub>/Q<sub>ui</sub> ＋ E<sub>sdpi</sub> ＋ β·E<sub>ddpi</sub></span></p>
+    <ul><li>第1項：主架構が塑性化する大きな変形でダンパーが吸収する分（これも上限値）</li><li><b>E<sub>sdpi</sub>＝2(δ<sub>i</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·n<sub>si</sub></b>（n<sub>si</sub>＝20）：主架構が弾性範囲で繰り返し揺れる間のダンパーの吸収。δ<sub>i</sub> は <b>W<sub>e</sub> を求めたときの状態</b>の変位</li><li><b>E<sub>ddpi</sub>＝2(δ<sub>i</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·n<sub>di</sub></b>（n<sub>di</sub>＝10）：本震前に受けた稀地震の損傷。δ<sub>i</sub> は <b>C<sub>1</sub> 時</b>の変位。<b>β＝5</b> は経験する稀地震の回数（地域の地震活動により別の値も可）</li></ul>
+    <p><b>γ<sub>di</sub>（解図4.3.3）</b>：層の変形には、ダンパー自体の変形のほかに接合部や周辺フレームの変形も含まれます。弾性のうちはそれらが比例して変形しますが、ダンパーが降伏すると変形がダンパーに集中します。<b>1/γ<sub>di</sub>＝κ<sub>2</sub>/κ<sub>1</sub></b> が塑性域でのダンパーへの<b>変形集中率</b>です。ダンパーの性能はダンパー自身の降伏変形で無次元化されているので、層の δ<sub>dui</sub> を基準にした必要 η を 1/γ<sub>di</sub> 倍してそろえます。</p>
+    <p style="text-align:center"><span class="formula">η<sub>sdi</sub>＝E<sub>sdi</sub>/(2γ<sub>di</sub>·Q<sub>dui</sub>·δ<sub>dui</sub>)</span></p>
+    <p>γ<sub>di</sub> の求め方：①増分解析で κ<sub>1</sub>（弾性域の δ<sub>i</sub>−ダンパー標点間変位の勾配）と κ<sub>2</sub>（降伏後の勾配）を読む（標点間を別部材にしたモデルが必要）。②略算式。座屈拘束ブレースなら <span class="formula">γ<sub>di</sub>＝λL<sub>br</sub>/(2EA<sub>br</sub>)·(L<sub>br</sub>/L<sub>d</sub>)²·<sub>s</sub>K<sub>d</sub></span>（<sub>s</sub>K<sub>d</sub> は柱の軸伸縮による曲げ変形を除いた、せん断変形成分の剛性）。</p>
+    `,
+    ex:()=>{ const s=EX().S[EX().S.length-1], c=SAMPLE.common; return {intro:"サンプル建物（X方向）1階のダンパーの必要 η_sdi を、緑本の式で追います（γ_di は サンプル建物 と同じ η になるよう換算した値）。",
+      steps:[["E_si·Q_dui/Q_ui（大変形での吸収）",`${f(s.Esi,1)} × ${f(s.Qdu,0)} ÷ ${f(s.Qu,0)}`,s.E1,1,"kN·m"],
+        ["E_sdpi（主架構弾性範囲の繰返し）",`2 × (${f(s.de,2)} − ${f(s.ddu,2)}) × ${f(s.Qdu,0)} × 20 ÷ 1000`,s.Esdp,0,"kN·m"],
+        ["β·E_ddpi（過去の稀地震）",`5 × 2 × (${f(s.dc1,2)} − ${f(s.ddu,2)}) × ${f(s.Qdu,0)} × 10 ÷ 1000`,c.beta*s.Eddp,0,"kN·m"],
+        ["E_sdi（合計）","3項の和",s.Esd,0,"kN·m"],
+        ["η_sdi",`E_sdi ÷ (2 × γ_di × Q_dui × δ_dui) ＝ ${f(s.Esd,0)}×1000 ÷ (2 × ${s.gam} × ${f(s.Qdu,0)} × ${f(s.ddu,2)})`,s.etaSd,1,""]],
+      after:"E_sdi の約8割が E_sdpi（主架構が弾性で揺れる間の繰返し、n_si＝20）、約2割が過去の稀地震の損傷 β·E_ddpi で、E_si からの配分（第1項）は1%未満です。極稀地震は、主架構の塑性化ではなくダンパーの繰返しで受け止める設計だと分かります。η_sdi は γ_di に反比例するので、γ_di の取り方（緑本の略算 0.244 か、サンプル建物 相当の 0.63 か）で判定が大きく変わります。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"入力欄の1階の γ_di を 0.244（緑本の略算式の値）に変えると、η_sdi が 400 を超えることを確かめてください。計算タブの「γ_di をダンパー諸元から求める」で略算式も試せます。"}],
+    quiz:[
+      {id:"q4-5-1",k:"num",q:"ある層で E_si＝3,000 kN·m、Q_fui＝60,000 kN、Q_dui＝70,000 kN。主架構の E_sfi を求めよ。",a:1384.6,tol:0.01,u:"kN·m",e:"Q_ui＝130,000 kN。E_sfi＝3,000×60,000/130,000＝1,384.6 kN·m。耐力の比で分けます。",p:"P55 式(4.3.12)"},
+      {id:"q4-5-2",k:"mc",q:"サンプル建物の結果で、ダンパーの E_sdi の大半は E_sdpi（n_si＝20）が占めている。E_sdpi を小さくする設計上の方向として正しいものはどれか。",c:["Q_dui を大きくする","W_e を求めた状態の層間変位 δ_i とダンパー降伏変位 δ_dui の差を小さくする（主架構の剛性を上げる、またはダンパーの降伏変位を適切にする）","n_si を 5 にする","β を 1 にする"],a:1,e:"E_sdpi＝2(δ_i−δ_dui)Q_dui·20 なので、ダンパーの塑性変形の振幅（δ_i−δ_dui）が効きます。n_si や β は告示の値なので、根拠なく変えられません。",p:"P55〜56"},
+      {id:"q4-5-3",k:"num",q:"増分解析で、ダンパーの標点間変位 D と層間変位 δ の勾配が、弾性域 κ_1＝0.35、降伏後 κ_2＝0.95 だった。γ_di を求めよ。",a:0.3684,tol:0.01,u:"",e:"1/γ_di＝κ_2/κ_1＝0.95/0.35＝2.714 → γ_di＝0.368。降伏後は層の変形の増分のうち95%がダンパーに集まり、弾性時の約2.7倍の割合になります。",p:"P57〜58 式(解4.3.2)"},
+      {id:"q4-5-4",k:"mc",q:"γ_di を小さく評価するほど、ダンパーの η_sdi はどうなるか。またそれはなぜ安全側か。",c:["小さくなる。安全側","大きくなる。変形がダンパーに集中すると見込むことになり、ダンパーに厳しい側になる","変わらない","γ_di はダンパーの η に関係しない"],a:1,e:"η_sdi は γ_di に反比例します。γ_di が小さい＝層の変形のうちダンパーの弾性分の割合が小さい＝降伏後はダンパーに大きく変形が集中する、ということで、ダンパーの必要性能が大きくなります。",p:"P57〜58"},
+      {id:"q4-5-5",k:"mc",q:"本震前に受ける稀地震の回数 β を 5 としている。建設地が地震活動の非常に活発な地域で、供用期間中に稀地震を10回程度受けると考えられる。どう扱うのが緑本の考え方に合うか。",c:["告示の値なので必ず 5","地域の地震活動の実状に応じて別の値とすることも可能なので、10 として安全側に検討する","0 にする","n_di を 5 にする"],a:1,e:"β は実質的に安全限界の地震以前に経験する稀地震の回数で、告示は 5 としていますが、地域の地震活動に応じて別の値とすることも可能とされています。",p:"P57"}
+    ],
+    sum:["E_sfi＝E_si·Q_fui/Q_ui（上限値）、η_sfi＝E_sfi/(2Q_fui·δ_fui)","E_sdi＝E_si·Q_dui/Q_ui＋E_sdpi（n_si＝20、W_e時のδ）＋β·E_ddpi（n_di＝10、C_1時のδ、β＝5）","η_sdi＝E_sdi/(2γ_di·Q_dui·δ_dui)。1/γ_di＝κ_2/κ_1＝変形集中率"] },
+
+  { id:"4-6", t:"最大応答変位・保有性能・取付け部", p:"P58〜63（4.3.6〜4.4）",
+    goals:["主架構の最大応答変位と、ダンパーの最大塑性率 μ_dmax を求められる","ダンパーの保有性能曲線（μ−η）の読み方を説明できる","ダンパー取付け部を設計する力（最大耐力 φ）を判断できる"],
+    body:`<p><b>最大応答変位（4.3.6）</b>：ダンパーの総吸収能力は振幅が大きいほど小さくなるので、<b>最大振幅に対応した性能</b>を保有性能とします。そのために最大変位が必要です。</p>
+    <ul><li>主架構が塑性化する（E<sub>s</sub>＞0）：<span class="formula">δ<sub>mi</sub>＝(η<sub>sfi</sub>/n<sub>i</sub>＋1)·δ<sub>fui</sub></span>、n<sub>i</sub>＝2</li><li>塑性化しない（E<sub>s</sub>≦0）：n<sub>i</sub>＝5 で W<sub>e</sub>＝½MV<sub>s</sub>² となる状態の変位</li><li>ダンパー自体の最大塑性率：<span class="formula">μ<sub>dmax</sub>＝(δ<sub>mi</sub>/δ<sub>dui</sub>−1)/γ<sub>di</sub>＋1</span>（変形集中を考慮）</li></ul>
+    <p>この方法は安全側の仮定を重ねているので、かなり大きめの値になります。精度が必要なら 5.2〜5.4。外装材の追従性の確認にも使います。</p>
+    <p><b>保有性能（4.3.7）</b>：主架構は表3.3.3 か増分解析（5.8）。ダンパーは低サイクル疲労で決まるので、<b>使用状況に合った実験</b>で決めます。性能は「縦軸 μ−1（振幅）・横軸 η（累積）」の曲線で、振幅が大きいほど η は小さい。</p>
+    <ul><li>標準：μ<sub>dmax</sub> に対応する η を曲線から読む（ケースA）。実験範囲より小さい振幅なら実験の最大 η（ケースB）、大きすぎて範囲外なら②の方法</li><li>②：(μ−1)＝η/(γ<sub>di</sub>·n<sub>i</sub>)（n<sub>i</sub>＝5）の直線と性能曲線の交点</li></ul>
+    <p><b>取付け部（4.4）</b>：接合部が劣化するとダンパーの効果が落ちるので、<b>ダンパーが受ける最大耐力</b>に対して許容耐力以内に設計します。最大耐力はひずみ硬化で上がるので、引張強さの規格上下限の中央値 F<sub>du</sub> で計算します（φ＝F<sub>du</sub>/F：LY100 3.13、LY120 2.5、LY225 1.71）。</p>`,
+    ex:()=>{ const s=EX().S[EX().S.length-1], mu=(s.dm/s.ddu-1)/s.gam+1; return {intro:"サンプル建物（X方向）1階の、主架構の最大応答変位とダンパーの最大塑性率を求めます。",
+      steps:[["主架構 η_sf","計算タブの値",s.etaSf,4,"",false],["最大応答変位 δ_m",`(${f(s.etaSf,4)} ÷ 2 ＋ 1) × ${f(s.dfu,2)}`,s.dm,1,"mm"],["ダンパーの最大塑性率 μ_dmax",`(δ_m ÷ δ_du − 1) ÷ γ_di ＋ 1 ＝ (${f(s.dm,1)} ÷ ${f(s.ddu,2)} − 1) ÷ ${s.gam} ＋ 1`,mu,2,""]],
+      after:"この μ_dmax（約10）をメーカーの性能曲線（第Ⅲ編の技術データ）に当てて保有 η_cdi を読みます。計算タブの「ダンパー保有 η_cd」は、いまは サンプル建物 と同じ 400 を入れています。γ_di を小さくとると μ_dmax も大きくなり、読み取る η_cdi は小さくなる点にも注意します。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"「δ_mi」の列が最大応答変位です。「ダンパー保有 η_cd」を変えると判定が変わります。"}],
+    quiz:[
+      {id:"q4-6-1",k:"num",q:"主架構の η_sf＝1.0、δ_fu＝80 mm の層の最大応答変位 δ_m を求めよ（n_i＝2）。",a:120,tol:0.01,u:"mm",e:"(1.0/2＋1)×80＝120 mm。階高 8,000 mm なら 1/67 です。",p:"P59 式(解4.3.7)"},
+      {id:"q4-6-2",k:"num",q:"問1の層で δ_du＝18 mm、γ_di＝0.6 のとき、ダンパーの最大塑性率 μ_dmax を求めよ。",a:10.44,tol:0.01,u:"",e:"(120/18−1)/0.6＋1＝(6.667−1)/0.6＋1＝9.44＋1＝10.44。層の塑性率より大きくなるのは、降伏後に変形がダンパーへ集中するためです。",p:"P59 式(解4.3.8)"},
+      {id:"q4-6-3",k:"mc",q:"ダンパーの保有性能曲線（μ−η）で、振幅（μ−1）が大きいほど保有 η が小さくなる。その理由はどれか。",c:["ダンパーが硬くなるから","大きな振幅ほど1回あたりのひずみが大きく、低サイクル疲労で早く破断するから","バウシンガー効果がなくなるから","実験の誤差"],a:1,e:"鋼製ダンパーは繰返しで疲労亀裂が生じ進展する低サイクル疲労で寿命が決まります。振幅が大きいほど少ない回数（小さい累積）で寿命に達します。",p:"P60"},
+      {id:"q4-6-4",k:"num",q:"LY225（F＝205 N/mm²）の座屈拘束ブレースで、降伏耐力が 2,000 kN のとき、取付け部の設計に使う最大耐力を求めよ（φ＝1.71）。",a:3420,tol:0.01,u:"kN",e:"2,000×1.71＝3,420 kN。取付け部はこの力に対して許容耐力以内に設計します。LY100 なら φ＝3.13 で、降伏耐力の3倍以上になります。",p:"P62 解表4.4.1"},
+      {id:"q4-6-5",k:"mc",q:"メーカーの性能曲線の実験範囲が μ−1≦10 までで、計算した μ_dmax−1 が 14 だった。保有 η_cdi の決め方として緑本に合うものはどれか。",c:["曲線を外挿して読む","実験範囲外なので①の方法では決められない。(μ−1)＝η/(γ_di·n_i) の直線と性能曲線の交点で決める方法（②）を使う","最大値を使う","400 とする"],a:1,e:"μ_dmax が実験範囲を超える場合は、標準の方法では決められません。n_i（＝5）を使った直線との交点で求める方法を使います（解図4.3.7）。",p:"P61〜62"}
+    ],
+    sum:["δ_m＝(η_sf/2＋1)δ_fu、μ_dmax＝(δ_m/δ_du−1)/γ_di＋1（大きめの評価）","ダンパーの保有 η は実験の μ−η 曲線から μ_dmax で読む（振幅が大きいほど小さい）","取付け部はダンパーの最大耐力（φ＝F_du/F 倍）で設計"] }
+]},
+{ id:"u5", t:"補足と慣用技術", p:"第Ⅰ編5章 P64〜94", secs:[
+  { id:"5-1", t:"W_e のただし書きの使い方", p:"P64〜65（5.1）",
+    goals:["ただし書きの手順（バイリニア置換 → 増分解析 → 最初に Q_fui に達した時点）を説明できる","ただし書きを使ってはいけない場合を判断できる","サンプル建物の「Q−δ作成」シートの意味が分かる"],
+    body:`<p>告示の W<sub>e</sub> は損傷限界（許容応力度）までの三角形だけで、損傷限界から保有耐力までの<b>台形部分</b>を数えません。ただし書きでこれを適切に評価すると、精度が上がります。ただし<b>台形部分を各階すべて W<sub>e</sub> に足すのは過大評価で、告示を満たしません</b>。</p>
+    <p><b>手順</b></p>
+    <ol><li>主架構の荷重−変形を<b>バイリニア</b>に置き換える。極稀地震時に想定する層間変形角（例：1/80）までで、実際の曲線とバイリニアの<b>エネルギーが等しくなる</b>ように Q<sub>fui</sub> を決める</li><li>A<sub>i</sub> 分布の増分解析が原則。上階などで想定の変形角に届かない層は、外力分布を変えて全層が届くようにする</li><li>損傷限界耐力を「<b>ある層が最初に Q<sub>fui</sub> に達した時点</b>の各層のせん断力」と読み替え、その時点までの三角形を W<sub>fi</sub> とする。最初に達した層以外は、折れ点までの三角形より小さくなる</li><li>主架構が塑性化するまでにダンパーが吸収する塑性エネルギーの変形 δ<sub>i</sub> は③の主架構の最大変形を使い、層間変形角がおおむね①の想定と対応していることを確かめる</li></ol>
+    <p><b>留意点</b>：Q<sub>fui</sub> の定義を変えても、高さ方向の耐力分布（p<sub>i</sub>）があまり変わらない、つまり配分が通常の方法と大きく変わらないことが前提です。<b>耐力分布が大きく変わるなら使わない</b>。</p>
+    `,
+    ex:()=>{ const R=EX(); const st=[["C*（最初に Q_ui に達するベースシア）","min( Q_ui ÷ (Σw_i × A_i) )",R.Cstar,4,""]]; R.S.forEach((s,i)=>{ st.push([`${s.name}階 Q_ui/(Σw·A_i)`,`${f(s.Qu,0)} ÷ (${f(s.sw,0)} × ${f(R.AiD[i],3)})`,s.Qu/(s.sw*R.AiD[i]),4,"",false]); st.push([`${s.name}階 その時点の層間変位`,`C* × A_i × Σw のときの変位`,s.de,2,"mm"]); });
+      return {intro:"サンプル建物（X方向）で、ただし書きの「ある層が最初に耐力に達した時点」を求めます。",steps:st,after:"1階が最初に Q_ui に達し（変位＝δ_fu＝112.7 mm）、このとき2・3階はまだ耐力に余裕があります。この状態の W_f・W_de・W_dp（n_i＝5）の合計がただし書きの W_e です。1階の層間変形角は 1/85 程度で、手順④の「想定した変形角（1/75〜1/80）とおおむね対応」を満たしています。"}; },
+    calc:[{v:"calc",el:"outSafe",m:"「W_e 時 δ」の列が、ただし書きの状態の層間変位です。"}],
+    quiz:[
+      {id:"q5-1-1",k:"mc",q:"ただし書きで W_e を求めるとき、各階の台形部分（損傷限界〜保有耐力）をすべて足した。何が問題か。",c:["問題ない","過大評価になり告示を満たさない。ある層が最初に Q_fui に達した時点までの三角形にする","台形ではなく長方形にすべき","n_i を 2 にすべき"],a:1,e:"各層が同時に保有耐力に達するわけではないので、全層の台形を足すのは過大評価です。最初に Q_fui に達した層以外は、その時点の三角形しか数えられません。",p:"P64"},
+      {id:"q5-1-2",k:"mc",q:"バイリニア置換で Q_fui を決めた結果、ある階の耐力が通常の保有水平耐力の定義に比べて大きく変わり、p_i の分布が変わってしまった。どう判断するか。",c:["ただし書きをそのまま使う","耐力分布（p_i）が大きく変わる場合はこの運用を控える","p_i を無視する","n を 4 にする"],a:1,e:"ただし書きの運用は、Q_fui の定義を変えても配分（p_i 分布）が大きく変わらないことが前提です。前提が崩れるなら使わないのが緑本の考え方です。",p:"P65"},
+      {id:"q5-1-3",k:"mc",q:"上階の層間変形角が、A_i 分布の増分解析では想定（1/80）に届かない。手順として正しいものはどれか。",c:["届かない層は W_e に入れない","外力分布を変えるなどして、全層が想定の変形角を超えるまで解析する","1/200 でよい","上階を無視する"],a:1,e:"バイリニア置換は想定変形角までのエネルギー等価で決めるので、全層がその変形角に達する荷重−変形が必要です。届かない層は外力分布を調整します。",p:"P64"},
+      {id:"q5-1-4",k:"num",q:"ある建物で、告示どおりの W_e が 23,600 kN·m、ただし書きの W_e が 130,000 kN·m、½MV_s²＝135,100 kN·m。ただし書きを使うと E_s は告示どおりの何%になるか。",a:4.53,tol:0.02,u:"%",e:"告示どおり E_s＝135,100−23,600＝111,500。ただし書き E_s＝135,100−130,000＝5,100。5,100/111,500＝4.6%。サンプル建物に近い数字で、ただし書きの効果がとても大きいことが分かります。そのぶん根拠（バイリニア置換と想定変形角）の説明が大切です。",p:"P64〜65"}
+    ],
+    sum:["台形部分を全層足すのは過大評価。最初に Q_fui に達した層の時点までの三角形","バイリニア置換は想定変形角（1/80 など）までのエネルギー等価","耐力分布（p_i）が大きく変わるなら使わない"] },
+
+  { id:"5-2", t:"増分解析による部材ごとの検証と、最大層間変位による配分", p:"P65〜72（5.2〜5.3）",
+    goals:["5.2 の方法（ヒンジの塑性エネルギーで最大変形を求める）の長所と注意点を説明できる","5.3 の方法が告示より厳しめになる理由を説明できる"],
+    body:`<p><b>5.2 静的増分解析による部材ごとの検証</b>：増分解析で、骨組の弾性ひずみエネルギーと各ヒンジの塑性ひずみエネルギー（係数倍）の和が入力エネルギーを超えるステップを探し、その時点の変形を最大応答とします。</p>
+    <ul><li>ラーメン：<span class="formula">E<sub>d</sub>＜W<sub>e</sub>＋Σ(4×<sub>m</sub>W<sub>p</sub>)</span>。4倍は、η/(μ<sub>max</sub>−1)≒2 と正負の2倍から</li><li>ダンパー付きの極稀地震：<span class="formula">E<sub>d</sub>＜Σ{(W<sub>fi</sub>＋W<sub>dei</sub>)＋10×<sub>d1</sub>W<sub>p</sub>＋4×(<sub>d2</sub>W<sub>p</sub>＋<sub>m</sub>W<sub>p</sub>)}</span></li><li>長所：部材ごとに必要 η と保有 η を比べられる。接合部パネルの吸収や、短スパン梁・外梁端への損傷集中もとらえられる</li><li>注意：柱崩壊型で設計した、損傷集中が小さい層では損傷を過小評価しがち。高次モードの影響が大きい骨組の上層部は、安全側にならないことがある</li></ul>
+    <p><b>5.3 最大層間変位を指標とする配分法</b>：告示の方法の代わりに、各層の最大層間変位 δ<sub>mi</sub> を直接求めて、主架構とダンパーの必要 η を出します。</p>
+    <ul><li><b>E<sub>s</sub>＝½MV<sub>s</sub>²−W<sub>erd</sub></b>：W<sub>erd</sub> は主架構・ダンパーとも弾性限界までの蓄積エネルギーで、<b>W<sub>e</sub> より小さい</b>（ダンパーの塑性分を含まない）→ E<sub>s</sub> が大きく、告示より厳しめ</li><li>係数 a<sub>r</sub>＝4.0、a<sub>d1</sub>＝10、a<sub>d2</sub>＝4.0、a<sub>d3</sub>＝15、β＝5、n<sub>di</sub>＝10。ダンパー率 β<sub>di</sub>＝Q<sub>dui</sub>/Q<sub>ui</sub></li><li>長所：各層の最大変形が分かる。最も弱い層への集中をより厳しく評価する</li></ul>`,
+    quiz:[
+      {id:"q5-2-1",k:"mc",q:"告示の層単位の検討で OK だった建物で、外梁の端部だけに損傷が集中していないか確かめたい。適した方法はどれか。",c:["告示の方法をもう一度","5.2 の静的増分解析による部材ごとの検証（ヒンジごとの塑性エネルギーで必要 η を出す）","5.6 のダンパー設計","5.7 の G_s"],a:1,e:"5.2 の方法は部材ごとに必要 η と保有 η を比べられるので、外梁端や短スパン梁への損傷集中を把握できます。告示で層単位を確認したうえで、部材単位の確認に使う位置づけです。",p:"P65"},
+      {id:"q5-2-2",k:"mc",q:"12階建てで高次モードの影響が大きいダンパー付き骨組の上層部を、5.2 の方法で評価した。注意すべき点はどれか。",c:["上層部の応答を安全側に評価できる","高次モードの影響で、上層部の応答を必ずしも安全側に評価できない可能性がある","上層部は検討不要","n を 4 にする"],a:1,e:"静的増分解析は1つの外力分布で押すので、高次モードが効く上層部の応答を過小評価することがあります。時刻歴応答解析などで補うことを考えます。",p:"P65"},
+      {id:"q5-2-3",k:"mc",q:"5.3 の方法で E_s＝½MV_s²−W_erd とすると、告示の方法より E_s が大きくなる。その理由はどれか。",c:["V_s が大きいから","W_erd は主架構・ダンパーとも弾性限界までの蓄積エネルギーで、ダンパーの塑性吸収（W_dp）を含まないので W_e より小さいから","n が大きいから","M が大きいから"],a:1,e:"告示の W_e にはダンパーの塑性吸収（n_i＝5）が入りますが、W_erd は弾性分だけです。差し引く量が小さいので、塑性で吸収すべき E_s が大きくなり、厳しめの評価になります。",p:"P69〜72"},
+      {id:"q5-2-4",k:"num",q:"ラーメン骨組の極稀地震の検証（5.2）で、W_e＝20,000 kN·m、各ヒンジの塑性エネルギーの合計 ΣmW_p＝15,000 kN·m のステップがあった。E_d（＝½MV_s²）＝75,000 kN·m のとき、このステップは入力を超えているか。超えていれば W_e＋4ΣW_p の値を答えよ。",a:80000,tol:0.01,u:"kN·m",e:"20,000＋4×15,000＝80,000 kN·m ＞ 75,000 なので、このステップで入力を超えています。このときの各層の変形を最大層間変形の応答値とします。",p:"P65 式(5.2.2)"}
+    ],
+    sum:["5.2：増分解析でヒンジごとの塑性エネルギー×係数（ラーメン4倍）が入力を超える時点を最大応答とする。部材ごとに検証できる","5.2 の注意：柱崩壊型の損傷集中が小さい層は過小評価、高次モードの上層部は危険側のことがある","5.3：W_erd（弾性分のみ）を使うので告示より厳しめ。各層の最大変形が分かる"] },
+
+  { id:"5-3", t:"最大応答変形の予測と P−δ 効果", p:"P73〜78（5.4〜5.5）",
+    goals:["告示の最大変形が大きめになる理由と、5.4 の予測式の考え方が分かる","P−δ 効果が大きい層を見分け、吸収能力の低減を計算できる"],
+    body:`<p><b>5.4 極稀地震時の最大応答変形</b>：告示どおりだと、損傷限界〜保有耐力の間の弾性ひずみエネルギーを無視するので、変形が大きめに出ます。5.4 では、δ<sub>i</sub> から δ<sub>fui</sub> の間で吸収できる弾性エネルギー ΔW<sub>ei</sub> を考えて最大変形を求めます（図5.4.3 のフロー）。</p>
+    <ul><li>ダンパーなし：E<sub>si</sub>≦ΔW<sub>ei</sub> なら <span class="formula">δ<sub>max</sub>＝√(2E<sub>si</sub>/K<sub>fi</sub>＋δ<sub>i</sub>²)</span>（弾性のまま）、超えれば <span class="formula">δ<sub>max</sub>＝δ<sub>fui</sub>＋(E<sub>si</sub>−ΔW<sub>ei</sub>)/(4Q<sub>ui</sub>)</span></li><li>ダンパーあり：δ<sub>i</sub>≦δ<sub>dui</sub> か否かで場合分け（n<sub>si</sub>＝5 を考慮）</li><li>外装材の追従性の確認などに使う</li></ul>
+    <p><b>5.5 P−δ 効果の大きい層</b>：ピロティ、吹抜け、柱軸力比の大きい超高層で要注意です。塑性域で耐力が下がる（下り勾配）と、変形が一方向に偏ります。</p>
+    <ul><li>安定係数 <span class="formula">|k'<sub>pδ</sub>|＝(W/H)/k<sub>fi</sub></span>（W：その層が支える重量、H：階高）</li><li>|k'<sub>pδ</sub>|＞0.0567 で吸収能力を低減：<span class="formula">a＝0.367/(|k'<sub>pδ</sub>|−0.05)<sup>0.2</sup></span>、η<sub>pδ</sub>＝a·η</li><li>崩壊点 U に至らない変形制限も確かめる</li></ul>`,
+    ex:()=>{ const s=EX().S[EX().S.length-1], k=(s.sw/s.H)/s.Kf; return {intro:"サンプル建物（X方向）1階の P−δ の安定係数を求めます。",
+      steps:[["1階が支える重量 W","Σw",s.sw,0,"kN",false],["W/H",`${f(s.sw,0)} ÷ ${f(s.H,0)}`,s.sw/s.H,2,"kN/mm"],["主架構の剛性 k_f","Q_f ÷ δ",s.Kf,1,"kN/mm",false],["安定係数 |k'_pδ|",`(W/H) ÷ k_f ＝ ${f(s.sw/s.H,2)} ÷ ${f(s.Kf,1)}`,k,4,""]],
+      after:`|k'_pδ|＝${f(k,3)} で、低減が必要になる 0.0567 を${k>0.0567?"超えています。吸収能力の低減係数 a を掛けて検討します":"下回るので、吸収能力の低減は不要です"}。階高が高く重い物流倉庫は、安定係数が大きくなりやすいので確かめておきます。`}; },
+    quiz:[
+      {id:"q5-3-1",k:"num",q:"ある層で、支える重量 W＝100,000 kN、階高 H＝5,000 mm、主架構の剛性 k_f＝250 kN/mm。安定係数 |k'_pδ| を求めよ。",a:0.08,tol:0.01,u:"",e:"(100,000/5,000)/250＝20/250＝0.08。0.0567 を超えるので、吸収能力を低減します。",p:"P77〜78"},
+      {id:"q5-3-2",k:"num",q:"問1の層の吸収能力の低減係数 a＝0.367/(|k'_pδ|−0.05)^0.2 を求めよ。",a:0.739,tol:0.01,u:"",e:"(0.08−0.05)^0.2＝0.03^0.2＝0.4964。a＝0.367/0.4964＝0.739。保有 η を約26%割り引いて比べます。",p:"P78 式(5.5.3)"},
+      {id:"q5-3-3",k:"mc",q:"外装材（ALC）の層間変形追従性を確かめたい。告示どおりの最大応答変位（4.3.6）で NG になった。次に検討するとよい方法はどれか。",c:["NG なので外装材を変える","より精度の高い 5.4 の方法（損傷限界〜保有耐力の弾性エネルギーを考える）や 5.2・5.3 の方法で最大変形を求め直す","n_i を 5 にする","最大変形は告示の規定外なので無視する"],a:1,e:"告示どおりの方法は安全側の仮定を重ねた大きめの値です。5.2〜5.4 の方法で精度を上げてから判断します。それでも厳しければ、外装材の仕様や架構を見直します。",p:"P59、P73〜77"},
+      {id:"q5-3-4",k:"num",q:"ダンパーなしの層で、E_si＝500 kN·m、ΔW_ei＝800 kN·m、K_fi＝400 kN/mm、δ_i＝25 mm。最大変形 δ_max を求めよ（5.4）。",a:55.9,tol:0.01,u:"mm",e:"E_si≦ΔW_ei なので弾性のまま。δ_max＝√(2×500×1000/400＋25²)＝√(2,500＋625)＝√3,125＝55.9 mm（E_si を kN·mm にするため1,000倍）。",p:"P73〜77"}
+    ],
+    sum:["告示の最大変形は大きめ。5.4 は δ_i〜δ_fui の弾性エネルギー ΔW_ei を考えて精度を上げる","安定係数 |k'_pδ|＝(W/H)/k_f ＞ 0.0567 なら吸収能力を a 倍に低減","重く階高の高い層（物流倉庫の下層など）は P−δ を確かめておく"] },
+
+  { id:"5-4", t:"効果的に吸収するダンパーの設計（k と β）", p:"P78〜79（5.6）",
+    goals:["剛性比 k と耐力分担率 β の意味を説明できる","ダンパーが先に降伏する条件（β＜k/(1＋k)）を導ける","β_opt を求め、ダンパーの耐力上昇との関係を判断できる"],
+    body:`<p>ダンパー付き骨組を、主体骨組とダンパー部分の2つの完全弾塑性要素に分けて考えます（図5.6.1）。</p>
+    <ul><li><b>剛性比 k＝K<sub>D</sub>/K<sub>F</sub></b>：弾性時のダンパーと骨組のせん断力分担比（K<sub>D</sub> には隣の柱の軸伸縮による曲げ変形も考慮）</li><li><b>耐力分担率 β＝Q<sub>Dy</sub>/Q<sub>u</sub></b>：層の最大せん断力に対するダンパーの分担</li></ul>
+    <p><b>ダンパーが先に降伏する条件</b>（ダンパーが成り立つ条件）：δ<sub>Dy</sub>＜δ<sub>Fy</sub>。Q<sub>Dy</sub>/K<sub>D</sub>＜Q<sub>Fy</sub>/K<sub>F</sub> に β と k を入れると <span class="formula">β＜<sub>U</sub>β＝k/(1＋k)</span>。</p>
+    <p><b>最適値</b>（等価粘性減衰を最大にする条件。主体骨組の塑性化が小さい前提）：<span class="formula">β<sub>opt</sub>＝k/(1＋k＋2√(1＋k))</span>。有効範囲は <span class="formula">0.1≦β≦<sub>U</sub>β<sub>opt</sub>＝1−1/√(1＋k)</span>。β が β<sub>opt</sub> 付近で変位応答が最小、<sub>U</sub>β を超えると減衰効果が下がります。</p>
+    <p>k は通常 0.5〜2 なので、<b>β は 0.1〜0.3 程度</b>で k に応じて決めればよい、ということになります。</p>
+    <p><b>耐力上昇</b>：ダンパーは早く降伏するので、ひずみ硬化による耐力上昇（LY100 で約2.8倍、LY225 で約1.5倍）に配慮が必要です。β を β<sub>opt</sub> 未満にしておけば、耐力が上がっても早期に減衰効果を失いません。LY225 のように硬化が小さい鋼材なら <sub>U</sub>β 付近でも影響は小さい。</p>`,
+    ex:()=>{ const R=EX(); const st=[]; R.S.forEach(s=>{ const k=s.kappa, bo=k/(1+k+2*Math.sqrt(1+k)); st.push([`${s.name}階 k`,`k_di ÷ k_fi`,k,3,""]); st.push([`${s.name}階 β_opt`,`k/(1＋k＋2√(1＋k)) ＝ ${f(k,3)}/(1＋${f(k,3)}＋2√${f(1+k,3)})`,bo,3,""]); st.push([`${s.name}階 β（現在）`,`Q_du ÷ Q_u ＝ ${f(s.Qdu,0)} ÷ ${f(s.Qu,0)}`,s.beta,3,"",false]); });
+      return {intro:"サンプル建物（X方向）の各階で、β_opt と現在の β を比べます。",steps:st,after:"1・2階は β（約0.31）が β_opt（0.32〜0.37）をわずかに下回り、最適に近い配置です。3階は β＝0.35 が β_opt（0.28）を上回りますが、有効範囲の上限 _Uβ_opt（0.38）以内です。β_opt 未満の層は、ダンパーのひずみ硬化による耐力上昇を気にしなくてよい範囲です。「設計の目安」タブのグラフで位置を確かめられます。"}; },
+    calc:[{v:"design",m:"グラフの点が各階の (k, β) です。1・2階の点は β_opt の線のすぐ下、3階は β_opt の線より少し上にあることを確かめてください。"}],
+    quiz:[
+      {id:"q5-4-1",k:"num",q:"剛性比 k＝1.0 のとき、β_opt を求めよ。",a:0.2071,tol:0.01,u:"",e:"1/(1＋1＋2√2)＝1/4.828＝0.207。k＝1 なら耐力分担率は約2割が最適です。",p:"P79 式(5.6.2)"},
+      {id:"q5-4-2",k:"num",q:"k＝1.0 のとき、ダンパーが主体骨組より先に降伏するための β の上限 _Uβ を求めよ。",a:0.5,tol:0.01,u:"",e:"k/(1＋k)＝0.5。これを超えるとダンパーより先に骨組が降伏し、ダンパーとして働きません。",p:"P78 式(5.6.1)"},
+      {id:"q5-4-3",k:"mc",q:"LY100 の座屈拘束ブレースで、β を _Uβ（k/(1＋k)）ぎりぎりに設定した。何が心配か。",c:["特に問題ない","ひずみ硬化で耐力が約2.8倍に上がると、実際の β が _Uβ を超え、ダンパーの減衰効果が早く失われる","剛性が下がる","T_d が長くなる"],a:1,e:"LY100 は硬化が大きいので、β_opt 未満に抑えておくのが安全です。LY225（約1.5倍）なら _Uβ 付近でも影響は小さいとされています。",p:"P79"},
+      {id:"q5-4-4",k:"mc",q:"サンプル建物の1階は k＝2.87、β＝0.31 で、β_opt＝0.37 である。この層のダンパー配置の評価として正しいものはどれか。",c:["β＞k/(1＋k) なので、ダンパーが先に降伏しない","β が β_opt をわずかに下回り最適に近い。ひずみ硬化による耐力上昇も気にしなくてよい範囲","β が 0.1 未満なので効果が小さい","β が有効範囲の上限を超えている"],a:1,e:"_Uβ＝2.87/3.87＝0.74、_Uβ_opt＝1−1/√3.87＝0.49 で、0.1≦β＝0.31≦β_opt＝0.37 です。変位応答が小さくなる最適値に近く、β_opt 未満なので耐力上昇の影響も小さいと判断できます。",p:"P78〜79"}
+    ],
+    sum:["k＝K_D/K_F（剛性比）、β＝Q_Dy/Q_u（耐力分担率）","ダンパー成立 β＜k/(1＋k)、最適 β_opt＝k/(1＋k＋2√(1＋k))、有効 0.1≦β≦1−1/√(1＋k)","k＝0.5〜2 なら β＝0.1〜0.3。β_opt 未満なら耐力上昇（LY100 約2.8倍）を気にしなくてよい"] },
+
+  { id:"5-5", t:"慣用技術と部材の保有変形性能", p:"P79〜94（5.7〜5.8）",
+    goals:["G_s の略算（第1種・第2・3種地盤）を使える","保有水平耐力・剛性・降伏変位を、増分解析のラウンドな曲線からどう読むかを判断できる","部材の変形性能（幅厚比、ブレースの細長比、ダンパー鋼材の値）が η_c にどうつながるかを説明できる"],
+    body:`<p><b>G<sub>s</sub>（告示1457号第10）</b>：上部構造の計算方法に関係なく使える係数で、エネルギー法でもそのまま使えます。T は稀地震で T<sub>d</sub>、極稀地震で T<sub>s</sub>。</p>
+    <ul><li>第1種：T＜0.576 で 1.5、0.576≦T＜0.64 で 0.864/T、0.64≦T で 1.35</li><li>第2・3種：T＜0.64 で 1.5、0.64≦T＜T<sub>u</sub> で 1.5·T/0.64、T<sub>u</sub>≦T で g<sub>v</sub>（第2種 2.025、第3種 2.7）、T<sub>u</sub>＝0.64·g<sub>v</sub>/1.5</li></ul>
+    <p><b>保有水平耐力・剛性・降伏変位</b>：増分解析の荷重−変形はラウンドなので、層間変形角 1/80 か 1/50 の点、または接線剛性が弾性の 1/10 になった点を耐力点とします。混合構造はブレース・ダンパーの分を別に計算して差し引きます。ほかに節点モーメント分割法（下界定理で安全側、剛性は別途）、層ユニット法（梁を分割比で上下階に分ける）があります。</p>
+    <p><b>部材の保有変形性能（5.8）</b>：主架構の η を部材ごとに精算するときに使います。</p>
+    <ul><li>H形鋼・角形鋼管・円形鋼管の幅厚比と変形性能 <sub>m</sub>η<sub>u</sub> の関係（図5.8.1〜5.8.7）→ サンプル建物の「梁 mη_u」「柱 mη_u」はここから求めた値</li><li>ブレース：有効細長比 λ<sub>e</sub>＞890/√σ<sub>y</sub> で引張ブレース、以下で引張・圧縮ブレース</li><li>パネルゾーン：τ<sub>m</sub>／μ<sub>m</sub>＝400級 1.67／33、490級 1.50／25、590級 1.33／17</li><li>圧縮引張形ダンパー：α／μ<sub>m</sub>／τ<sub>m</sub>＝LY100 0.06／26／2.5、LY120 0.05／25／2.2、LY225 0.03／18／1.54</li></ul>`,
+    ex:()=>{ const R=EX(); return {intro:"サンプル建物の地盤（第2種）の G_s を、T_d と T_s で求めます。",steps:[["T_u",`0.64 × 2.025 ÷ 1.5`,0.864,3,"s"],["稀地震 G_s（T_d）",`T_d＝${f(R.Td,4)} ≧ T_u なので g_v`,R.GsD,3,""],["極稀地震 G_s（T_s）",`T_s＝${f(R.Ts,4)} ≧ T_u なので g_v`,R.GsS,3,""]],after:"T_d・T_s とも T_u（0.864 s）より長いので、G_s は 2.025 で一定です。周期を多少変えても入力は変わりません（単元1 の問題と同じ考え方）。"}; },
+    calc:[{v:"calc",el:"common",m:"「地盤種別」を第1種・第3種に変えると G_s と V_d・V_s が変わり、E_d・E_s が大きく変わります。"}],
+    quiz:[
+      {id:"q5-5-1",k:"num",q:"第2種地盤で T＝0.75 s のときの G_s（略算）を求めよ。",a:1.758,tol:0.01,u:"",e:"T_u＝0.864。0.64≦0.75＜0.864 なので 1.5×0.75/0.64＝1.758。この範囲では周期が延びると G_s が大きくなり、入力が増えます。",p:"P79〜80"},
+      {id:"q5-5-2",k:"mc",q:"増分解析の荷重−変形曲線がなだらかで、はっきりした降伏点がない。保有水平耐力（耐力点）の決め方として 5.7 に示されているものはどれか。",c:["最大の荷重","層間変形角 1/80 か 1/50 の点、または接線剛性が弾性の 1/10 になった点","層間変形角 1/200 の点","弾性の荷重の2倍"],a:1,e:"ラウンドな曲線では、変形角 1/80・1/50 の点や、接線剛性が弾性の1/10 の点を耐力点とします。どれを使ったかは計算書に明示します。",p:"P80〜81"},
+      {id:"q5-5-3",k:"mc",q:"梁のフランジ幅厚比を小さくして、局部座屈しにくい断面にした。エネルギー法の計算のどこに効いてくるか。",c:["E_d が小さくなる","部材の変形性能 mη_u が上がり、主架構の保有 η_cf（1/3·mη_u·1.5·a_b＋2）が大きくなる","T_d が短くなる","n が 4 になる"],a:1,e:"幅厚比と変形性能の関係（5.8）から mη_u が決まり、それが主架構の保有累積塑性変形倍率につながります。サンプル建物の η_cf もこの考え方です。",p:"P83〜"},
+      {id:"q5-5-4",k:"mc",q:"ダンパーの鋼材を LY100 から LY225 に変えると、ダンパーの最大耐力（取付け部の設計用）と変形性能（μ_m）はどうなるか（5.8 の値）。",c:["耐力上昇率が小さくなり（2.5→1.54）、μ_m も小さくなる（26→18）","どちらも大きくなる","変わらない","耐力上昇率だけ大きくなる"],a:0,e:"LY225 はひずみ硬化が小さく取付け部の設計は楽になりますが、変形能力（μ_m）は LY100 より小さくなります。保有 η はメーカーの性能曲線で確かめます。",p:"P83〜94"}
+    ],
+    sum:["G_s：第2・3種は T≧T_u で g_v 一定（第2種 2.025）","耐力点：1/80・1/50 の点、または接線剛性が弾性の 1/10 の点","幅厚比 → mη_u → 主架構の η_c。ダンパー鋼材で耐力上昇と変形性能が変わる"] }
+]},
+{ id:"u6", t:"設計例を読む（ダンパー架構）", p:"第Ⅱ編 設計例4〜5 P210〜259", secs:[
+  { id:"6-1", t:"設計例4の概要と損傷限界", p:"P210〜223（設計例4 4.1〜4.2.2）",
+    goals:["設計例4の建物とダンパー配置を説明できる","W_e を求める状態と、稀地震の実際の状態（C_1）の違いを、表の数値から読み取れる","残留変形の計算を設計例の値でたどれる"],
+    body:`<p><b>建物</b>：鉄骨造8階建ての事務所ビル（センターコア、基準階高 4.1 m、X方向に15 m のロングスパン）。設計例3（コラム柱の許容応力度等計算）と同じ建物を、<b>H形鋼柱＋座屈拘束ブレース（LY225、山形配置）</b>で設計し直したものです。柱は SN490B のロール H 形鋼、大梁はロール H。第2種地盤。安全限界の W<sub>e</sub> には告示のただし書きを使っています。</p>
+    <p><b>柱梁耐力比</b>：X方向は 1.3〜1.6 程度（梁降伏型）ですが、Y方向は弱軸側に柱を配置するため 0.9 前後で<b>柱崩壊型</b>になります。この違いが、あとで柱の安定性の検討につながります。</p>
+    <p><b>損傷限界の主な値</b>（例表4.19〜4.22）</p>
+    <div class="scroll"><table><thead><tr><th>項目</th><th class="n">X方向</th><th class="n">Y方向</th></tr></thead><tbody>
+      <tr><td>T<sub>d</sub>（割線剛性、κ<sub>1</sub>＝0.48＋0.52N の略算式）</td><td class="n">1.47 s</td><td class="n">1.29 s</td></tr>
+      <tr><td>G<sub>s</sub>・r・V<sub>d</sub></td><td class="n">2.025・1.00・0.33</td><td class="n">2.025・1.00・0.33</td></tr>
+      <tr><td>M・E<sub>d</sub></td><td class="n">6,964 t・379 kN·m</td><td class="n">6,964 t・379 kN·m</td></tr>
+      <tr><td>W<sub>e</sub>（最弱層が損傷限界のとき）</td><td class="n">1,073 kN·m</td><td class="n">735 kN·m</td></tr>
+      <tr><td>最大層間変形角（稀地震）</td><td class="n">1/268</td><td class="n">1/290</td></tr>
+    </tbody></table></div>
+    <p>W<sub>e</sub> の表（例表4.20）では1〜5階でダンパーが塑性化していますが、実際の稀地震（エネルギーが E<sub>d</sub> に釣り合う状態）では、X方向の2・3階だけがダンパー降伏します。<b>W<sub>e</sub> は「最弱層の主架構が許容応力度に達するまで」の状態</b>で、E<sub>d</sub> の約2.8倍の余裕があるので、実際の稀地震はそれよりずっと小さい揺れです。</p>
+    <p><b>残留変形</b>（X方向3階）：μ<sub>d</sub>＝15.3/14.0＝1.09、κ＝321/216＝1.48 → μ<sub>d</sub>≦(κ＋5)/4 なので μ<sub>res</sub>＝κ(μ<sub>d</sub>−1)/(1＋κ)＝0.055、δ<sub>res</sub>＝0.77 mm（1/5,291）。1/1000 を十分下回ります。</p>`,
+    ex:()=>({intro:"設計例4（X方向）の値で、E_d・余裕・残留変形をたどります（緑本の表の値）。",steps:[
+      ["E_d","½ × 6,964 × 0.33²",0.5*6964*0.33*0.33,1,"kN·m"],
+      ["W_e/E_d（X方向）","1,073 ÷ 379",1073/379,2,""],
+      ["3階 μ_d","15.3 ÷ 14.0",15.3/14.0,3,""],
+      ["3階 κ","321 ÷ 216",321/216,3,""],
+      ["3階 μ_res","κ(μ_d−1)/(1＋κ)",(321/216)*(15.3/14.0-1)/(1+321/216),4,""],
+      ["3階 δ_res","μ_res × 14.0",(321/216)*(15.3/14.0-1)/(1+321/216)*14.0,2,"mm"]],
+      after:"緑本の表は丸めた値なので、μ_res＝0.055・δ_res＝0.77 mm と少し違いますが、考え方は同じです。サンプル建物（3層の物流倉庫）は W_e/E_d≒2.1 で、設計例4（2.8）と同じくらいの余裕です。"}),
+    quiz:[
+      {id:"q6-1-1",k:"mc",q:"設計例4は X 方向の T_d＝1.47 s、Y 方向 1.29 s と周期が違うのに、E_d はどちらも 379 kN·m である。なぜか。",c:["Y方向のほうが減衰が大きいから","第2種地盤で T≧T_u（0.864 s）なので G_s が 2.025 一定、かつ T≧0.64 s で V_d の係数も一定だから","質量が違うから","r が違うから"],a:1,e:"どちらも長周期側の一定領域にあるので V_d＝0.33 m/s で同じです。周期の違いは、吸収側（剛性と変形）で効いてきます。",p:"P221 例表4.19"},
+      {id:"q6-1-2",k:"mc",q:"例表4.20（W_e の算定）では1〜5階のダンパーが塑性化しているのに、本文では「稀地震時は X 方向の2・3階だけダンパーが塑性化」とある。どう理解するか。",c:["誤植","W_e は最弱層の主架構が許容応力度に達する状態で、E_d の約2.8倍。実際の稀地震（エネルギーが E_d に釣り合う C_1 の状態）はそれより小さい揺れなので、降伏する層が少ない","Y方向の話","n_i の違い"],a:1,e:"W_e を求める状態と、実際の稀地震で検討する状態（C_1）は別です。層間変形・残留変形は C_1 の状態で確かめます。",p:"P221〜223"},
+      {id:"q6-1-3",k:"num",q:"設計例4の X 方向3階：μ_d＝1.09、κ＝1.48、δ_dui＝14.0 mm。残留変位 δ_res を求めよ。",a:0.752,tol:0.04,u:"mm",e:"μ_d＝1.09 ≦ (1.48＋5)/4＝1.62 なので μ_res＝1.48×0.09/2.48＝0.0537。δ_res＝0.0537×14.0＝0.75 mm（緑本は丸めて 0.77 mm）。階高 4,100 mm で 1/5,400 程度です。",p:"P223"},
+      {id:"q6-1-4",k:"mc",q:"設計例4の Y 方向は柱梁耐力比が 0.9 前後の柱崩壊型である。エネルギー法の計算のどこに影響するか。",c:["影響しない","損傷集中指数 n を 8 とし、また柱の安定性（ダンパーの耐力上昇後の軸力）を別に確かめる必要がある","T_d が長くなる","E_d が大きくなる"],a:1,e:"柱崩壊型は損傷が集中しやすいので n＝8 で、さらに最下層の柱の軸力比・座屈を確かめています（次の節）。",p:"P218、P233"}
+    ],
+    sum:["設計例4：8階事務所、H形鋼柱＋座屈拘束ブレース（LY225）。X 梁降伏型、Y 柱崩壊型","E_d＝379 kN·m に対し W_e＝1,073／735 kN·m。W_e の状態と稀地震の状態（C_1）は別","残留変形は X 3階で 1/5,291。1/1000 を十分満たす"] },
+
+  { id:"6-2", t:"設計例4の安全限界：E_s が負になるケース", p:"P223〜237（設計例4 4.2.3〜4.4）",
+    goals:["E_s＜0 のときの検討の流れを、設計例でたどれる","ダンパーの必要 η と保有 η（性能曲線の回帰式）の求め方を説明できる","設計例の γ_di の式と、緑本・サンプル建物の式の違いを説明できる"],
+    body:`<p><b>入力</b>：T<sub>s</sub> は X 1.47〜1.77 s、Y 1.29〜1.55 s。表層地盤の速度応答スペクトルを精算しているので G<sub>s</sub>＝1.61／1.70（略算の 2.025 より小さい）、V<sub>s</sub>＝1.42／1.46 m/s。½MV<sub>s</sub>²＝7,020／7,422 kN·m。</p>
+    <p><b>W<sub>e</sub>（ただし書き）</b>：最弱層の主架構が保有耐力時の弾性変位 δ<sub>fui</sub> に達した時点の各層の変位で計算（n<sub>i</sub>＝5）。9,260／13,748 kN·m で、<b>E<sub>s</sub>＝−2,240／−6,326（負）</b>。主架構は損傷しない（E<sub>sfi</sub>＝0）結果になりました。</p>
+    <p><b>ダンパー</b>：E<sub>si</sub> の配分も 0 なので、E<sub>sdi</sub>＝E<sub>sdpi</sub>（＋X 2・3階だけ β·E<sub>ddpi</sub>）。必要 η は η<sub>sdi</sub>＝E<sub>sdi</sub>/(Q<sub>dui</sub>·δ<sub>dui</sub>)/2 を γ<sub>di</sub> で割って、ダンパー自身の値 <sub>r</sub>η<sub>sdi</sub> にします。</p>
+    <p style="text-align:center"><span class="formula">γ<sub>di</sub>＝λL<sub>br</sub>/(n<sub>br</sub>·E·A<sub>br</sub>)·(L<sub>br</sub>/L<sub>d</sub>)²·k<sub>di</sub></span>（λ＝0.5、n<sub>br</sub>：ブレース本数、k<sub>di</sub>：層のダンパー剛性）</p>
+    <p>→ γ<sub>di</sub>＝0.24〜0.45。<b>緑本 式(解4.3.4) の「2EA」とは違い、ブレース本数で割って層の剛性を掛ける形</b>です。</p>
+    <p><b>ダンパーの保有 η</b>：最大層間変形角から芯材の平均ひずみ ε<sub>max</sub>＝R<sub>max</sub>·L<sub>d</sub>·h<sub>i</sub>/(λL<sub>br</sub>²) を求め、塑性率 μ＝ε<sub>max</sub>/ε<sub>y</sub>。LY225 の回帰式 <span class="formula">log(μ−1)＝−0.5493·log(η)＋2.5062</span> から保有 η を出します（例：μ＝9.0 → 831）。必要値/保有値の最大は X 0.225、Y 0.152。</p>
+    <p><b>主架構の保有 η</b>：部材の性能 <sub>m</sub>η から <sub>r</sub>η<sub>cu</sub>＝1/3·<sub>m</sub>η·1.5·(5/3)（X 4.01〜5.00、Y 3.42〜5.70）。</p>
+    <p><b>最大層間変位</b>：E<sub>s</sub>＝0 なので安全側に δ<sub>fui</sub> の状態とし、最大 1/76（X 2階）。時刻歴応答解析（エルセントロ、神戸、八戸を V<sub>s</sub> に合わせて入力）と比べると、エネルギー法の η は応答値を安全側に評価し、主架構はほぼ弾性でした。</p>
+    <p><b>柱の安定性</b>：Y 方向は柱崩壊型なので、ブレースが TS レンジ中央値（350 N/mm²）まで耐力上昇したとして漸増載荷し、最下層側柱の軸力比 0.58 ≦ 0.75、座屈 N<sub>cr</sub>/N<sub>y</sub>＝0.867 ＞ 0.58 を確認しています。</p>`,
+    ex:()=>({intro:"設計例4（X方向）の安全限界の数値をたどり、LY225 の回帰式でダンパーの保有 η を求めます。",steps:[
+      ["½MV_s²","0.5 × 6,964 × 1.42²",0.5*6964*1.42*1.42,0,"kN·m"],
+      ["E_s","7,020 − 9,260（W_e、ただし書き）",7020-9260,0,"kN·m"],
+      ["2階のダンパーの塑性率 μ","例表4.29",9.0,1,"",false],
+      ["log η（保有）","(2.5062 − log(μ−1)) ÷ 0.5493 ＝ (2.5062 − log 8) ÷ 0.5493",(2.5062-Math.log10(8))/0.5493,4,""],
+      ["保有 η","10^(log η)",Math.pow(10,(2.5062-Math.log10(8))/0.5493),0,""],
+      ["必要 rη（2階）／保有 η","187 ÷ 831",187/831,3,""]],
+      after:"回帰式から求めた保有 η は約830（緑本 831）。必要 187 に対して余裕は4倍以上あります。振幅（μ）が大きいほど保有 η は小さくなるので、最大変位の見積もりがダンパーの判定に直結します。"}),
+    calc:[{v:"calc",el:"outSafe",m:"計算タブの建物は E_s＞0 ですが、入力欄で各階の Q_dui を2割増やすと E_s が小さくなり、主架構の η がほぼ 0 になる様子を確かめられます（終わったら値を戻してください）。"}],
+    quiz:[
+      {id:"q6-2-1",k:"mc",q:"設計例4の G_s は X 方向で 1.61 と、略算の 2.025 より小さい。その理由として正しいものはどれか。",c:["地盤が第1種だから","表層地盤の増幅を精算しており、T_s（1.77 s）が地盤の卓越周期より長い、スペクトルの下り側にあるから","r を掛けているから","減衰を大きくとったから"],a:1,e:"例図4.6 のように、精算した表層地盤のスペクトルはピークのあと下がります。T_s をその範囲で最大になるように選んでも、略算の一定値より小さくなることがあります。",p:"P223〜224"},
+      {id:"q6-2-2",k:"mc",q:"E_s が負になったので、主架構の検討は不要になった。ダンパーについて何を検討しているか。",c:["何もしない","主架構が弾性範囲で揺れる間のダンパーの吸収 E_sdpi（n_si＝20）と、稀地震の損傷 β·E_ddpi を必要量として、ダンパーの η を確かめる","E_si の配分だけ","層間変形角だけ"],a:1,e:"E_s＜0 でも、ダンパーは繰返しの中で塑性変形し続けます。そのエネルギー E_sdpi（と過去の稀地震の分）に対して、ダンパーの累積塑性変形能力を確かめます。",p:"P228"},
+      {id:"q6-2-3",k:"num",q:"LY225 の回帰式 log(μ−1)＝−0.5493·log(η)＋2.5062 で、ダンパーの塑性率 μ＝6.4 のときの保有 η を求めよ。",a:1693,tol:0.03,u:"",e:"log(5.4)＝0.7324。log η＝(2.5062−0.7324)/0.5493＝3.229 → η≒1,690（緑本 X 1階：1,694）。",p:"P231 例表4.29"},
+      {id:"q6-2-4",k:"mc",q:"設計例4の γ_di の式 λL_br/(n_br·E·A_br)·(L_br/L_d)²·k_di と、緑本 4章の式(解4.3.4) λL_br/(2E·A_br)·(L_br/L_d)²·sK_d の違いとして正しいものはどれか。",c:["同じ式","設計例はブレース本数 n_br で割り、層全体のダンパー剛性 k_di を掛ける（1本あたりに直している）。4章の式は分母が 2EA で sK_d を使う","設計例は λ を使わない","設計例は L_d を使わない"],a:1,e:"どちらも「層の変形のうちダンパーの弾性変形の割合」を表しますが、剛性の取り方と係数が違います。どちらを使うかで γ_di と η_sdi が変わるので、計算書には採用した式を明示します。",p:"P229、P58"},
+      {id:"q6-2-5",k:"mc",q:"Y 方向（柱崩壊型）で、ブレースが TS レンジ中央値（350 N/mm²）まで耐力上昇したと仮定して最下層の柱を確かめている。この検討の目的はどれか。",c:["鋼材量を減らすため","ダンパーの耐力上昇で柱の軸力が増え、想定外の大入力で主架構が塑性化したときに、柱が軸力で不安定にならないか（軸力比・座屈）を確かめるため","T_d を求めるため","残留変形を求めるため"],a:1,e:"柱崩壊型では最下層の柱が要です。ダンパーのひずみ硬化で軸力が増えた状態でも、軸力比 0.58 ≦ 0.75、座屈耐力にも余裕があることを確かめています。",p:"P233〜234"},
+      {id:"q6-2-6",k:"mc",q:"最大層間変位は 1/76（X 2階）と算定されたが、時刻歴応答解析では主架構はほぼ弾性だった。この差をどう考えるか。",c:["エネルギー法が間違い","E_s＝0 でも安全側に「最弱層の主架構が保有耐力時の変位 δ_fui」を最大変位としたため、大きめに出ている","時刻歴応答解析が間違い","地震波が違う"],a:1,e:"告示の方法は安全側の仮定を重ねています。外装材の追従などで厳しい場合は、5.2〜5.4 の方法や時刻歴応答解析で精度を上げて判断します。",p:"P230、P234〜237"}
+    ],
+    sum:["精算 G_s（1.61）で V_s＝1.42、W_e（ただし書き）が ½MV_s² を上回り E_s＜0 → 主架構は無損傷","ダンパーは E_sdpi（n_si＝20）で必要 η、LY225 の回帰式で保有 η。最大比 0.225","設計例の γ_di はブレース本数で割り層剛性を掛ける形（サンプル建物に近い）。柱崩壊型は柱の軸力も確認"] },
+
+  { id:"6-3", t:"設計例5と、保有水平耐力計算との比較", p:"P238〜259（設計例5）",
+    goals:["間柱型ダンパー架構の計算結果の要点を読み取れる","保有水平耐力計算とエネルギー法で、周期・ベースシア・鋼材量がどう違うかを説明できる","物流倉庫などの実務の設計に生かせる点を判断できる"],
+    body:`<p><b>設計例5</b>：設計例3・4と同じ8階事務所を、<b>コア部分に間柱型ダンパー（せん断パネル）</b>を配したラーメン構造で設計（X・Y とも）。1階柱脚は埋込み、杭基礎、第2種地盤。</p>
+    <p><b>結果（Y方向）</b>：稀地震の最大層間変形角 1/309（3階）、W<sub>e</sub>/E<sub>d</sub>＝1,965/400＝<b>4.91</b>、残留変形も 1/1000 以内。極稀地震では主架構の塑性化はわずかで、累積塑性変形倍率は主架構・ダンパーとも余裕あり。最大層間変形角 1/94（4階）。</p>
+    <p><b>保有水平耐力計算との比較（例表5.33、Y方向）</b></p>
+    <div class="scroll"><table><thead><tr><th>項目</th><th class="n">保有水平耐力計算</th><th class="n">エネルギー法</th></tr></thead><tbody>
+      <tr><td>一次設計の固有周期</td><td class="n">1.34 s（弾性）</td><td class="n">1.62 s（等価剛性）</td></tr>
+      <tr><td>一次設計 1階 C<sub>B</sub>（最大層間変形角）</td><td class="n">0.143（1/225）</td><td class="n">0.108（1/309）</td></tr>
+      <tr><td>安全限界 1階 C<sub>B</sub>（最大層間変形角）</td><td class="n">0.384、D<sub>s</sub>＝0.35（1/77）</td><td class="n">0.240（1/94）</td></tr>
+      <tr><td>鋼材量（主架構＋ダンパー）</td><td class="n">9,078 kN</td><td class="n">7,342＋804＝8,146 kN</td></tr>
+      <tr><td>単位面積あたり（雑鉄骨 1.2 倍）</td><td class="n">124 kg/m²</td><td class="n">111 kg/m²</td></tr>
+    </tbody></table></div>
+    <p>設計例4（H形鋼柱＋座屈拘束ブレース）は、設計例3（コラム柱）と鋼材量がほぼ同じ（92 と 95 kg/m²）でした。<b>エネルギー法の効果は「必ず鋼材が減る」ではなく、架構の形式（H柱・ロングスパン）やダンパーの配置の自由度と組み合わせて生まれる</b>、と読み取れます。</p>`,
+    ex:()=>({intro:"例表5.33 の数値で、エネルギー法の効果を比べます。",steps:[
+      ["鋼材量の削減率（単位面積）","(124 − 111) ÷ 124",(124-111)/124*100,1,"%"],
+      ["主架構だけの削減率","(9,078 − 7,342) ÷ 9,078",(9078-7342)/9078*100,1,"%"],
+      ["ダンパーの鋼材量の割合","804 ÷ 8,146",804/8146*100,1,"%"],
+      ["安全限界のベースシアの比","0.240 ÷ 0.384",0.240/0.384,3,""]],
+      after:"主架構の鋼材は約19%減り、ダンパー（全体の約10%）を足しても全体で約10%の削減です。安全限界のベースシアは保有耐力計算の6割程度ですが、ダンパーのエネルギー吸収で安全性を確かめています。"}),
+    calc:[{v:"design",m:"設計例5のようにダンパーの量と剛性を変える検討は、「設計の目安」タブの k と β のグラフで、各階のダンパーが効率のよい範囲にあるかを確かめながら進めます。"}],
+    quiz:[
+      {id:"q6-3-1",k:"num",q:"例表5.33 で、単位面積あたりの鋼材量は 124 kg/m² から 111 kg/m² になった。削減率は何%か。",a:10.48,tol:0.02,u:"%",e:"(124−111)/124＝10.5%。主架構だけでは約19%減っていますが、ダンパーの分（804 kN）が加わります。",p:"P259 例表5.33"},
+      {id:"q6-3-2",k:"mc",q:"同じ建物なのに、一次設計の固有周期が保有耐力計算で 1.34 s、エネルギー法で 1.62 s と違う。理由はどれか。",c:["質量が違う","保有耐力計算は弾性の固有値解析、エネルギー法はダンパーが降伏した損傷限界時の等価剛性で求めているから","地盤が違う","階高が違う"],a:1,e:"エネルギー法の T_d は等価剛性（割線剛性）による周期で、ダンパーが降伏する分長くなります（4-1 で学んだ内容）。",p:"P259 注1"},
+      {id:"q6-3-3",k:"mc",q:"安全限界の1階ベースシアは、保有耐力計算 0.384 に対しエネルギー法は 0.240 と小さい。それでも安全と判断できる理由はどれか。",c:["エネルギー法は大地震を考えないから","耐力（D_s）で判断するのではなく、ダンパーと主架構が吸収できるエネルギー（累積塑性変形倍率）が必要量を上回ることを確かめているから","D_s を 0.25 にしたから","ベースシアは関係ないから"],a:1,e:"保有耐力計算は D_s で必要耐力を決めますが、エネルギー法は「どれだけ吸収できるか」で判断します。耐力は小さくても、ダンパーが繰返し吸収できれば安全と判断できます。",p:"P259"},
+      {id:"q6-3-4",k:"mc",q:"設計例4・5を参考に、物流倉庫のダンパー付き鉄骨造をエネルギー法で検討するとき、取り入れるとよいことはどれか。",c:["鋼材量は必ず減るので比較は不要","保有耐力計算案とエネルギー法案の比較表（周期・C_B・最大変形・鋼材量）を作り、効果と前提（γ_di、ただし書き、余裕度）を説明できるようにする","エネルギー法では時刻歴応答解析は不要","柱崩壊型にする"],a:1,e:"設計例5の比較表のように、周期・ベースシア・変形・鋼材量を並べると、発注者や適判への説明がしやすくなります。前提（γ_di の取り方、ただし書きの使用、1.5V_s への余裕）も一緒に示します。",p:"P234、P259"},
+      {id:"q6-3-5",k:"num",q:"設計例5の Y 方向で W_e＝1,965 kN·m、E_d＝400 kN·m。W_e/E_d を求めよ。",a:4.9125,tol:0.01,u:"",e:"1,965/400＝4.91。設計例4（X 2.8）や サンプル建物（約2.1）と比べてかなり余裕があり、間柱型ダンパーの吸収量が大きいことが分かります。",p:"P259"}
+    ],
+    sum:["設計例5：間柱型ダンパー。W_e/E_d＝4.91、最大層間変形角 1/309（稀）・1/94（極稀）","保有耐力計算との比較：周期 1.34→1.62 s、安全限界 C_B 0.384→0.240、鋼材量 124→111 kg/m²","効果は架構形式・ダンパー配置と組み合わせて生まれる。比較表を作って説明する"] }
+]}
+];
+
+/* ---------- 緑本PDF（章ごとに分けた軽量版）を開く ----------
+   公開ページでは pdf/g00.pdf〜g12.pdf、手元のファイルで開いたときは 緑本_分割版\ の元ファイルを開く */
+const GPDF=[
+ ["00","緑本_00_表紙・まえがき・目次.pdf","表紙・まえがき・目次",0,0],
+ ["01","緑本_01_第Ⅰ編1-2章_技術的背景・告示の概要_P1-16.pdf","第Ⅰ編1〜2章 技術的背景・告示の概要",1,16],
+ ["02","緑本_02_第Ⅰ編3章_ダンパーなし_P17-40.pdf","第Ⅰ編3章 ダンパーなし",17,40],
+ ["03","緑本_03_第Ⅰ編4章_ダンパーあり_P41-63.pdf","第Ⅰ編4章 ダンパーあり",41,63],
+ ["04","緑本_04_第Ⅰ編5章_補足と慣用技術_P64-94.pdf","第Ⅰ編5章 補足と慣用技術",64,94],
+ ["05","緑本_05_第Ⅱ編_設計例1-2_P95-143.pdf","第Ⅱ編 設計例1〜2",95,143],
+ ["06","緑本_06_第Ⅱ編_設計例3_8階許容応力度との比較_P144-209.pdf","第Ⅱ編 設計例3（8階、許容応力度との比較）",144,209],
+ ["07","緑本_07_第Ⅱ編_設計例4-5_8階ダンパー架構_P210-259.pdf","第Ⅱ編 設計例4〜5（8階ダンパー架構）",210,259],
+ ["08","緑本_08_第Ⅱ編_設計例6_12階連層ブレース_P260-291.pdf","第Ⅱ編 設計例6（12階連層ブレース）",260,291],
+ ["09","緑本_09_第Ⅱ編_設計例7_12階せん断パネル_P292-333.pdf","第Ⅱ編 設計例7（12階せん断パネル）",292,333],
+ ["10","緑本_10_第Ⅱ編_設計例8_12階増分解析_P334-358.pdf","第Ⅱ編 設計例8（12階増分解析）",334,358],
+ ["11","緑本_11_第Ⅲ編1章_エネルギー吸収部材の技術データ_P359-407.pdf","第Ⅲ編1章 エネルギー吸収部材の技術データ",359,407],
+ ["12","緑本_12_第Ⅲ編2-3章_より有効な活用方法・将来提案_P408-445.pdf","第Ⅲ編2〜3章 より有効な活用方法・将来提案",408,445]];
+const IS_LOCAL=location.protocol==="file:";
+function pdfUrl(page){
+  let g=GPDF[0], pg=1;
+  if(page>0){ g=GPDF.find(x=>x[3]<=page&&page<=x[4])||GPDF[0]; pg=page-g[3]+1; }
+  const base=IS_LOCAL?"緑本_分割版/"+encodeURIComponent(g[1]):"pdf/g"+g[0]+".pdf";
+  return base+"#page="+pg;
+}
+/* "P47 式(4.2.6)" などから最初のページ番号を取り出す（まえがき等は 0） */
+const firstPage=t=>{ const m=String(t).match(/P(\d+)/); return m?+m[1]:0; };
+const pdfBtn=(t,label)=>`<button type="button" class="pdfa" data-pdf="${firstPage(t)}">${label||"緑本 "+firstPage(t)+"ページを開く"}</button>`;
+/* ページの中に重ねて表示する（公開ページでは別タブで直接開けないため）。PDFは一度読み込んだら覚えておく */
+const PDF_CACHE={};
+async function openPdf(page){
+  const v=document.getElementById("pdfView"), fr=document.getElementById("pdfFrame"), st=document.getElementById("pdfStatus"), nt=document.getElementById("pdfNewTab");
+  const url=pdfUrl(page), [path,hash]=url.split("#");
+  const g=page>0?(GPDF.find(x=>x[3]<=page&&page<=x[4])||GPDF[0]):GPDF[0];
+  document.getElementById("pdfTitle").textContent=`緑本 ${g[2]}${page>0?`（${page}ページ）`:""}`;
+  v.hidden=false; document.body.style.overflow="hidden"; fr.removeAttribute("src"); st.hidden=false; st.textContent="読み込んでいます…";
+  try{
+    let obj=PDF_CACHE[path];
+    if(!obj){ const own=await pdfStoreGet(g[0]); if(own) obj=PDF_CACHE[path]=URL.createObjectURL(own); }
+    if(!obj){ const res=await fetch(path); if(!res.ok) throw new Error(res.status); const b=await res.blob(); if(!/pdf/.test(b.type)&&b.size<10000) throw new Error("not pdf"); obj=PDF_CACHE[path]=URL.createObjectURL(b); }
+    fr.src=obj+"#"+hash; nt.href=obj+"#"+hash; st.hidden=true;
+  }catch(e){
+    if(!IS_LOCAL&&!/claude/.test(location.hostname)){ fr.removeAttribute("src"); nt.removeAttribute("href"); st.innerHTML=`この章の緑本PDFがまだ読み込まれていません。お手元の緑本（章ごとに分けたPDF「緑本_${g[0]}_…pdf」）を<button class="btn" data-go-pdfload="1" style="margin:0 4px">PDFを読み込む</button>から選んでください（一度読み込めば、このブラウザに保存されます）。`; return; }
+    fr.src=url; nt.href=url; st.textContent="直接読み込めなかったため、ファイルをそのまま表示しています。表示されないときは「別タブで開く」を押してください。"; }
+}
+/* 各自の緑本PDFをこのブラウザに保存する（GitHub Pages 版では緑本を載せないため） */
+const pdfDb=()=>new Promise((res,rej)=>{ const q=indexedDB.open("enehou-pdf",1); q.onupgradeneeded=()=>q.result.createObjectStore("pdf"); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });
+async function pdfStoreGet(k){ try{ const db=await pdfDb(); return await new Promise(r=>{ const t=db.transaction("pdf").objectStore("pdf").get(k); t.onsuccess=()=>r(t.result||null); t.onerror=()=>r(null); }); }catch(e){ return null; } }
+async function pdfStorePut(k,blob){ const db=await pdfDb(); await new Promise((r,j)=>{ const t=db.transaction("pdf","readwrite"); t.objectStore("pdf").put(blob,k); t.oncomplete=r; t.onerror=()=>j(t.error); }); }
+async function pdfStoreKeys(){ try{ const db=await pdfDb(); return await new Promise(r=>{ const t=db.transaction("pdf").objectStore("pdf").getAllKeys(); t.onsuccess=()=>r(t.result||[]); t.onerror=()=>r([]); }); }catch(e){ return []; } }
+function pdfLoad(){
+  const inp=document.createElement("input"); inp.type="file"; inp.accept="application/pdf,.pdf"; inp.multiple=true;
+  inp.onchange=async()=>{ let n=0; const miss=[];
+    for(const f of inp.files){ const m=f.name.match(/(?:緑本_|^g)(\d\d)[_.]/); if(!m||!GPDF.some(g=>g[0]===m[1])){ miss.push(f.name); continue; } await pdfStorePut(m[1],f); Object.keys(PDF_CACHE).forEach(k=>{ if(k.includes(m[1])) delete PDF_CACHE[k]; }); n++; }
+    alert(`${n}個のPDFを読み込みました。`+(miss.length?`\n名前から章が分からないため読み込まなかったもの：\n${miss.join("\n")}\n（ファイル名を「緑本_03_…pdf」のように章番号から始めてください）`:""));
+    if(crView==="home") renderCourse(); };
+  inp.click();
+}
+document.addEventListener("click",e=>{ if(e.target.closest("[data-go-pdfload]")){ e.preventDefault(); pdfLoad(); } });
+function closePdf(){ document.getElementById("pdfView").hidden=true; document.body.style.overflow=""; document.getElementById("pdfFrame").removeAttribute("src"); }
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-pdf]"); if(b){ e.preventDefault(); openPdf(+b.dataset.pdf); } if(e.target.id==="pdfClose") closePdf(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!document.getElementById("pdfView").hidden) closePdf(); });
+
+/* 索引 */
+const SECS=[], QMAP={}, SEC_OF_Q={};
+COURSE.forEach(u=>u.secs.forEach(s=>{ s.unit=u; SECS.push(s); (s.quiz||[]).forEach(q=>{ QMAP[q.id]=q; SEC_OF_Q[q.id]=s; }); }));
+const secIdx=id=>SECS.findIndex(s=>s.id===id);
+
+/* ---------- 画面 ---------- */
+let crView="home";
+const CM=document.getElementById("courseMain");
+
+function renderToc(){
+  const done=SECS.filter(s=>CR.done[s.id]).length;
+  let h=`<summary>目次　<span class="mono" style="font-weight:400;color:var(--sub)">${done}/${SECS.length}節</span></summary>
+    <div class="bar" style="margin:8px 0 4px"><i style="width:${(done/SECS.length*100).toFixed(0)}%"></i></div>
+    <ol><li><a data-go="home" ${crView==="home"?'aria-current="page"':""}><span class="mk"></span>講座のはじめに・進み具合</a></li>`;
+  COURSE.forEach(u=>{
+    h+=`<li class="u">単元${u.id.slice(1)}　${u.t}</li>`;
+    if(u.soon){ h+=`<li class="soon">準備中（${u.p}）</li>`; return; }
+    u.secs.forEach(s=>{ h+=`<li><a data-go="sec:${s.id}" ${crView==="sec:"+s.id?'aria-current="page"':""}><span class="mk">${CR.done[s.id]?"✓":""}</span><span>${s.id}　${s.t}</span></a></li>`; });
+    h+=`<li><a data-go="test:${u.id}" ${crView==="test:"+u.id?'aria-current="page"':""}><span class="mk"></span><span>単元${u.id.slice(1)}の総合演習</span></a></li>`;
+  });
+  h+=`<li class="u">ふりかえり</li><li><a data-go="review" ${crView==="review"?'aria-current="page"':""}><span class="mk"></span>間違えた問題（${CR.wrong.length}問）</a></li>
+      <li><a data-go="memos" ${crView==="memos"?'aria-current="page"':""}><span class="mk"></span>質問メモ</a></li></ol>`;
+  const t=document.getElementById("toc"); t.innerHTML=h;
+}
+
+function qHTML(q,num){
+  let inner;
+  if(q.k==="mc") inner=q.c.map((c,i)=>`<button class="opt" data-q="${q.id}" data-v="${i}">${"ABCD"[i]}．${tx(c)}</button>`).join("");
+  else if(q.k==="tf") inner=`<button class="opt" data-q="${q.id}" data-v="1">○　正しい</button><button class="opt" data-q="${q.id}" data-v="0">×　誤り</button>`;
+  else inner=`<div class="row"><input class="num" id="qi-${q.id}" inputmode="decimal" style="width:150px" aria-label="答え"><span>${q.u||""}</span><button class="btn pri" data-q="${q.id}" data-num="1">答える</button></div>`;
+  return `<div class="q" id="q-${q.id}"><p class="qt">${num?`<span class="qn">${num}</span>`:""}${tx(q.q)}</p><div class="opts">${inner}</div><div class="fb" hidden></div></div>`;
+}
+const ansText=q=>q.k==="mc"?`${"ABCD"[q.a]}．${tx(q.c[q.a])}`:q.k==="tf"?(q.a?"○（正しい）":"×（誤り）"):`${q.a.toLocaleString("ja-JP")} ${q.u||""}`;
+
+function answer(qid,val){
+  const q=QMAP[qid], box=document.getElementById("q-"+qid); if(!q||!box) return;
+  let ok;
+  if(q.k==="mc") ok=+val===q.a; else if(q.k==="tf") ok=(val==="1")===q.a;
+  else { const v=+clean(val); if(!isFinite(v)||String(val).trim()==="") return; ok=Math.abs(v-q.a)<=(q.tol||0.02)*Math.abs(q.a); }
+  box.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; const bv=b.dataset.v;
+    const isAns=q.k==="mc"?+bv===q.a:(bv==="1")===q.a; if(isAns) b.classList.add("is-ans"); if(bv===String(val)) b.classList.add(ok?"p-ok":"p-ng"); });
+  const fb=box.querySelector(".fb"); fb.hidden=false; fb.className="fb "+(ok?"f-ok":"f-ng");
+  fb.innerHTML=`<b class="${ok?"r-ok":"r-ng"}">${ok?"正解":"不正解"}</b>${ok?"":`　正解：${ansText(q)}`}<br>${tx(q.e)} <span class="ref">緑本 ${q.p}</span> ${pdfBtn(q.p,"PDFで見る")}<br><button class="linkbtn" data-retry="${qid}">もう一度解く</button>`;
+  CR.ans[qid]={ok,t:Date.now()};
+  const w=CR.wrong.indexOf(qid); if(ok&&w>=0) CR.wrong.splice(w,1); if(!ok&&w<0) CR.wrong.push(qid);
+  const s=SEC_OF_Q[qid]; if(s&&!CR.done[s.id]&&s.quiz.every(x=>CR.ans[x.id])) CR.done[s.id]=true;
+  crSave(); renderToc(); updateScore();
+}
+function updateScore(){
+  const el=document.getElementById("score"); if(!el) return;
+  const ids=el.dataset.ids.split(","), a=ids.filter(i=>document.querySelector(`#q-${i} .fb:not([hidden])`)), ok=a.filter(i=>document.querySelector(`#q-${i} .fb.f-ok`));
+  el.textContent=`${a.length}/${ids.length}問 解答、正解 ${ok.length}問`;
+}
+
+function exHTML(s,mode){
+  const E=s.ex(); const blank=mode==="blank";
+  return `<p>${tx(E.intro)}</p>
+  <div class="row" style="margin:6px 0"><div class="seg" id="exSeg"><button data-m="full" aria-pressed="${!blank}">計算を全部見る</button><button data-m="blank" aria-pressed="${blank}">穴埋めで解く</button></div>
+  ${blank?'<span class="note">空欄に答えを入れると、合っていれば緑になります（誤差0.5%まで）。</span>':""}</div>
+  <div class="scroll"><table class="ex"><thead><tr><th>求めるもの</th><th>計算</th><th class="n">値</th></tr></thead><tbody>
+  ${E.steps.map(st=>`<tr><td>${tx(st[0])}</td><td class="mono" style="font-size:12.5px">${tx(st[1])}</td><td class="n">${blank&&st[5]!==false?`<input class="num exin" data-ans="${st[2]}" inputmode="decimal" aria-label="${st[0]}">`:f(st[2],st[3])} ${st[4]}</td></tr>`).join("")}
+  </tbody></table></div><p style="margin-top:8px">${tx(E.after)}</p>`;
+}
+
+function renderSec(id){
+  const i=secIdx(id), s=SECS[i]; if(!s){ crView="home"; return renderCourse(); }
+  const prev=SECS[i-1], next=SECS[i+1];
+  const warm=prev&&prev.quiz&&prev.quiz.length?prev.quiz[0]:null;
+  const mode=CR.seen[id]?"blank":"full"; CR.seen[id]=(CR.seen[id]||0)+1; crSave();
+  let h=`<div class="lesson"><div><p class="crumb">単元${s.unit.id.slice(1)} ${s.unit.t}　›　${s.id}</p><h2>${s.id}　${s.t}</h2><p class="ref">緑本 ${s.p}　${pdfBtn(s.p,firstPage(s.p)?`緑本 ${firstPage(s.p)}ページを開く`:"緑本（まえがき）を開く")}</p></div>`;
+  h+=`<div class="card blk"><h3><span class="tag">1 ねらい</span>この節で分かるようになること</h3><ul>${s.goals.map(g=>`<li>${tx(g)}</li>`).join("")}</ul></div>`;
+  if(warm) h+=`<div class="card blk"><h3><span class="tag">2 思い出す</span>前の節の問題（${prev.id}）</h3><p class="note">読む前に、前に学んだことを1問だけ思い出します。</p>${qHTML(warm)}</div>`;
+  h+=`<div class="card blk"><h3><span class="tag">${warm?3:2} 本文の要点</span>緑本 ${s.p} を読みながら</h3>${s.body}${s.fig?`<div style="margin-top:12px">${s.fig()}</div>`:""}</div>`;
+  let n=warm?4:3;
+  if(s.ex) h+=`<div class="card blk" id="exBox"><h3><span class="tag">${n++} 例題</span>サンプル建物の数値で式をたどる</h3><div id="exBody">${exHTML(s,mode)}</div></div>`;
+  if(s.calc) h+=`<div class="card blk"><h3><span class="tag">${n++} 試す</span>計算タブで確かめる</h3>${s.calc.map((c,k)=>`<p>${tx(c.m)}</p><p><button class="btn" data-calc="${k}">${{calc:"計算タブ",margin:"余裕度タブ",design:"設計の目安タブ"}[c.v]}で試す →</button></p>`).join("")}</div>`;
+  h+=`<div class="card blk"><h3><span class="tag t-q">${n++} 確認問題</span>答えるとすぐ解説が出ます　<span class="mono note" id="score" data-ids="${s.quiz.map(q=>q.id).join(",")}"></span></h3>${s.quiz.map((q,k)=>qHTML(q,`Q${k+1}`)).join("")}</div>`;
+  h+=`<div class="card blk"><h3><span class="tag t-ok">${n++} まとめ</span>この節の要点</h3><ul>${s.sum.map(x=>`<li>${tx(x)}</li>`).join("")}</ul>
+    <label class="f" for="memo" style="margin-top:10px">質問・気づいたこと（このブラウザに保存）<textarea class="memo" id="memo" data-sec="${s.id}">${(CR.memo[s.id]||"").replace(/</g,"&lt;")}</textarea></label></div>`;
+  h+=`<div class="row" style="justify-content:space-between">${prev?`<button class="btn" data-go="sec:${prev.id}">← ${prev.id} ${prev.t}</button>`:`<button class="btn" data-go="home">← 講座のはじめに</button>`}
+    ${next?`<button class="btn pri" data-go="sec:${next.id}">次の節へ：${next.id} ${next.t} →</button>`:`<button class="btn pri" data-go="test:${s.unit.id}">単元の総合演習へ →</button>`}</div></div>`;
+  CM.innerHTML=h; if(s.after) s.after(); updateScore();
+  CM._sec=s;
+}
+
+function renderHome(){
+  const next=SECS.find(s=>!CR.done[s.id]);
+  let h=`<div class="lesson"><div><h2>講座：緑本を順番に学ぶ</h2><p class="lead">『鋼構造建築物へのエネルギー法活用マニュアル』（緑本）の第Ⅰ編を、序章から順に学びます。緑本を手元に開いて、各節のページを読みながら進めてください。</p></div>
+  <div class="card blk"><h3>1つの節の進め方</h3>
+    <ol><li><b>ねらい</b>：その節で分かるようになることを確認</li><li><b>思い出す</b>：前の節の問題を1問（思い出す練習で定着させる）</li><li><b>本文の要点</b>：緑本のページを読み、要点と図で整理</li><li><b>例題</b>：サンプル建物の数値で式をたどる。2回目からは穴埋めで自分で計算</li><li><b>試す</b>：計算タブに移って、値を変えて確かめる</li><li><b>確認問題</b>：用語や番号を覚える問題ではなく、「この計画ならどうするか」「なぜそうなるか」「数値はいくつか」を考える問題。答えるとすぐ解説と緑本のページが出る</li><li><b>まとめ・質問メモ</b>：要点3つと、質問したいこと</li></ol>
+    <p class="note">間違えた問題は「間違えた問題」に集まります。日をあけて解き直すと忘れにくくなります。</p>
+    <div class="row" style="margin-top:6px">${next?`<button class="btn pri" data-go="sec:${next.id}">${Object.keys(CR.done).length?"続きから":"はじめる"}：${next.id} ${next.t} →</button>`:`<span class="pill ok">公開中の節はすべて終わりました</span>`}
+    ${CR.wrong.length?`<button class="btn" data-go="review">間違えた問題を解き直す（${CR.wrong.length}問）</button>`:""}</div></div>
+  <div class="units">${COURSE.map(u=>{ const d=u.secs.filter(s=>CR.done[s.id]).length;
+    return `<div class="card"><h3>単元${u.id.slice(1)}　${u.t}</h3><p class="ref">緑本 ${u.p}</p>${u.soon?'<span class="pill wa">準備中</span>':`<div class="bar"><i style="width:${u.secs.length?(d/u.secs.length*100):0}%"></i></div><p class="note">${d}/${u.secs.length}節</p><p><button class="btn" data-go="sec:${u.secs[0].id}">${u.secs[0].id} から</button></p>`}</div>`; }).join("")}</div>
+  <div class="card blk"><h3>緑本PDF（章ごとに分けた軽量版）</h3>
+    <p class="note">画面の上に重ねて表示します（右上の「閉じる」かEscキーで戻ります）。各節の見出しと、問題の解説の「PDFで見る」からは、そのページを直接開けます。iPhoneではページの指定が効かず、その章の先頭から表示されることがあります。</p>
+    <p class="note" style="margin-top:6px">お手元の緑本PDF（章ごとに分けたもの）を読み込むこともできます。読み込んだPDFはこのブラウザの中にだけ保存されます。<button class="btn" data-go-pdfload="1">PDFを読み込む</button></p>
+    <div class="scroll"><table><tbody>${GPDF.map(g=>`<tr><td>${g[2]}</td><td class="n">${g[3]?`P${g[3]}〜${g[4]}`:""}</td><td class="n" data-pdfmark="${g[0]}"></td><td><button type="button" class="pdfa" data-pdf="${g[3]}">開く</button></td></tr>`).join("")}</tbody></table></div></div>
+  <p class="note">学習の記録はこのブラウザの中だけに保存されます（PCとiPhoneでは別々）。<button class="linkbtn" id="crReset">記録をすべて消す</button></p></div>`;
+  CM.innerHTML=h;
+  pdfStoreKeys().then(ks=>ks.forEach(k=>{ const c=CM.querySelector(`[data-pdfmark="${k}"]`); if(c) c.innerHTML='<span class="pill ok">読込済み</span>'; }));
+}
+
+function renderQList(title,lead,ids,back){
+  let h=`<div class="lesson"><div><h2>${title}</h2><p class="lead">${lead}</p></div>`;
+  if(!ids.length) h+=`<div class="card"><p>問題はありません。</p></div>`;
+  else h+=`<div class="card blk"><h3><span class="tag t-q">問題</span><span class="mono note" id="score" data-ids="${ids.join(",")}"></span></h3>${ids.map((id,k)=>qHTML(QMAP[id],`Q${k+1}`)+`<p class="ref" style="margin:4px 0 0">出典：${SEC_OF_Q[id].id} ${SEC_OF_Q[id].t}（<button class="linkbtn" data-go="sec:${SEC_OF_Q[id].id}">本文へ</button>）</p>`).join("")}</div>`;
+  h+=`<div class="row"><button class="btn" data-go="${back}">← もどる</button></div></div>`;
+  CM.innerHTML=h; updateScore();
+}
+function renderTest(uid){
+  const u=COURSE.find(x=>x.id===uid); if(!u) return renderHome();
+  const all=u.secs.flatMap(s=>s.quiz.map(q=>q.id)); for(let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  const nx=COURSE[COURSE.indexOf(u)+1];
+  renderQList(`単元${uid.slice(1)}の総合演習`,`単元${uid.slice(1)}「${u.t}」の問題から、節をまぜて${Math.min(6,all.length)}問出します。まぜて解くと、どの考え方を使うかを選ぶ練習になります。開くたびに問題が入れ替わります。`,all.slice(0,6),nx&&!nx.soon?`sec:${nx.secs[0].id}`:"home");
+}
+function renderMemos(){
+  const list=SECS.filter(s=>(CR.memo[s.id]||"").trim());
+  const text=list.map(s=>`【${s.id} ${s.t}（緑本 ${s.p}）】\n${CR.memo[s.id].trim()}`).join("\n\n");
+  CM.innerHTML=`<div class="lesson"><div class="row" style="justify-content:space-between"><div><h2>質問メモ一覧</h2><p class="lead">各節の「まとめ」で書いたメモを集めています。勉強会の前などにコピーして使えます。</p></div>${list.length?'<button class="btn pri" id="memoCopy">すべてコピー</button>':""}</div>
+    <div class="card">${list.length?`<pre class="calc-lines" id="memoText">${text.replace(/</g,"&lt;")}</pre>`:"<p>まだメモはありません。各節のいちばん下に書けます。</p>"}</div></div>`;
+}
+const QA=[];
+
+function renderCourse(){
+  renderToc();
+  if(crView.startsWith("sec:")) renderSec(crView.slice(4));
+  else if(crView.startsWith("test:")) renderTest(crView.slice(5));
+  else if(crView==="review") renderQList("間違えた問題の解き直し","これまでに間違えた問題です。正解すると、この一覧から外れます。少し日をあけて解くと効果的です。",[...CR.wrong],"home");
+  else if(crView==="memos") renderMemos();
+  else renderHome();
+  try{ localStorage.setItem("enehou-course-view",crView); }catch(e){}
+}
+function goCourse(v){ crView=v; renderCourse(); if(window.innerWidth<=860) document.getElementById("toc").open=false; window.scrollTo(0,0); }
+
+/* 計算タブへ移る：該当の表を光らせ、上に案内を出す */
+function calcGo(c){
+  show(c.v);
+  const hb=document.getElementById("hintBar");
+  hb.innerHTML=`<span><b>講座から：</b>${tx(c.m)}</span><button class="btn" id="hintBack">← 講座にもどる</button>`; hb.hidden=false;
+  document.getElementById("hintBack").onclick=()=>{ show("course"); const y=CM._y||0; window.scrollTo(0,y); };
+  const el=c.el?document.getElementById(c.el):null;
+  if(el){ const card=el.closest(".card")||el; card.scrollIntoView({block:"start",behavior:"smooth"}); card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash"); }
+  else window.scrollTo(0,0);
+}
+
+/* ---------- 操作 ---------- */
+document.getElementById("v-course").addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g){ e.preventDefault(); goCourse(g.dataset.go); return; }
+  const b=e.target.closest("button[data-q]");
+  if(b){ if(b.dataset.num){ answer(b.dataset.q,document.getElementById("qi-"+b.dataset.q).value); } else answer(b.dataset.q,b.dataset.v); return; }
+  const r=e.target.closest("[data-retry]");
+  if(r){ const q=QMAP[r.dataset.retry]; const box=document.getElementById("q-"+q.id); const num=box.querySelector(".qn"); box.outerHTML=qHTML(q,num?num.textContent:""); updateScore(); return; }
+  const m=e.target.closest("#exSeg button"); if(m){ document.getElementById("exBody").innerHTML=exHTML(CM._sec,m.dataset.m); return; }
+  const c=e.target.closest("[data-calc]"); if(c){ CM._y=window.scrollY; calcGo(CM._sec.calc[+c.dataset.calc]); return; }
+  if(e.target.id==="memoCopy"){ const t=document.getElementById("memoText").textContent; navigator.clipboard.writeText(t).then(()=>{ e.target.textContent="コピーしました"; }).catch(()=>{ const rg=document.createRange(); rg.selectNodeContents(document.getElementById("memoText")); const sl=getSelection(); sl.removeAllRanges(); sl.addRange(rg); e.target.textContent="選択しました。コピーしてください"; }); return; }
+  if(e.target.id==="qaCopy"){ const t=QA.map((q,i)=>`${i+1}. ${q.t}\n   ${q.d}`).join("\n"); navigator.clipboard.writeText(t).then(()=>{ e.target.textContent="コピーしました"; }).catch(()=>{ e.target.textContent="コピーできませんでした"; }); return; }
+  if(e.target.id==="crReset"){ if(confirm("講座の学習記録（解答・メモ・進み具合）をすべて消します。よろしいですか？")){ ["ans","memo","done","seen"].forEach(k=>CR[k]={}); CR.wrong=[]; crSave(); goCourse("home"); } }
+});
+document.getElementById("v-course").addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id&&e.target.id.startsWith("qi-")) answer(e.target.id.slice(3),e.target.value); });
+document.getElementById("v-course").addEventListener("input",e=>{
+  const t=e.target;
+  if(t.classList.contains("exin")){ const a=+t.dataset.ans, v=+clean(t.value); t.classList.toggle("good",t.value!==""&&Math.abs(v-a)<=0.005*Math.abs(a)); t.classList.toggle("bad",t.value!==""&&!(Math.abs(v-a)<=0.005*Math.abs(a))); }
+  if(t.id==="memo"){ CR.memo[t.dataset.sec]=t.value; crSave(); }
+});
+document.getElementById("toc").addEventListener("click",e=>{ const g=e.target.closest("[data-go]"); if(g){ e.preventDefault(); goCourse(g.dataset.go); } });
+
+try{ const v=localStorage.getItem("enehou-course-view"); if(v) crView=v; }catch(e){}
+if(window.innerWidth<=860) document.getElementById("toc").open=false;
+renderCourse();
+</script>
+
+</body>
+</html>
