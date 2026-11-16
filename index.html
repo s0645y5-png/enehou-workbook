@@ -350,6 +350,7 @@ textarea.memo{width:100%;min-height:80px;resize:vertical}
     </div>
   </div>
 
+  <div class="card" id="warnBox" role="status" aria-live="polite" hidden></div>
   <div class="sum" id="summary"></div>
 
   <div class="card">
@@ -444,7 +445,7 @@ document.getElementById("glossary").innerHTML = GLOSS.map(g=>`<tr><td class="mon
 
 /* ---------- サンプル建物（架空の3層の物流倉庫） ---------- */
 const SAMPLE = {
- common:{Z:1.0, ground:2, useR:true, mode:"proviso", nExp:8, tsMul:1.2, driftLim:200, resLim:1000, maxLim:75, etaCd:400, c1Mode:"auto", c1Fix:0.115, beta:5},
+ common:{Z:1.0, ground:2, useR:true, mode:"proviso", nExp:8, tsMul:1.2, driftLim:200, resLim:1000, maxLim:75, etaCd:400, etaCdMode:"fix", pdMode:"off", c1Mode:"auto", c1Fix:0.115, beta:5},
  X:{Td:1.2738, stories:[
   {name:"3",H:8200,w:43490.2, Qf:7202.88, d:22.7484, Kd:506.018, Qdu:13080.6, dfu:78.6, Re:0.09, gam:0.103506, mb:4.947644161, mc:3.646359313},
   {name:"2",H:8200,w:359648,Qf:33006.9,d:30.4106, Kd:2276.2, Qdu:43407.2, dfu:91.85,Re:0.085,gam:0.465592, mb:4.013232426, mc:2.32991372},
@@ -484,6 +485,21 @@ function energyAt(d,s,nn){
   return {Wf,Wde,Wdp,W:Wf+Wde+Wdp,yld};
 }
 
+/* 入力の誤り・計算の前提が成り立たないところを探す（計算タブの上に表示） */
+function checkInputs(c,D,S,Td){
+  const w=[], pos=(v)=>isFinite(v)&&v>0, lab={H:"階高",w:"重量",Qf:"Q_fi",d:"δ_i",Kd:"k_di",Qdu:"Q_dui",dfu:"δ_fui",gam:"γ_di",mb:"梁 mη_u",mc:"柱 mη_u"};
+  if(!pos(Td)) w.push("T_d が空欄か 0 以下です。");
+  if(!pos(+c.Z)) w.push("地域係数 Z が空欄か 0 以下です。");
+  S.forEach(s=>{
+    const bad=Object.keys(lab).filter(k=>!pos(s[k])); if(bad.length) w.push(`${s.name}階：${bad.map(k=>lab[k]).join("・")} が空欄か 0 以下です。`);
+    if(!(isFinite(s.Re)&&s.Re>=0)) w.push(`${s.name}階：R_e が空欄かマイナスです。`);
+    if(bad.length) return;
+    if(s.ddu>=s.dfu) w.push(`${s.name}階：ダンパーの降伏変位 δ_dui（${f(s.ddu,1)} mm）が主架構の δ_fui（${f(s.dfu,1)} mm）以上で、ダンパーが先に降伏しません（β ≧ k/(1＋k)）。計算の前提が成り立たないので、ダンパーの耐力か剛性を見直してください。`);
+    if(s.gam>1) w.push(`${s.name}階：γ_di が 1 を超えています（層の変形に対するダンパーの変形の割合なので 1 以下）。`);
+    if(s.d>s.dfu) w.push(`${s.name}階：損傷限界時の δ_i が δ_fui を超えています。入力の取り違えがないか確かめてください。`);
+  });
+  return w;
+}
 function compute(c,dir,opt={}){
   const D=dir, Z=+c.Z, gr=+c.ground, mul=opt.mul||1;
   const S=D.stories.map(o=>{const s={...o}; for(const k of ["H","w","Qf","d","Kd","Qdu","dfu","Re","gam","mb","mc"]) s[k]=+s[k]; return s;});
@@ -525,10 +541,18 @@ function compute(c,dir,opt={}){
   S.forEach((s,i)=>{ s.pi=s.aq/(s1.aq*out.AiS[i]); s.pti=s.Re<=0.15?1:(s.Re<0.3?1.15-s.Re:0.85); s.g=s.si*Math.pow(s.pi*s.pti,-(+c.nExp)); });
   const sg=S.reduce((a,s)=>a+s.g,0);
   S.forEach(s=>{ s.Esi=s.g/sg*out.Es; s.Esf=s.Esi*s.Qfu/s.Qu; s.etaSf=s.Esf*1e3/(2*s.Qfu*s.dfu);
-    s.etaCf=Math.min(1/3*s.mb*1.5*2+2, 1/3*s.mc*1.5*(5/3)+2); s.okEf=s.etaSf<=s.etaCf;
+    s.etaCf0=Math.min(1/3*s.mb*1.5*2+2, 1/3*s.mc*1.5*(5/3)+2);
+    // P−δ効果（緑本 5.5 式(5.5.3)）：安定係数 |k'|＝(W/H)/k_f、0.0567 を超えると吸収能力を a 倍に低減
+    s.kpd=(s.sw/s.H)/s.Kf; s.apd=s.kpd<=0.0567?1:0.367/Math.pow(s.kpd-0.05,0.2);
+    s.etaCf=c.pdMode==="on"?s.etaCf0*s.apd:s.etaCf0; s.okEf=s.etaSf<=s.etaCf;
     s.dm=(s.etaSf/2+1)*s.dfu; s.rm=s.H/s.dm; s.okDm=s.rm>=+c.maxLim;
     s.E1=s.Esi*s.Qdu/s.Qu; s.Esdp=s.de>s.ddu?2*(s.de-s.ddu)*s.Qdu*20/1e3:0; s.Eddp=s.dc1>s.ddu?2*(s.dc1-s.ddu)*s.Qdu*10/1e3:0;
-    s.Esd=s.E1+s.Esdp+(+c.beta)*s.Eddp; s.etaSd=s.Esd*1e3/(2*s.gam*s.Qdu*s.ddu); s.okEd=s.etaSd<=+c.etaCd; });
+    s.Esd=s.E1+s.Esdp+(+c.beta)*s.Eddp; s.etaSd=s.Esd*1e3/(2*s.gam*s.Qdu*s.ddu);
+    // ダンパーの最大塑性率（緑本 式(解4.3.8)）と保有 η_cd。自動のときは設計例4の LY225 座屈拘束ブレースの回帰式 log(μ−1)＝−0.5493·log η＋2.5062
+    s.muDmax=(s.dm/s.ddu-1)/s.gam+1;
+    s.etaCd=c.etaCdMode==="ly225"?(s.muDmax>1.01?Math.pow(10,(2.5062-Math.log10(s.muDmax-1))/0.5493):Math.pow(10,(2.5062-Math.log10(0.01))/0.5493)):+c.etaCd;
+    s.okEd=s.etaSd<=s.etaCd; });
+  out.warn=checkInputs(c,D,S,Td);
   out.okS=S.every(s=>s.okEf&&s.okEd); out.okDm=S.every(s=>s.okDm);
   return out;
 }
@@ -536,7 +560,7 @@ function compute(c,dir,opt={}){
 /* ---------- 状態 ---------- */
 let state, dirKey="X";
 function load(){ try{ const t=localStorage.getItem("enehou-wb-pub-v1"); if(t){ state=JSON.parse(t); return; } }catch(e){} state=JSON.parse(JSON.stringify(SAMPLE)); }
-function save(){ try{ localStorage.setItem("enehou-wb-pub-v1",JSON.stringify(state)); }catch(e){} }
+function save(){ try{ localStorage.setItem("enehou-wb-pub-v1",JSON.stringify(state)); }catch(e){} if(window.onLocalChange) window.onLocalChange(); }
 load();
 
 const f=(v,d=1)=>v==null||!isFinite(v)?"—":v.toLocaleString("ja-JP",{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -555,7 +579,7 @@ function buildInputs(){
     ["useR","V の低減 r",state.common.useR?1:0,"sel",[[1,"使う"],[0,"使わない"]]],["mode","安全限界の W_e",state.common.mode,"sel",[["proviso","ただし書き"],["kokuji","告示どおり（nᵢ＝5）"]]],
     ["nExp","損傷集中指数 n",state.common.nExp,"sel",[[8,"8（それ以外）"],[4,"4（全体崩壊形）"]]],["tsMul","T_s の上限 ×T_d",state.common.tsMul,"sel",[[1.2,"1.2（ダンパー付き）"],[1.4,"1.4（ブレース等）"]]],
     ["c1Mode","C_1 の求め方",state.common.c1Mode,"sel",[["auto","自動（稀地震のEdに達する値）"],["fix","値を指定"]]],["c1Fix","指定する C_1",state.common.c1Fix],
-    ["etaCd","ダンパー保有 η_cd",state.common.etaCd],["driftLim","層間変形角 1/",state.common.driftLim,"sel",[[200,"200"],[120,"120"]]],["maxLim","最大応答の目安 1/",state.common.maxLim]];
+    ["etaCdMode","ダンパー保有 η_cd",state.common.etaCdMode||"fix","sel",[["fix","値を指定"],["ly225","μ_dmax から自動（LY225）"]]],["etaCd","指定する η_cd",state.common.etaCd],["pdMode","P−δ 効果で主架構 η_c を低減",state.common.pdMode||"off","sel",[["off","しない"],["on","する（緑本 5.5）"]]],["driftLim","層間変形角 1/",state.common.driftLim,"sel",[[200,"200"],[120,"120"]]],["maxLim","最大応答の目安 1/",state.common.maxLim]];
   document.getElementById("common").innerHTML=CM.map(c=>{
     const id="cm-"+c[0];
     if(c[3]==="sel") return `<label class="f" for="${id}"><span>${sub(c[1])}</span><select id="${id}" data-k="${c[0]}">${c[4].map(o=>`<option value="${o[0]}" ${String(o[0])===String(c[2])?"selected":""}>${o[1]}</option>`).join("")}</select></label>`;
@@ -599,7 +623,7 @@ document.getElementById("gammaCalc").addEventListener("input",gammaUpd); gammaUp
 /* ---------- 表示 ---------- */
 function render(){
   const c=state.common, R=compute(c,state[dirKey]); const S=R.S;
-  const worstSf=Math.max(...S.map(s=>s.etaSf/s.etaCf)), worstSd=Math.max(...S.map(s=>s.etaSd/(+c.etaCd)));
+  const worstSf=Math.max(...S.map(s=>s.etaSf/s.etaCf)), worstSd=Math.max(...S.map(s=>s.etaSd/s.etaCd));
   document.getElementById("summary").innerHTML=[
     [`W<sub>e</sub>/E<sub>d</sub> = ${f(R.WeD/R.Ed,2)}`,"損傷限界 "+pill(R.okD)],
     [`C<sub>1</sub> = ${f(R.C1,3)}`,"層間変形角 "+pill(R.okDrift)],
@@ -618,10 +642,14 @@ function render(){
 
   // 安全限界
   h=`<p class="mono" style="margin-bottom:8px">T<sub>s</sub> = ${f(R.Ts,4)} s　G<sub>s</sub> = ${f(R.GsS,3)}　V<sub>s</sub> = ${f(R.Vs,4)} m/s　½MV<sub>s</sub>² = ${f(R.Es0,1)}　W<sub>e</sub> = ${f(R.WeS,1)}（${c.mode==="proviso"?"ただし書き":"告示どおり"}）　E<sub>s</sub> = <b>${f(R.Es,1)}</b> kN·m</p>`;
-  h+=`<table><thead><tr><th>階</th><th class="n">Q<sub>ui</sub><br><span class="ref">kN</span></th><th class="n">β=Q<sub>dui</sub>/Q<sub>ui</sub></th><th class="n">W<sub>e</sub>時 δ<br><span class="ref">mm</span></th><th class="n">s<sub>i</sub></th><th class="n">p<sub>i</sub></th><th class="n">E<sub>si</sub></th><th class="n">E<sub>sfi</sub></th><th class="n">η<sub>sfi</sub> / η<sub>cf</sub></th><th class="n">δ<sub>mi</sub><br><span class="ref">mm</span></th><th class="n">E<sub>sdi</sub></th><th class="n">η<sub>sdi</sub> / η<sub>cd</sub></th></tr></thead><tbody>`;
-  S.forEach(s=>{ h+=`<tr><td>${s.name}</td><td class="n">${f(s.Qu,0)}</td><td class="n">${f(s.beta,3)}</td><td class="n">${f(s.de,2)}</td><td class="n">${f(s.si,4)}</td><td class="n">${f(s.pi,3)}</td><td class="n">${f(s.Esi,1)}</td><td class="n">${f(s.Esf,1)}</td><td class="n">${f(s.etaSf,3)} / ${f(s.etaCf,2)} ${pill(s.okEf)}</td><td class="n">${f(s.dm,1)} <span class="ref">${ratio(s.rm)}</span></td><td class="n">${f(s.Esd,0)}</td><td class="n">${f(s.etaSd,1)} / ${f(+c.etaCd,0)} ${pill(s.okEd)}</td></tr>`; });
-  h+=`</tbody></table><p class="note" style="margin-top:8px">E<sub>sdi</sub> = E<sub>si</sub>·Q<sub>dui</sub>/Q<sub>ui</sub> + 2(δ<sub>e</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·20 + ${c.beta}×2(δ<sub>C1</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·10。δ<sub>e</sub> は W<sub>e</sub> を求めた状態の層間変位、δ<sub>C1</sub> は C<sub>1</sub> 時の層間変位。最大応答変位は 1/${c.maxLim} を目安として表示（告示の規定外）。</p>`;
+  h+=`<table><thead><tr><th>階</th><th class="n">Q<sub>ui</sub><br><span class="ref">kN</span></th><th class="n">β=Q<sub>dui</sub>/Q<sub>ui</sub></th><th class="n">W<sub>e</sub>時 δ<br><span class="ref">mm</span></th><th class="n">s<sub>i</sub></th><th class="n">p<sub>i</sub></th><th class="n">E<sub>si</sub></th><th class="n">E<sub>sfi</sub></th><th class="n">η<sub>sfi</sub> / η<sub>cf</sub></th><th class="n">δ<sub>mi</sub><br><span class="ref">mm</span></th><th class="n">E<sub>sdi</sub></th><th class="n">μ<sub>dmax</sub></th><th class="n">η<sub>sdi</sub> / η<sub>cd</sub></th></tr></thead><tbody>`;
+  S.forEach(s=>{ h+=`<tr><td>${s.name}</td><td class="n">${f(s.Qu,0)}</td><td class="n">${f(s.beta,3)}</td><td class="n">${f(s.de,2)}</td><td class="n">${f(s.si,4)}</td><td class="n">${f(s.pi,3)}</td><td class="n">${f(s.Esi,1)}</td><td class="n">${f(s.Esf,1)}</td><td class="n">${f(s.etaSf,3)} / ${f(s.etaCf,2)} ${pill(s.okEf)}</td><td class="n">${f(s.dm,1)} <span class="ref">${ratio(s.rm)}</span></td><td class="n">${f(s.Esd,0)}</td><td class="n">${f(s.muDmax,2)}</td><td class="n">${f(s.etaSd,1)} / ${f(s.etaCd,0)} ${pill(s.okEd)}</td></tr>`; });
+  h+=`</tbody></table><p class="note" style="margin-top:8px">E<sub>sdi</sub> = E<sub>si</sub>·Q<sub>dui</sub>/Q<sub>ui</sub> + 2(δ<sub>e</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·20 + ${c.beta}×2(δ<sub>C1</sub>−δ<sub>dui</sub>)Q<sub>dui</sub>·10。δ<sub>e</sub> は W<sub>e</sub> を求めた状態の層間変位、δ<sub>C1</sub> は C<sub>1</sub> 時の層間変位。最大応答変位は 1/${c.maxLim} を目安として表示（告示の規定外）。μ<sub>dmax</sub>＝(δ<sub>mi</sub>/δ<sub>dui</sub>−1)/γ<sub>di</sub>＋1（緑本 式(解4.3.8)）。${c.etaCdMode==="ly225"?"η<sub>cd</sub> は μ<sub>dmax</sub> から設計例4の LY225 座屈拘束ブレースの回帰式 log(μ−1)＝−0.5493·log η＋2.5062 で求めた値（目安。実際はメーカーの性能曲線で確かめる）。":""}</p>`;
+  h+=`<h3 style="margin-top:18px">P−δ 効果の確認<span class="ref" style="margin-left:8px">緑本 5.5 式(5.5.3)</span></h3><table><thead><tr><th>階</th><th class="n">W/H<br><span class="ref">kN/mm</span></th><th class="n">k<sub>fi</sub><br><span class="ref">kN/mm</span></th><th class="n">安定係数 |k'<sub>pδ</sub>|</th><th class="n">低減係数 a</th><th class="n">主架構 η<sub>c</sub>（低減前 → 採用）</th></tr></thead><tbody>${S.map(s=>`<tr><td>${s.name}</td><td class="n">${f(s.sw/s.H,2)}</td><td class="n">${f(s.Kf,1)}</td><td class="n">${f(s.kpd,4)} ${s.kpd>0.0567?'<span class="pill wa">0.0567 超</span>':""}</td><td class="n">${f(s.apd,3)}</td><td class="n">${f(s.etaCf0,2)} → ${f(s.etaCf,2)}</td></tr>`).join("")}</tbody></table><p class="note" style="margin-top:6px">|k'<sub>pδ</sub>|＝(その層が支える重量 W／階高 H)／k<sub>fi</sub>。0.0567 を超えると、P−δ 効果で吸収能力が下がるので a＝0.367/(|k'<sub>pδ</sub>|−0.05)<sup>0.2</sup> を掛けて低減します。「共通の条件」の「P−δ 効果で主架構 η<sub>c</sub> を低減」で、判定に入れるかを選べます（初期値は サンプル建物 と同じ「しない」）。</p>`;
   document.getElementById("outSafe").innerHTML=h;
+  const wb=document.getElementById("warnBox"), pdNote=c.pdMode!=="on"&&S.some(s=>s.kpd>0.0567)?[`P−δ 効果の安定係数が 0.0567 を超える層があります（${S.filter(s=>s.kpd>0.0567).map(s=>s.name+"階").join("・")}）。判定に入れていません。必要なら「P−δ 効果で主架構 η_c を低減」を「する」にしてください。`]:[];
+  wb.hidden=!R.warn.length&&!pdNote.length;
+  wb.innerHTML=(R.warn.length?`<h3><span class="pill ng">確認してください</span></h3><ul>${R.warn.map(x=>`<li>${sub(x)}</li>`).join("")}</ul>`:"")+(pdNote.length?`<p class="note" style="margin-top:${R.warn.length?8:0}px"><span class="pill wa">注意</span> ${sub(pdNote[0])}</p>`:"");
 
   renderDesign(R); renderMargin(); renderReport(R);
 }
@@ -650,7 +678,7 @@ function renderMargin(){
   const c=state.common, mus=[1.0,1.5,2.0,+document.getElementById("mulIn").value||1.3];
   let t=`<table><thead><tr><th>V<sub>s</sub> の倍率</th><th class="n">E<sub>s</sub><br><span class="ref">kN·m</span></th><th class="n">主架構 η<sub>sf</sub>/η<sub>cf</sub>（最大）</th><th class="n">ダンパー η<sub>sd</sub>/η<sub>cd</sub>（最大）</th><th class="n">最大応答変形角（最大）</th><th>判定</th></tr></thead><tbody>`;
   for(const d of ["X","Y"]){ t+=`<tr><th colspan="6">${d}方向</th></tr>`;
-    mus.forEach((m,ix)=>{ const R=compute(c,state[d],{mul:m}); const a=Math.max(...R.S.map(s=>s.etaSf/s.etaCf)), b=Math.max(...R.S.map(s=>s.etaSd/(+c.etaCd))), r=Math.min(...R.S.map(s=>s.rm));
+    mus.forEach((m,ix)=>{ const R=compute(c,state[d],{mul:m}); const a=Math.max(...R.S.map(s=>s.etaSf/s.etaCf)), b=Math.max(...R.S.map(s=>s.etaSd/s.etaCd)), r=Math.min(...R.S.map(s=>s.rm));
       const crit=R.S.reduce((p,s)=>s.etaSf/s.etaCf>p.v?{v:s.etaSf/s.etaCf,n:s.name}:p,{v:-1,n:""});
       t+=`<tr><td class="mono">${ix===3?"任意 ":""}${m.toFixed(2)} V<sub>s</sub></td><td class="n">${f(R.Es,0)}</td><td class="n">${f(a,3)} <span class="ref">${crit.n}F</span></td><td class="n">${f(b,3)}</td><td class="n">${ratio(r)}</td><td>${a<=1&&b<=1&&r>=+c.maxLim?pill(true):[a>1?"主架構η":"",b>1?"ダンパーη":"",r<+c.maxLim?`変形 1/${c.maxLim}超`:""].filter(Boolean).map(x=>`<span class="pill ng">${x}</span>`).join(" ")}</td></tr>`; }); }
   document.getElementById("marginTable").innerHTML=t+"</tbody></table>";
@@ -690,7 +718,7 @@ function renderReport(R){
   p(""); p("  主架構（緑本 式4.3.12〜4.3.13、解3.3.7）");
   S.forEach(s=>p(`   ${s.name}階: E_sfi = E_si·Q_fui/Q_ui = ${f(s.Esf,2)}  η_sfi = E_sfi/(2Q_fui·δ_fui) = ${f(s.etaSf,4)} ${s.okEf?"≦":">"} η_cf = ${f(s.etaCf,3)}  δ_mi = (η/2+1)δ_fui = ${f(s.dm,2)} mm（${ratio(s.rm)}）`));
   p(""); p(`  ダンパー部分（緑本 式4.3.14〜4.3.17、n_si=20、n_di=10、β=${c.beta}）`);
-  S.forEach(s=>p(`   ${s.name}階: E_si·Q_dui/Q_ui=${f(s.E1,2)}  E_sdpi=${f(s.Esdp,2)}  β·E_ddpi=${f(c.beta*s.Eddp,2)}  E_sdi=${f(s.Esd,2)}\n        η_sdi = E_sdi/(2γ_di·Q_dui·δ_dui) = ${f(s.Esd,1)}×1000/(2×${s.gam}×${f(s.Qdu,1)}×${f(s.ddu,3)}) = ${f(s.etaSd,2)} ${s.okEd?"≦":">"} η_cd = ${c.etaCd}`));
+  S.forEach(s=>p(`   ${s.name}階: E_si·Q_dui/Q_ui=${f(s.E1,2)}  E_sdpi=${f(s.Esdp,2)}  β·E_ddpi=${f(c.beta*s.Eddp,2)}  E_sdi=${f(s.Esd,2)}\n        η_sdi = E_sdi/(2γ_di·Q_dui·δ_dui) = ${f(s.Esd,1)}×1000/(2×${s.gam}×${f(s.Qdu,1)}×${f(s.ddu,3)}) = ${f(s.etaSd,2)} ${s.okEd?"≦":">"} η_cd = ${f(s.etaCd,0)}${c.etaCdMode==="ly225"?`（μ_dmax＝${f(s.muDmax,2)}、LY225 回帰式）`:""}`));
   p(""); p(`  判定：主架構 ${S.every(s=>s.okEf)?"OK":"NG"}　ダンパー ${S.every(s=>s.okEd)?"OK":"NG"}`);
   document.getElementById("report").textContent=L.join("\n");
 }
@@ -738,7 +766,7 @@ show(first);
 /* ---------- 学習の記録（このブラウザの中だけに保存） ---------- */
 const CR = (()=>{ try{ return JSON.parse(localStorage.getItem("enehou-course-pub-v1"))||{}; }catch(e){ return {}; } })();
 CR.ans = CR.ans||{}; CR.wrong = CR.wrong||[]; CR.memo = CR.memo||{}; CR.done = CR.done||{}; CR.seen = CR.seen||{};
-const crSave = ()=>{ try{ localStorage.setItem("enehou-course-pub-v1", JSON.stringify(CR)); }catch(e){} };
+const crSave = ()=>{ try{ localStorage.setItem("enehou-course-pub-v1", JSON.stringify(CR)); }catch(e){} if(window.onLocalChange) window.onLocalChange(); };
 
 /* 例題は サンプル建物 の X 方向の値で計算する（計算タブと同じ式） */
 let _ex = null;
@@ -1304,7 +1332,7 @@ const COURSE = [
     ex:()=>{ const s=EX().S[EX().S.length-1], mu=(s.dm/s.ddu-1)/s.gam+1; return {intro:"サンプル建物（X方向）1階の、主架構の最大応答変位とダンパーの最大塑性率を求めます。",
       steps:[["主架構 η_sf","計算タブの値",s.etaSf,4,"",false],["最大応答変位 δ_m",`(${f(s.etaSf,4)} ÷ 2 ＋ 1) × ${f(s.dfu,2)}`,s.dm,1,"mm"],["ダンパーの最大塑性率 μ_dmax",`(δ_m ÷ δ_du − 1) ÷ γ_di ＋ 1 ＝ (${f(s.dm,1)} ÷ ${f(s.ddu,2)} − 1) ÷ ${s.gam} ＋ 1`,mu,2,""]],
       after:"この μ_dmax（約10）をメーカーの性能曲線（第Ⅲ編の技術データ）に当てて保有 η_cdi を読みます。計算タブの「ダンパー保有 η_cd」は、いまは サンプル建物 と同じ 400 を入れています。γ_di を小さくとると μ_dmax も大きくなり、読み取る η_cdi は小さくなる点にも注意します。"}; },
-    calc:[{v:"calc",el:"outSafe",m:"「δ_mi」の列が最大応答変位です。「ダンパー保有 η_cd」を変えると判定が変わります。"}],
+    calc:[{v:"calc",el:"outSafe",m:"「δ_mi」の列が最大応答変位、「μ_dmax」がダンパーの最大塑性率です。「共通の条件」の「ダンパー保有 η_cd」を「μ_dmax から自動（LY225）」にすると、各階の μ_dmax から保有 η_cd を求めて判定します。γ_di を変えると μ_dmax と η_cd がどう動くかも確かめてください。"}],
     quiz:[
       {id:"q4-6-1",k:"num",q:"主架構の η_sf＝1.0、δ_fu＝80 mm の層の最大応答変位 δ_m を求めよ（n_i＝2）。",a:120,tol:0.01,u:"mm",e:"(1.0/2＋1)×80＝120 mm。階高 8,000 mm なら 1/67 です。",p:"P59 式(解4.3.7)"},
       {id:"q4-6-2",k:"num",q:"問1の層で δ_du＝18 mm、γ_di＝0.6 のとき、ダンパーの最大塑性率 μ_dmax を求めよ。",a:10.44,tol:0.01,u:"",e:"(120/18−1)/0.6＋1＝(6.667−1)/0.6＋1＝9.44＋1＝10.44。層の塑性率より大きくなるのは、降伏後に変形がダンパーへ集中するためです。",p:"P59 式(解4.3.8)"},
@@ -1630,7 +1658,7 @@ function renderSec(id){
   if(s.ex) h+=`<div class="card blk" id="exBox"><h3><span class="tag">${n++} 例題</span>サンプル建物の数値で式をたどる</h3><div id="exBody">${exHTML(s,mode)}</div></div>`;
   if(s.calc) h+=`<div class="card blk"><h3><span class="tag">${n++} 試す</span>計算タブで確かめる</h3>${s.calc.map((c,k)=>`<p>${tx(c.m)}</p><p><button class="btn" data-calc="${k}">${{calc:"計算タブ",margin:"余裕度タブ",design:"設計の目安タブ"}[c.v]}で試す →</button></p>`).join("")}</div>`;
   h+=`<div class="card blk"><h3><span class="tag t-q">${n++} 確認問題</span>答えるとすぐ解説が出ます　<span class="mono note" id="score" data-ids="${s.quiz.map(q=>q.id).join(",")}"></span></h3>${s.quiz.map((q,k)=>qHTML(q,`Q${k+1}`)).join("")}</div>`;
-  h+=`<div class="card blk"><h3><span class="tag t-ok">${n++} まとめ</span>この節の要点</h3><ul>${s.sum.map(x=>`<li>${tx(x)}</li>`).join("")}</ul>
+  h+=`<div class="card blk"><h3><span class="tag t-ok">${n++} まとめ</span>この節の要点</h3><ul>${s.sum.map(x=>`<li>${sub(x)}</li>`).join("")}</ul>
     <label class="f" for="memo" style="margin-top:10px">質問・気づいたこと（このブラウザに保存）<textarea class="memo" id="memo" data-sec="${s.id}">${(CR.memo[s.id]||"").replace(/</g,"&lt;")}</textarea></label></div>`;
   h+=`<div class="row" style="justify-content:space-between">${prev?`<button class="btn" data-go="sec:${prev.id}">← ${prev.id} ${tx(prev.t)}</button>`:`<button class="btn" data-go="home">← 講座のはじめに</button>`}
     ${next?`<button class="btn pri" data-go="sec:${next.id}">次の節へ：${next.id} ${tx(next.t)} →</button>`:`<button class="btn pri" data-go="test:${s.unit.id}">単元の総合演習へ →</button>`}</div></div>`;
@@ -1652,7 +1680,8 @@ function renderHome(){
     <p class="note">画面の上に重ねて表示します（右上の「閉じる」かEscキーで戻ります）。各節の見出しと、問題の解説の「PDFで見る」からは、そのページを直接開けます。iPhoneではページの指定が効かず、その章の先頭から表示されることがあります。</p>
     <p class="note" style="margin-top:6px">お手元の緑本PDF（章ごとに分けたもの）を読み込むこともできます。読み込んだPDFはこのブラウザの中にだけ保存されます。<button class="btn" data-go-pdfload="1">PDFを読み込む</button></p>
     <div class="scroll"><table><tbody>${GPDF.map(g=>`<tr><td>${g[2]}</td><td class="n">${g[3]?`P${g[3]}〜${g[4]}`:""}</td><td class="n" data-pdfmark="${g[0]}"></td><td><button type="button" class="pdfa" data-pdf="${g[3]}">開く</button></td></tr>`).join("")}</tbody></table></div></div>
-  <p class="note">学習の記録はこのブラウザの中だけに保存されます（PCとiPhoneでは別々）。<button class="linkbtn" id="crReset">記録をすべて消す</button></p></div>`;
+  <div class="card blk" id="syncCard">${syncCardHTML()}</div>
+  <p class="note"><button class="linkbtn" id="crReset">講座の記録をすべて消す</button></p></div>`;
   CM.innerHTML=h;
   pdfStoreKeys().then(ks=>ks.forEach(k=>{ const c=CM.querySelector(`[data-pdfmark="${k}"]`); if(c) c.innerHTML='<span class="pill ok">読込済み</span>'; }));
 }
@@ -1723,6 +1752,75 @@ document.getElementById("toc").addEventListener("click",e=>{ const g=e.target.cl
 
 try{ const v=localStorage.getItem("enehou-course-view"); if(v) crView=v; }catch(e){}
 if(window.innerWidth<=860) document.getElementById("toc").open=false;
+/* ---------- 端末間の引き継ぎ ----------
+   claude.ai のページで開いたとき：自分専用の保存場所（db の data/users/<id>/workbook）に、講座の記録・計算の入力値を自動で保存し、
+   iPhone・iPad・Mac の間で同じ内容にする（新しい方を採用）。それ以外（GitHub 版・手元のファイル）：ファイルへの書き出し・読み込み */
+const DEV_ID=(()=>{ try{ let d=localStorage.getItem("enehou-dev"); if(!d){ d=Math.random().toString(36).slice(2,10); localStorage.setItem("enehou-dev",d); } return d; }catch(e){ return Math.random().toString(36).slice(2,10); } })();
+const SYNC={on:false,state:"local",ref:null,timer:null,busy:false,again:false,applying:false};
+let LOCAL_T=(()=>{ try{ return +localStorage.getItem("enehou-local-t")||0; }catch(e){ return 0; } })();
+function syncCardHTML(){
+  if(SYNC.on) return `<h3>端末間の同期</h3><p class="note">講座の進み具合・解答・メモと、計算タブの入力値を、claude.ai の同じアカウントで開いた iPhone・iPad・Mac の間で自動で同じにしています。<span id="syncState" class="pill ${SYNC.state==="error"?"wa":"ok"}">${{ok:"同期済み",saving:"保存中…",wait:"接続中…",error:"今は同期できません（このブラウザには保存されています）"}[SYNC.state]||"同期済み"}</span></p>`;
+  if(window.claude&&typeof window.claude.use==="function") return `<h3>端末間の同期</h3><p class="note">同期の準備をしています。しばらくたっても変わらないときは、claude.ai にサインインしているか確かめてください（記録はこのブラウザには保存されています）。</p>`;
+  return `<h3>記録の書き出し・読み込み</h3><p class="note">講座の記録と計算の入力値は、このブラウザの中にだけ保存されています。別の端末で続けるときは、ファイルに書き出して、もう一方の端末で読み込んでください。</p><div class="row" style="margin-top:8px"><button class="btn" id="expBtn">ファイルに書き出す</button><button class="btn" id="impBtn">ファイルから読み込む</button></div>`;
+}
+function refreshSyncCard(){ const c=document.getElementById("syncCard"); if(c) c.innerHTML=syncCardHTML(); }
+function snapshotBody(){ return {format:"enehou-workbook",version:1,t:LOCAL_T,dev:DEV_ID,course:JSON.parse(JSON.stringify(CR)),inputs:JSON.parse(JSON.stringify(state))}; }
+/* 読み込んだ記録を確かめてから使う（壊れたファイルや別のファイルは使わない） */
+function applyBody(b){
+  if(!b||b.format!=="enehou-workbook"||typeof b.course!=="object"||typeof b.inputs!=="object") return false;
+  const c=b.course, i=b.inputs;
+  if(!i.common||!i.X||!i.Y||!Array.isArray(i.X.stories)||!Array.isArray(i.Y.stories)) return false;
+  SYNC.applying=true;
+  Object.keys(CR).forEach(k=>delete CR[k]);
+  CR.ans=c.ans&&typeof c.ans==="object"?c.ans:{}; CR.memo=c.memo&&typeof c.memo==="object"?c.memo:{}; CR.done=c.done&&typeof c.done==="object"?c.done:{}; CR.seen=c.seen&&typeof c.seen==="object"?c.seen:{}; CR.wrong=Array.isArray(c.wrong)?c.wrong.filter(x=>QMAP[x]):[];
+  state=i; LOCAL_T=+b.t||Date.now();
+  try{ localStorage.setItem("enehou-course-pub-v1",JSON.stringify(CR)); localStorage.setItem("enehou-wb-pub-v1",JSON.stringify(state)); localStorage.setItem("enehou-local-t",String(LOCAL_T)); }catch(e){}
+  const a=document.activeElement, typing=a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+  if(!typing){ buildInputs(); render(); renderCourse(); }
+  SYNC.applying=false; return true;
+}
+window.onLocalChange=()=>{
+  if(SYNC.applying) return;
+  LOCAL_T=Date.now(); try{ localStorage.setItem("enehou-local-t",String(LOCAL_T)); }catch(e){}
+  if(!SYNC.on) return;
+  clearTimeout(SYNC.timer); SYNC.timer=setTimeout(syncPush,1500);   // 入力が止まってから 1.5 秒後にまとめて保存
+};
+async function syncPush(){
+  if(!SYNC.on) return; if(SYNC.busy){ SYNC.again=true; return; }
+  SYNC.busy=true; setSyncState("saving");
+  try{ await SYNC.ref.set(snapshotBody()); setSyncState("ok"); }
+  catch(e){ setSyncState("error"); if(e&&(e.code==="invalid_argument"||e.code==="revoked"||e.code==="not_granted")) SYNC.on=false; }
+  SYNC.busy=false; if(SYNC.again){ SYNC.again=false; syncPush(); }
+}
+function setSyncState(s){ SYNC.state=s; const el=document.getElementById("syncState"); if(el) refreshSyncCard(); }
+(async()=>{
+  if(!window.claude||typeof window.claude.use!=="function") return;
+  try{
+    const [db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]);
+    if(!db||!user) return;
+    const uid=await user.id(); if(!uid) return;
+    SYNC.ref=db.doc("data/users/"+uid+"/workbook"); SYNC.on=true; SYNC.state="wait"; refreshSyncCard();
+    let first=true; const timer=setTimeout(()=>{ if(SYNC.state==="wait") setSyncState("error"); },10000);
+    SYNC.ref.onSnapshot(snap=>{
+      if(snap.metadata&&snap.metadata.fromCache&&first) return;
+      clearTimeout(timer);
+      if(!snap.exists){ if(first){ first=false; syncPush(); } return; }
+      first=false;
+      const d=snap.data(); if(!d) return;
+      if(d.dev===DEV_ID&&+d.t===LOCAL_T){ setSyncState("ok"); return; }
+      if(+d.t>LOCAL_T){ applyBody(JSON.parse(JSON.stringify(d))); setSyncState("ok"); }
+      else if(+d.t<LOCAL_T) syncPush();
+      else setSyncState("ok");
+    },()=>{ clearTimeout(timer); setSyncState("error"); });
+  }catch(e){ SYNC.on=false; refreshSyncCard(); }
+})();
+/* 書き出し・読み込み（同期がないとき） */
+document.getElementById("v-course").addEventListener("click",e=>{
+  if(e.target.id==="expBtn"){ const b=new Blob([JSON.stringify(snapshotBody(),null,1)],{type:"application/json"}); const a=document.createElement("a"); const d=new Date(); a.href=URL.createObjectURL(b); a.download=`エネルギー法ワークブック_記録_${String(d.getFullYear()).slice(2)}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),5000); }
+  if(e.target.id==="impBtn"){ const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json,.json";
+    inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return; try{ const b=JSON.parse(await f.text()); if(!confirm("このブラウザの講座の記録と計算の入力値を、ファイルの内容に置き換えます。よろしいですか？")) return; if(applyBody(b)) alert("読み込みました。"); else alert("このワークブックの記録ファイルではないため、読み込めませんでした。"); }catch(err){ alert("ファイルを読み取れませんでした。"); } };
+    inp.click(); }
+});
 renderCourse();
 </script>
 
